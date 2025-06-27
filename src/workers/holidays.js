@@ -133,6 +133,10 @@ async function fetchHolidays(year, countryCode, includeDescription, env) {
   
   let holidays = [...nagerHolidays, ...calendarificHolidays];
   
+  // Add cultural observances (non-holiday cultural dates)
+  const culturalObservances = getCulturalObservances(year, countryCode);
+  holidays = [...holidays, ...culturalObservances];
+  
   if (includeDescription && holidays.length > 0) {
     const countryName = getCountryName(countryCode);
     for (let holiday of holidays) {
@@ -217,6 +221,240 @@ async function fetchFromCalendarific(year, countryCode, apiKey) {
   }));
 }
 
+// Get cultural observances for different countries
+function getCulturalObservances(year, countryCode) {
+  let observances = [];
+  
+  // Add country-specific cultural observances
+  switch (countryCode) {
+    case 'CN':
+      observances = [...observances, ...getChineseSolarTerms(year)];
+      break;
+    case 'JP':
+      observances = [...observances, ...getJapaneseSeasons(year)];
+      break;
+    case 'IN':
+      observances = [...observances, ...getIndianSeasons(year)];
+      break;
+    case 'GB':
+    case 'IE':
+      observances = [...observances, ...getCelticSeasons(year)];
+      break;
+    case 'NO':
+    case 'SE':
+    case 'DK':
+    case 'IS':
+      observances = [...observances, ...getNordicSeasons(year)];
+      break;
+  }
+  
+  // Add global astronomical events for all countries
+  observances = [...observances, ...getAstronomicalEvents(year)];
+  
+  return observances;
+}
+
+// Get Chinese Solar Terms (二十四节气) for a given year
+function getChineseSolarTerms(year) {
+  // Solar terms data with approximate dates (these are calculated based on astronomical events)
+  const solarTermsData = [
+    { name: '立春', englishName: 'Beginning of Spring', month: 2, day: 4 },
+    { name: '雨水', englishName: 'Rain Water', month: 2, day: 19 },
+    { name: '惊蛰', englishName: 'Awakening of Insects', month: 3, day: 6 },
+    { name: '春分', englishName: 'Spring Equinox', month: 3, day: 21 },
+    { name: '清明', englishName: 'Clear and Bright', month: 4, day: 5 },
+    { name: '谷雨', englishName: 'Grain Rain', month: 4, day: 20 },
+    { name: '立夏', englishName: 'Beginning of Summer', month: 5, day: 6 },
+    { name: '小满', englishName: 'Grain Buds', month: 5, day: 21 },
+    { name: '芒种', englishName: 'Grain in Ear', month: 6, day: 6 },
+    { name: '夏至', englishName: 'Summer Solstice', month: 6, day: 21 },
+    { name: '小暑', englishName: 'Slight Heat', month: 7, day: 7 },
+    { name: '大暑', englishName: 'Great Heat', month: 7, day: 23 },
+    { name: '立秋', englishName: 'Beginning of Autumn', month: 8, day: 8 },
+    { name: '处暑', englishName: 'Stopping the Heat', month: 8, day: 23 },
+    { name: '白露', englishName: 'White Dew', month: 9, day: 8 },
+    { name: '秋分', englishName: 'Autumn Equinox', month: 9, day: 23 },
+    { name: '寒露', englishName: 'Cold Dew', month: 10, day: 8 },
+    { name: '霜降', englishName: 'Frost Descent', month: 10, day: 24 },
+    { name: '立冬', englishName: 'Beginning of Winter', month: 11, day: 7 },
+    { name: '小雪', englishName: 'Slight Snow', month: 11, day: 22 },
+    { name: '大雪', englishName: 'Great Snow', month: 12, day: 7 },
+    { name: '冬至', englishName: 'Winter Solstice', month: 12, day: 22 }
+  ];
+
+  return solarTermsData.map((term, index) => {
+    // Calculate more accurate dates based on astronomical calculations
+    const adjustedDate = calculateSolarTermDate(year, index);
+    const dateStr = adjustedDate.toISOString().split('T')[0];
+    
+    return {
+      id: `solar-term-${year}-${term.name}`,
+      name: `${term.name} (${term.englishName})`,
+      date: dateStr,
+      country: 'China',
+      countryCode: 'CN',
+      type: 'cultural-observance',
+      subtype: 'solar-term',
+      source: 'chinese-calendar',
+      localName: term.name,
+      englishName: term.englishName,
+      description: `${term.name} (${term.englishName}) is one of the 24 solar terms in the traditional Chinese calendar, marking important agricultural and seasonal transitions. This is a cultural observance, not a public holiday.`,
+      culturalInfo: {
+        origin: "Ancient Chinese astronomical observations",
+        significance: "Marks seasonal transitions and agricultural activities in traditional Chinese culture",
+        traditions: "Agricultural planning, seasonal foods, traditional medicine practices"
+      }
+    };
+  });
+}
+
+// Get Japanese seasonal observances (二十四節気 + 雑節)
+function getJapaneseSeasons(year) {
+  const seasons = [
+    { name: '節分', englishName: 'Setsubun', month: 2, day: 3, type: 'seasonal-transition' },
+    { name: '彼岸の入り', englishName: 'Higan (Spring)', month: 3, day: 18, type: 'buddhist-observance' },
+    { name: '八十八夜', englishName: 'Hachijuhachiya', month: 5, day: 2, type: 'agricultural' },
+    { name: '入梅', englishName: 'Tsuyu (Rainy Season)', month: 6, day: 11, type: 'seasonal' },
+    { name: '半夏生', englishName: 'Hangesho', month: 7, day: 2, type: 'agricultural' },
+    { name: '土用の丑の日', englishName: 'Doyo no Ushi no Hi', month: 7, day: 25, type: 'seasonal' },
+    { name: '彼岸の入り', englishName: 'Higan (Autumn)', month: 9, day: 20, type: 'buddhist-observance' }
+  ];
+
+  return seasons.map(season => ({
+    id: `japanese-season-${year}-${season.name}`,
+    name: `${season.name} (${season.englishName})`,
+    date: new Date(year, season.month - 1, season.day).toISOString().split('T')[0],
+    country: 'Japan',
+    countryCode: 'JP',
+    type: 'cultural-observance',
+    subtype: season.type,
+    source: 'japanese-calendar',
+    localName: season.name,
+    englishName: season.englishName,
+    description: `${season.name} (${season.englishName}) is a traditional Japanese seasonal observance marking important transitions in nature and agriculture.`
+  }));
+}
+
+// Get Indian seasonal observances (Ritu)
+function getIndianSeasons(year) {
+  const seasons = [
+    { name: 'वसंत ऋतु', englishName: 'Vasant Ritu (Spring)', month: 3, day: 21 },
+    { name: 'ग्रीष्म ऋतु', englishName: 'Grishma Ritu (Summer)', month: 6, day: 21 },
+    { name: 'वर्षा ऋतु', englishName: 'Varsha Ritu (Monsoon)', month: 7, day: 15 },
+    { name: 'शरद ऋतु', englishName: 'Sharad Ritu (Autumn)', month: 9, day: 23 },
+    { name: 'शिशिर ऋतु', englishName: 'Shishir Ritu (Pre-winter)', month: 11, day: 15 },
+    { name: 'शीत ऋतु', englishName: 'Sheet Ritu (Winter)', month: 12, day: 21 }
+  ];
+
+  return seasons.map(season => ({
+    id: `indian-season-${year}-${season.englishName.replace(/\s+/g, '-').toLowerCase()}`,
+    name: `${season.name} (${season.englishName})`,
+    date: new Date(year, season.month - 1, season.day).toISOString().split('T')[0],
+    country: 'India',
+    countryCode: 'IN',
+    type: 'cultural-observance',
+    subtype: 'seasonal-ritu',
+    source: 'indian-calendar',
+    localName: season.name,
+    englishName: season.englishName,
+    description: `${season.name} (${season.englishName}) is one of the six seasons (Ritu) in the traditional Indian calendar system.`
+  }));
+}
+
+// Get Celtic seasonal observances
+function getCelticSeasons(year) {
+  const seasons = [
+    { name: 'Imbolc', englishName: 'Imbolc', month: 2, day: 1 },
+    { name: 'Beltane', englishName: 'Beltane', month: 5, day: 1 },
+    { name: 'Lughnasadh', englishName: 'Lughnasadh', month: 8, day: 1 },
+    { name: 'Samhain', englishName: 'Samhain', month: 11, day: 1 }
+  ];
+
+  return seasons.map(season => ({
+    id: `celtic-season-${year}-${season.name.toLowerCase()}`,
+    name: season.name,
+    date: new Date(year, season.month - 1, season.day).toISOString().split('T')[0],
+    country: 'Celtic Regions',
+    countryCode: 'GB',
+    type: 'cultural-observance',
+    subtype: 'celtic-season',
+    source: 'celtic-calendar',
+    localName: season.name,
+    englishName: season.englishName,
+    description: `${season.name} is one of the four traditional Celtic seasonal festivals marking important agricultural and spiritual transitions.`
+  }));
+}
+
+// Get Nordic seasonal observances
+function getNordicSeasons(year) {
+  const seasons = [
+    { name: 'Dísablót', englishName: 'Disablot', month: 2, day: 14 },
+    { name: 'Sigrblót', englishName: 'Sigrblot', month: 4, day: 9 },
+    { name: 'Vetrnáttablót', englishName: 'Winter Nights', month: 10, day: 14 },
+    { name: 'Jólablót', englishName: 'Yule Blot', month: 12, day: 21 }
+  ];
+
+  return seasons.map(season => ({
+    id: `nordic-season-${year}-${season.name.toLowerCase()}`,
+    name: `${season.name} (${season.englishName})`,
+    date: new Date(year, season.month - 1, season.day).toISOString().split('T')[0],
+    country: 'Nordic Regions',
+    countryCode: 'NO',
+    type: 'cultural-observance',
+    subtype: 'nordic-season',
+    source: 'nordic-calendar',
+    localName: season.name,
+    englishName: season.englishName,
+    description: `${season.name} (${season.englishName}) is a traditional Nordic seasonal observance from ancient Germanic traditions.`
+  }));
+}
+
+// Get astronomical events (equinoxes and solstices) for all countries
+function getAstronomicalEvents(year) {
+  const events = [
+    { name: 'Spring Equinox', month: 3, day: 20 },
+    { name: 'Summer Solstice', month: 6, day: 21 },
+    { name: 'Autumn Equinox', month: 9, day: 22 },
+    { name: 'Winter Solstice', month: 12, day: 21 }
+  ];
+
+  return events.map(event => ({
+    id: `astronomical-${year}-${event.name.replace(/\s+/g, '-').toLowerCase()}`,
+    name: event.name,
+    date: new Date(year, event.month - 1, event.day).toISOString().split('T')[0],
+    country: 'Global',
+    countryCode: 'GLOBAL',
+    type: 'cultural-observance',
+    subtype: 'astronomical',
+    source: 'astronomical-calendar',
+    localName: event.name,
+    englishName: event.name,
+    description: `${event.name} is an astronomical event marking important seasonal transitions observed globally.`
+  }));
+}
+
+// Calculate more accurate solar term dates using astronomical formulas
+function calculateSolarTermDate(year, termIndex) {
+  // Base calculation using the mean solar longitude
+  // Each solar term is 15 degrees apart (360/24 = 15)
+  const baseJD = 2451545.0; // J2000.0 epoch
+  const yearsSinceJ2000 = year - 2000;
+  
+  // Approximate Julian day for the solar term
+  // This is a simplified calculation - in practice, more complex astronomical algorithms would be used
+  const meanAnomaly = (357.5291 + 0.98560028 * yearsSinceJ2000 * 365.25) * Math.PI / 180;
+  const equationOfCenter = 1.9148 * Math.sin(meanAnomaly) + 0.0200 * Math.sin(2 * meanAnomaly);
+  
+  // Calculate approximate date for each term
+  const termLongitude = termIndex * 15; // degrees
+  const dayOfYear = (termLongitude / 360) * 365.25 + equationOfCenter;
+  
+  const date = new Date(year, 0, 1);
+  date.setDate(date.getDate() + Math.floor(dayOfYear));
+  
+  return date;
+}
+
 // Get cultural information for holidays
 function getCulturalInfo(holidayName, countryName) {
   const culturalData = new Map([
@@ -244,6 +482,97 @@ function getCulturalInfo(holidayName, countryName) {
       origin: "Christian tradition",
       significance: "Celebrates resurrection of Jesus Christ",
       traditions: "Easter eggs, church services, family gatherings, Easter bunny"
+    }],
+    // Chinese Solar Terms
+    ["立春", {
+      origin: "Ancient Chinese astronomical observations",
+      significance: "Beginning of Spring - marks the start of spring season",
+      traditions: "Spring cleaning, eating spring rolls, agricultural preparations"
+    }],
+    ["春分", {
+      origin: "Ancient Chinese astronomical observations",
+      significance: "Spring Equinox - day and night are equal in length",
+      traditions: "Balancing activities, eating eggs, kite flying"
+    }],
+    ["清明", {
+      origin: "Ancient Chinese astronomical observations",
+      significance: "Clear and Bright - time for tomb sweeping and honoring ancestors",
+      traditions: "Tomb sweeping, ancestor worship, spring outings"
+    }],
+    ["夏至", {
+      origin: "Ancient Chinese astronomical observations",
+      significance: "Summer Solstice - longest day of the year",
+      traditions: "Eating noodles, celebrating yang energy, traditional medicine"
+    }],
+    ["秋分", {
+      origin: "Ancient Chinese astronomical observations",
+      significance: "Autumn Equinox - harvest time and balance",
+      traditions: "Harvest celebrations, moon viewing, family reunions"
+    }],
+    ["冬至", {
+      origin: "Ancient Chinese astronomical observations",
+      significance: "Winter Solstice - longest night and return of yang energy",
+      traditions: "Eating dumplings, family gatherings, traditional medicine"
+    }],
+    // Japanese seasonal observances
+    ["節分", {
+      origin: "Japanese seasonal tradition",
+      significance: "Seasonal transition - driving away evil spirits",
+      traditions: "Bean throwing (mamemaki), eating ehomaki rolls"
+    }],
+    ["彼岸", {
+      origin: "Japanese Buddhist tradition",
+      significance: "Equinox period for honoring ancestors",
+      traditions: "Visiting graves, offering flowers, family gatherings"
+    }],
+    // Indian seasonal observances
+    ["vasant ritu", {
+      origin: "Ancient Indian Vedic tradition",
+      significance: "Spring season in the six-season Hindu calendar",
+      traditions: "Holi celebrations, spring festivals, agricultural activities"
+    }],
+    ["varsha ritu", {
+      origin: "Ancient Indian Vedic tradition",
+      significance: "Monsoon season - crucial for agriculture",
+      traditions: "Rain celebrations, agricultural planting, Teej festivals"
+    }],
+    // Celtic seasonal observances
+    ["imbolc", {
+      origin: "Ancient Celtic tradition",
+      significance: "Beginning of spring - lambing season",
+      traditions: "Candle lighting, Brigid's cross making, spring cleaning"
+    }],
+    ["beltane", {
+      origin: "Ancient Celtic tradition",
+      significance: "Beginning of summer - fertility celebration",
+      traditions: "Maypole dancing, bonfires, flower crowns"
+    }],
+    ["samhain", {
+      origin: "Ancient Celtic tradition",
+      significance: "Beginning of winter - harvest end and ancestor honoring",
+      traditions: "Bonfires, divination, ancestor remembrance"
+    }],
+    // Nordic seasonal observances
+    ["dísablót", {
+      origin: "Ancient Norse tradition",
+      significance: "Honoring female spirits and goddesses",
+      traditions: "Offerings to dísir, community feasts, storytelling"
+    }],
+    ["vetrnáttablót", {
+      origin: "Ancient Norse tradition",
+      significance: "Winter Nights - beginning of winter season",
+      traditions: "Ancestor honoring, harvest celebrations, storytelling"
+    }],
+    // Astronomical events
+    ["equinox", {
+      origin: "Astronomical phenomenon",
+      significance: "Equal day and night - seasonal balance",
+      traditions: "Varies by culture - balance rituals, seasonal foods"
+    }],
+    ["solstice", {
+      origin: "Astronomical phenomenon",
+      significance: "Longest or shortest day - seasonal extremes",
+      traditions: "Varies by culture - light celebrations, seasonal foods"
     }]
   ]);
 
