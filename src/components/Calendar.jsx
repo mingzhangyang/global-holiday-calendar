@@ -1,20 +1,37 @@
-import React, { useState, useMemo } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { getHolidaysForMonth, getHolidaysForDate } from '../data/holidays';
+import React, { useState, useEffect, useMemo } from 'react';
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { getHolidaysForMonth, getHolidaysForDate } from '../services/holidayApi';
 import HolidayModal from './HolidayModal';
+import { useTranslation } from '../hooks/useI18n';
 
 const Calendar = ({ selectedCountries, onDateClick }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [monthHolidays, setMonthHolidays] = useState({});
+  const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
 
   const today = new Date();
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth();
 
-  // Get holidays for the current month
-  const monthHolidays = useMemo(() => {
-    return getHolidaysForMonth(currentYear, currentMonth, selectedCountries);
+  // Fetch holidays for the current month
+  useEffect(() => {
+    const fetchMonthHolidays = async () => {
+      setLoading(true);
+      try {
+        const holidays = await getHolidaysForMonth(currentYear, currentMonth, selectedCountries);
+        setMonthHolidays(holidays);
+      } catch (error) {
+        console.error('Error fetching holidays:', error);
+        setMonthHolidays({});
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMonthHolidays();
   }, [currentYear, currentMonth, selectedCountries]);
 
   // Generate calendar days
@@ -26,6 +43,12 @@ const Calendar = ({ selectedCountries, onDateClick }) => {
 
     const days = [];
 
+    // Helper function to get holidays for a date from monthHolidays
+    const getHolidaysForDateFromCache = (date) => {
+      const dateStr = date.toISOString().split('T')[0];
+      return monthHolidays[dateStr] || [];
+    };
+
     // Add previous month's trailing days
     const prevMonth = new Date(currentYear, currentMonth - 1, 0);
     for (let i = firstDayOfWeek - 1; i >= 0; i--) {
@@ -36,7 +59,7 @@ const Calendar = ({ selectedCountries, onDateClick }) => {
         day,
         isCurrentMonth: false,
         isToday: false,
-        holidays: getHolidaysForDate(date, selectedCountries)
+        holidays: [] // Don't show holidays for previous month days
       });
     }
 
@@ -49,7 +72,7 @@ const Calendar = ({ selectedCountries, onDateClick }) => {
         day,
         isCurrentMonth: true,
         isToday,
-        holidays: getHolidaysForDate(date, selectedCountries)
+        holidays: getHolidaysForDateFromCache(date)
       });
     }
 
@@ -62,12 +85,12 @@ const Calendar = ({ selectedCountries, onDateClick }) => {
         day,
         isCurrentMonth: false,
         isToday: false,
-        holidays: getHolidaysForDate(date, selectedCountries)
+        holidays: [] // Don't show holidays for next month days
       });
     }
 
     return days;
-  }, [currentYear, currentMonth, selectedCountries, today]);
+  }, [currentYear, currentMonth, monthHolidays, today]);
 
   const navigateMonth = (direction) => {
     setCurrentDate(prev => {
@@ -81,22 +104,41 @@ const Calendar = ({ selectedCountries, onDateClick }) => {
     setCurrentDate(new Date());
   };
 
-  const handleDateClick = (dayInfo) => {
+  const handleDateClick = async (dayInfo) => {
     if (dayInfo.holidays.length > 0) {
       setSelectedDate(dayInfo);
       setIsModalOpen(true);
+      
+      // Pre-fetch detailed information for all holidays on this date
+      dayInfo.holidays.forEach(async (holiday, index) => {
+        const cacheKey = `holiday-info-${holiday.name}-${holiday.country}`;
+        
+        // Check if data is already in localStorage
+        const cachedData = localStorage.getItem(cacheKey);
+        const cachedTimestamp = localStorage.getItem(`${cacheKey}-timestamp`);
+        const isExpired = cachedTimestamp && (Date.now() - parseInt(cachedTimestamp)) > (7 * 24 * 60 * 60 * 1000); // 7 days
+        
+        if (!cachedData || isExpired) {
+          try {
+            const { fetchHolidayInfo } = await import('../services/holidayApi');
+            const info = await fetchHolidayInfo(holiday.name, holiday.country);
+            if (info) {
+              localStorage.setItem(cacheKey, info);
+              localStorage.setItem(`${cacheKey}-timestamp`, Date.now().toString());
+            }
+          } catch (error) {
+            console.error('Error pre-fetching holiday info:', error);
+          }
+        }
+      });
     }
     if (onDateClick) {
       onDateClick(dayInfo);
     }
   };
 
-  const monthNames = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
-
-  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const monthNames = t('calendar.months');
+  const dayNames = t('calendar.weekdays');
 
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden">
@@ -106,9 +148,9 @@ const Calendar = ({ selectedCountries, onDateClick }) => {
           <button
             onClick={() => navigateMonth(-1)}
             className="p-2 hover:bg-white/20 rounded-full transition-colors duration-200"
-            aria-label="Previous month"
+            aria-label={t('calendar.previousMonth')}
           >
-            <ChevronLeft size={20} />
+            <ChevronLeft className="w-5 h-5" />
           </button>
           
           <div className="text-center">
@@ -119,16 +161,16 @@ const Calendar = ({ selectedCountries, onDateClick }) => {
               onClick={navigateToToday}
               className="text-sm opacity-80 hover:opacity-100 transition-opacity duration-200 mt-1"
             >
-              Today
+              {t('calendar.today')}
             </button>
           </div>
           
           <button
               onClick={() => navigateMonth(1)}
               className="p-2 hover:bg-white/20 rounded-full transition-colors duration-200"
-              aria-label="Next month"
+              aria-label={t('calendar.nextMonth')}
           >
-            <ChevronRight size={20} />
+            <ChevronRight className="w-5 h-5" />
           </button>
         </div>
         
@@ -144,6 +186,12 @@ const Calendar = ({ selectedCountries, onDateClick }) => {
 
       {/* Calendar Grid */}
       <div className="p-4">
+        {loading && (
+          <div className="flex justify-center items-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-2 text-gray-600">{t('calendar.loading')}</span>
+          </div>
+        )}
         <div className="grid grid-cols-7 gap-1">
           {calendarDays.map((dayInfo, index) => {
             const hasHolidays = dayInfo.holidays.length > 0;
@@ -153,43 +201,80 @@ const Calendar = ({ selectedCountries, onDateClick }) => {
                 key={index}
                 onClick={() => handleDateClick(dayInfo)}
                 className={`
-                  calendar-cell h-12 sm:h-16
+                  relative flex flex-col p-1 border rounded-lg transition-all duration-200
                   ${
                     dayInfo.isToday
-                      ? 'today'
+                      ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                      : hasHolidays && dayInfo.isCurrentMonth
+                      ? 'bg-gradient-to-br from-green-50 to-blue-50 border-green-200 shadow-sm'
                       : dayInfo.isCurrentMonth
-                      ? 'bg-white hover:bg-gray-50'
-                      : 'other-month'
+                      ? 'bg-white border-gray-200 hover:bg-gray-50'
+                      : 'bg-gray-50 border-gray-100'
                   }
                   ${
                     hasHolidays
-                      ? 'cursor-pointer hover:bg-blue-50 border-blue-200'
+                      ? 'cursor-pointer hover:shadow-md hover:scale-105 transform'
                       : dayInfo.isCurrentMonth
                       ? 'cursor-default'
                       : 'cursor-default'
                   }
+                  min-h-16 sm:min-h-20
                 `}
               >
-                <span className={`text-sm font-medium ${
-                  dayInfo.isCurrentMonth ? 'text-gray-900' : 'text-gray-400'
-                }`}>
-                  {dayInfo.day}
-                </span>
+                <div className="flex justify-between items-start w-full mb-1">
+                  <span className={`text-sm font-semibold ${
+                    dayInfo.isToday
+                      ? 'text-white'
+                      : dayInfo.isCurrentMonth 
+                      ? 'text-gray-900' 
+                      : 'text-gray-400'
+                  }`}>
+                    {dayInfo.day}
+                  </span>
+                  
+                  {/* Holiday indicators */}
+                  {hasHolidays && (
+                    <div className="flex flex-wrap gap-1">
+                      {dayInfo.holidays.slice(0, 3).map((holiday, holidayIndex) => (
+                        <div
+                          key={holidayIndex}
+                          className="w-2 h-2 rounded-full shadow-sm"
+                          style={{ backgroundColor: holiday.color || '#3B82F6' }}
+                          title={holiday.name}
+                        />
+                      ))}
+                      {dayInfo.holidays.length > 3 && (
+                        <div className="text-xs text-gray-600 font-medium">
+                          +{dayInfo.holidays.length - 3}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
                 
-                {/* Holiday indicators */}
-                {hasHolidays && (
-                  <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex space-x-1">
-                    {dayInfo.holidays.slice(0, 3).map((holiday, holidayIndex) => (
+                {/* Holiday names */}
+                {hasHolidays && dayInfo.isCurrentMonth && (
+                  <div className="flex-1 w-full">
+                    {dayInfo.holidays.slice(0, 2).map((holiday, holidayIndex) => (
                       <div
                         key={holidayIndex}
-                        className="w-2 h-2 rounded-full"
-                        style={{ backgroundColor: holiday.color }}
+                        className={`text-xs leading-tight mb-1 truncate ${
+                          dayInfo.isToday
+                            ? 'text-blue-100'
+                            : 'text-gray-700'
+                        }`}
                         title={holiday.name}
-                      />
+                      >
+                        {holiday.name}
+                      </div>
                     ))}
-                    {dayInfo.holidays.length > 3 && (
-                      <div className="text-xs text-gray-600 ml-1">
-                        +{dayInfo.holidays.length - 3}
+                    {dayInfo.holidays.length > 2 && (
+                      <div className={`text-xs font-medium ${
+                        dayInfo.isToday
+                          ? 'text-blue-200'
+                          : 'text-gray-500'
+                      }`}>
+                        +{dayInfo.holidays.length - 2} more
                       </div>
                     )}
                   </div>

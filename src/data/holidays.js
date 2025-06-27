@@ -293,8 +293,9 @@ export const getHolidaysForDate = (date, selectedCountries = []) => {
   const dateStr = date.toISOString().split('T')[0];
   const dayHolidays = holidays[dateStr] || [];
   
+  // If no countries selected, return empty array (don't show all holidays)
   if (selectedCountries.length === 0) {
-    return dayHolidays;
+    return [];
   }
   
   return dayHolidays.filter(holiday => 
@@ -306,12 +307,15 @@ export const getHolidaysForDate = (date, selectedCountries = []) => {
 export const getHolidaysForMonth = (year, month, selectedCountries = []) => {
   const monthHolidays = {};
   
+  // If no countries selected, return empty object (don't show all holidays)
+  if (selectedCountries.length === 0) {
+    return monthHolidays;
+  }
+  
   Object.entries(holidays).forEach(([dateStr, dayHolidays]) => {
     const date = new Date(dateStr);
     if (date.getFullYear() === year && date.getMonth() === month) {
-      const filteredHolidays = selectedCountries.length === 0 
-        ? dayHolidays 
-        : dayHolidays.filter(holiday => selectedCountries.includes(holiday.country));
+      const filteredHolidays = dayHolidays.filter(holiday => selectedCountries.includes(holiday.country));
       
       if (filteredHolidays.length > 0) {
         monthHolidays[dateStr] = filteredHolidays;

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Filter, X, Globe } from 'lucide-react';
-import { getCountries } from '../data/holidays';
+import { Filter, X, Globe, MapPin, Languages } from 'lucide-react';
+import { getCountries } from '../services/holidayApi';
+import { useTranslation } from '../hooks/useI18n';
 
-const CountryFilter = ({ selectedCountries, onCountriesChange }) => {
+const CountryFilter = ({ selectedCountries, onCountriesChange, isLoadingLocation, locationDetected }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const allCountries = getCountries();
+  const { t } = useTranslation();
 
   const handleCountryToggle = (country) => {
     const isSelected = selectedCountries.includes(country);
@@ -19,7 +21,7 @@ const CountryFilter = ({ selectedCountries, onCountriesChange }) => {
   };
 
   const handleSelectAll = () => {
-    onCountriesChange([]);
+    onCountriesChange(allCountries);
   };
 
   const handleClearAll = () => {
@@ -60,26 +62,36 @@ const CountryFilter = ({ selectedCountries, onCountriesChange }) => {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Filter size={20} />
-            <h3 className="text-lg font-semibold">Country Filter</h3>
+            <h3 className="text-lg font-semibold">{t('countryFilter.title')}</h3>
           </div>
           <button
             onClick={() => setIsExpanded(!isExpanded)}
             className="p-1 hover:bg-white/20 rounded-full transition-colors duration-200"
-            aria-label={isExpanded ? 'Collapse filter' : 'Expand filter'}
+            aria-label={isExpanded ? t('countryFilter.collapse') : t('countryFilter.expand')}
           >
             {isExpanded ? <X size={20} /> : <Filter size={20} />}
           </button>
         </div>
         
         <div className="mt-2 text-sm opacity-90">
-          {isAllSelected ? (
+          {isLoadingLocation ? (
+            <span className="flex items-center space-x-1">
+              <div className="animate-spin rounded-full h-3 w-3 border border-white border-t-transparent" />
+              <span>{t('countryFilter.detecting')}</span>
+            </span>
+          ) : locationDetected && selectedCount > 0 ? (
+            <span className="flex items-center space-x-1">
+              <MapPin size={16} />
+              <span>{t('countryFilter.locationBased', { count: selectedCount })}</span>
+            </span>
+          ) : isAllSelected ? (
             <span className="flex items-center space-x-1">
               <Globe size={16} />
-              <span>Showing all countries</span>
+              <span>{t('countryFilter.showingAll')}</span>
             </span>
           ) : (
             <span>
-              {selectedCount} of {totalCount} countries selected
+              {t('countryFilter.selected', { selected: selectedCount, total: totalCount })}
             </span>
           )}
         </div>
@@ -89,19 +101,29 @@ const CountryFilter = ({ selectedCountries, onCountriesChange }) => {
       {isExpanded && (
         <div className="p-4">
           {/* Control Buttons */}
-          <div className="flex space-x-2 mb-4">
+          <div className="flex flex-wrap gap-2 mb-4">
             <button
               onClick={handleSelectAll}
               className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors duration-200"
             >
-              Show All
+              {t('countryFilter.showAll')}
             </button>
             {selectedCount > 0 && (
               <button
                 onClick={handleClearAll}
                 className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition-colors duration-200"
               >
-                Clear Selection
+                {t('countryFilter.clearSelection')}
+              </button>
+            )}
+            {!locationDetected && !isLoadingLocation && (
+              <button
+                onClick={() => window.location.reload()}
+                className="px-3 py-1 text-sm bg-green-100 text-green-700 rounded-full hover:bg-green-200 transition-colors duration-200 flex items-center space-x-1"
+                title={t('countryFilter.smartRecommendTooltip')}
+              >
+                <MapPin size={12} />
+                <span>{t('countryFilter.smartRecommend')}</span>
               </button>
             )}
           </div>
@@ -143,7 +165,7 @@ const CountryFilter = ({ selectedCountries, onCountriesChange }) => {
             {isAllSelected ? (
               <div className="flex items-center space-x-2 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
                 <Globe size={14} />
-                <span>All Countries</span>
+                <span>{t('countryFilter.allCountries')}</span>
               </div>
             ) : (
               selectedCountries.slice(0, 3).map(country => (
@@ -158,7 +180,7 @@ const CountryFilter = ({ selectedCountries, onCountriesChange }) => {
             )}
             {selectedCount > 3 && (
               <div className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
-                +{selectedCount - 3} more
+                {t('countryFilter.moreCountries', { count: selectedCount - 3 })}
               </div>
             )}
           </div>

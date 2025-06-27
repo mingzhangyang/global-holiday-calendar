@@ -11,13 +11,16 @@ An interactive React.js application that showcases cultural celebrations and hol
 - Easy navigation between months and years with "Today" quick access
 
 ### 🎉 Holiday Information
-- Comprehensive holiday database covering major celebrations worldwide
-- Detailed cultural information for each holiday including:
+- **Real-time holiday data** fetched from multiple APIs via Cloudflare Workers
+- **AI-powered detailed information** using Zhipu AI for comprehensive holiday backgrounds
+- Comprehensive holiday coverage including:
   - Holiday name and significance
   - Country/region of origin
   - Cultural background and historical context
   - Traditional customs and celebrations
   - Visual country flags and themed colors
+- **Smart caching** for improved performance and reduced API calls
+- **Multiple data sources** including Nager.Date and Calendarific APIs
 
 ### 🌐 Country Filtering
 - Advanced country filter system to focus on specific regions
@@ -51,7 +54,26 @@ An interactive React.js application that showcases cultural celebrations and hol
    npm install
    ```
 
-3. **Start the development server**
+3. **Configure API Workers**
+   
+   This application uses Cloudflare Workers to fetch real holiday data. You need to deploy the workers and configure the URLs:
+   
+   a. **Deploy the Cloudflare Workers:**
+   - Deploy `src/workers/holidays.js` as a Cloudflare Worker
+   - Deploy `src/workers/holiday-info.js` as a Cloudflare Worker
+   - Make sure both workers are publicly accessible
+   
+   b. **Configure environment variables:**
+   ```bash
+   # Copy the example environment file
+   cp .env.example .env
+   
+   # Edit .env and replace with your actual worker URLs
+   REACT_APP_HOLIDAYS_WORKER_URL=https://your-holidays-worker.your-subdomain.workers.dev
+   REACT_APP_HOLIDAY_INFO_WORKER_URL=https://your-holiday-info-worker.your-subdomain.workers.dev
+   ```
+
+4. **Start the development server**
    ```bash
    npm run dev
    ```
@@ -96,8 +118,13 @@ global-holiday-calendar/
 │   │   ├── Calendar.jsx          # Main calendar component
 │   │   ├── CountryFilter.jsx     # Country filtering system
 │   │   └── HolidayModal.jsx      # Holiday detail modal
+│   ├── services/
+│   │   └── holidayApi.js         # API service for Cloudflare Workers
+│   ├── workers/
+│   │   ├── holidays.js           # Cloudflare Worker for holiday data
+│   │   └── holiday-info.js       # Cloudflare Worker for AI-powered details
 │   ├── data/
-│   │   └── holidays.js           # Holiday database
+│   │   └── holidays.js           # Legacy holiday database (deprecated)
 │   ├── App.jsx                   # Main application component
 │   ├── main.jsx                  # Application entry point
 │   └── index.css                 # Global styles and Tailwind
@@ -129,19 +156,45 @@ global-holiday-calendar/
 - Visual country representation with flags
 - Real-time filter application
 
-### Holiday Data Structure
-- Comprehensive global holiday database
-- Structured data with cultural information
-- Color-coded by country/region
-- Easy to extend with new holidays
+### Holiday Data Architecture
+- **Real-time API integration** via Cloudflare Workers
+- **Multiple data sources** (Nager.Date, Calendarific)
+- **AI-powered enrichment** using Zhipu AI
+- **Smart caching** for performance optimization
+- **Fallback mechanisms** for reliable data delivery
 
 ## 🌟 Key Features in Detail
 
+## 🔧 API Architecture
+
+### Cloudflare Workers Integration
+The application uses a modern serverless architecture with Cloudflare Workers:
+
+#### Holiday Data Worker (`holidays.js`)
+- **Multiple API Sources**: Fetches data from Nager.Date and Calendarific APIs
+- **Smart Caching**: Implements intelligent caching with configurable TTL
+- **CORS Support**: Handles cross-origin requests for web applications
+- **Error Handling**: Robust fallback mechanisms and error recovery
+- **Data Normalization**: Standardizes holiday data from different sources
+
+#### Holiday Info Worker (`holiday-info.js`)
+- **AI Integration**: Uses Zhipu AI for detailed holiday background information
+- **JWT Authentication**: Secure API authentication with token generation
+- **Cultural Context**: Provides rich cultural and historical information
+- **Async Processing**: Handles AI API calls with proper error handling
+
+### Data Flow
+1. **Frontend Request**: React app requests holiday data for specific month/country
+2. **Worker Processing**: Cloudflare Worker fetches from multiple APIs
+3. **Data Enrichment**: Optional AI-powered detailed information
+4. **Caching**: Results cached for improved performance
+5. **Response**: Normalized data returned to frontend
+
 ### Holiday Database
-The application includes a rich database of global holidays featuring:
-- **50+ holidays** from around the world
-- **15+ countries** and regions
-- **Cultural significance** and historical context
+The application provides comprehensive global holiday coverage:
+- **Real-time data** from multiple authoritative sources
+- **190+ countries** supported through API integration
+- **Cultural significance** and historical context via AI
 - **Traditional customs** and celebration methods
 - **Color-coded indicators** for easy identification
 

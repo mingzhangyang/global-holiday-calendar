@@ -1,11 +1,63 @@
-import React, { useState } from 'react';
-import { Calendar as CalendarIcon, Globe, Info } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { CalendarIcon, Globe, Info } from 'lucide-react';
 import Calendar from './components/Calendar';
 import CountryFilter from './components/CountryFilter';
+import LanguageSelector from './components/LanguageSelector';
+import AboutModal from './components/AboutModal';
+import { getUserDefaultCountry } from './services/locationService';
+import { useI18n, useTranslation } from './hooks/useI18n';
+import { getLanguageFromRegion } from './services/i18nService';
 
 function App() {
   const [selectedCountries, setSelectedCountries] = useState([]);
-  const [showInfo, setShowInfo] = useState(false);
+  const [showAboutModal, setShowAboutModal] = useState(false);
+  const [isLoadingLocation, setIsLoadingLocation] = useState(true);
+  const [locationDetected, setLocationDetected] = useState(false);
+  
+  // 国际化
+  const { detectLanguage } = useI18n();
+  const { t } = useTranslation();
+
+  // 在组件挂载时检测用户位置并设置默认国家和语言
+  useEffect(() => {
+    const initializeDefaults = async () => {
+      try {
+        setIsLoadingLocation(true);
+        const defaultCountry = await getUserDefaultCountry();
+        
+        if (defaultCountry) {
+          setSelectedCountries([defaultCountry]);
+          setLocationDetected(true);
+          console.log('Default country set to:', defaultCountry);
+          
+          // 根据检测到的国家设置语言
+          // 这里需要将国家名称转换为国家代码
+          // 简化处理：根据国家名称推断语言
+          let countryCode = null;
+          if (defaultCountry === 'China') countryCode = 'CN';
+          else if (defaultCountry === 'France') countryCode = 'FR';
+          else if (defaultCountry === 'Germany') countryCode = 'DE';
+          else if (defaultCountry === 'Spain') countryCode = 'ES';
+          else if (defaultCountry === 'Japan') countryCode = 'JP';
+          else if (defaultCountry === 'South Korea') countryCode = 'KR';
+          
+          // 检测并设置语言
+          await detectLanguage(countryCode);
+        } else {
+          // 如果没有检测到国家，仍然检测语言
+          await detectLanguage();
+        }
+      } catch (error) {
+        console.error('Error initializing defaults:', error);
+        // 即使出错也要检测语言
+        await detectLanguage();
+      } finally {
+        setIsLoadingLocation(false);
+      }
+    };
+
+    initializeDefaults();
+  }, [detectLanguage]);
 
   const handleCountriesChange = (countries) => {
     setSelectedCountries(countries);
@@ -19,65 +71,35 @@ function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+      <header className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-6 shadow-lg">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-2 rounded-lg">
-                <CalendarIcon className="text-white" size={24} />
-              </div>
+              <CalendarIcon size={32} />
               <div>
-                <h1 className="text-xl font-bold text-gray-900">
-                  Global Holiday Calendar
-                </h1>
-                <p className="text-sm text-gray-600">
-                  Discover cultural celebrations worldwide
-                </p>
+                <h1 className="text-2xl md:text-3xl font-bold">{t('app.title')}</h1>
+                <p className="text-blue-100 text-sm">{t('app.subtitle')}</p>
               </div>
             </div>
-            
-            <button
-              onClick={() => setShowInfo(!showInfo)}
-              className="flex items-center space-x-2 px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors duration-200"
-            >
-              <Info size={18} />
-              <span className="hidden sm:inline">About</span>
-            </button>
+            <div className="flex items-center space-x-3">
+              <LanguageSelector />
+              <button
+                onClick={() => setShowAboutModal(true)}
+                className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors duration-200"
+              >
+                <Info size={20} />
+                <span className="hidden sm:inline">{t('about.button')}</span>
+              </button>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Info Panel */}
-      {showInfo && (
-        <div className="bg-blue-50 border-b border-blue-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center space-x-2">
-                <Globe className="text-blue-600" size={20} />
-                <span>About Global Holiday Calendar</span>
-              </h3>
-              <div className="text-gray-700 space-y-2 text-sm">
-                <p>
-                  Explore cultural celebrations from around the world! This interactive calendar showcases 
-                  major holidays, festivals, and cultural observances from different countries and regions.
-                </p>
-                <p>
-                  <strong>How to use:</strong>
-                </p>
-                <ul className="list-disc list-inside space-y-1 ml-4">
-                  <li>Click on dates with colored dots to learn about holidays</li>
-                  <li>Use the country filter to focus on specific regions</li>
-                  <li>Navigate between months using the arrow buttons</li>
-                  <li>Click "Today" to return to the current date</li>
-                </ul>
-                <p className="text-xs text-gray-500 mt-3">
-                  Holiday information includes cultural significance, traditional customs, and historical context.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* About Modal */}
+      <AboutModal 
+        isOpen={showAboutModal} 
+        onClose={() => setShowAboutModal(false)} 
+      />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -87,38 +109,39 @@ function App() {
             <CountryFilter
               selectedCountries={selectedCountries}
               onCountriesChange={handleCountriesChange}
+              isLoadingLocation={isLoadingLocation}
+              locationDetected={locationDetected}
             />
             
             {/* Legend */}
             <div className="mt-6 bg-white rounded-lg shadow-lg p-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Legend</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('legend.title')}</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-blue-600 rounded-full" />
-                  <span className="text-gray-700">National Holiday</span>
+                  <span className="text-gray-700">{t('legend.nationalHoliday')}</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-green-600 rounded-full" />
-                  <span className="text-gray-700">Cultural Festival</span>
+                  <span className="text-gray-700">{t('legend.culturalFestival')}</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-purple-600 rounded-full" />
-                  <span className="text-gray-700">Religious Observance</span>
+                  <span className="text-gray-700">{t('legend.religiousObservance')}</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-orange-600 rounded-full" />
-                  <span className="text-gray-700">Traditional Celebration</span>
+                  <span className="text-gray-700">{t('legend.traditionalCelebration')}</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-gray-600 rounded-full" />
-                  <span className="text-gray-700">International Day</span>
+                  <span className="text-gray-700">{t('legend.internationalDay')}</span>
                 </div>
               </div>
               
               <div className="mt-4 pt-3 border-t border-gray-200">
                 <p className="text-xs text-gray-500">
-                  Multiple holidays on the same date are shown with multiple dots.
-                  Click any date with indicators to learn more.
+                  {t('legend.note')}
                 </p>
               </div>
             </div>
@@ -132,18 +155,18 @@ function App() {
             />
             
             {/* Quick Stats */}
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="bg-white rounded-lg shadow-lg p-4 text-center">
-                <div className="text-2xl font-bold text-blue-600">50+</div>
-                <div className="text-sm text-gray-600">Global Holidays</div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 mt-8">
+              <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-lg shadow-sm">
+                <div className="text-2xl font-bold">50+</div>
+                <div className="text-sm opacity-90">{t('stats.globalHolidays')}</div>
               </div>
-              <div className="bg-white rounded-lg shadow-lg p-4 text-center">
-                <div className="text-2xl font-bold text-green-600">15+</div>
-                <div className="text-sm text-gray-600">Countries</div>
+              <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-lg shadow-sm">
+                <div className="text-2xl font-bold">15+</div>
+                <div className="text-sm opacity-90">{t('stats.countries')}</div>
               </div>
-              <div className="bg-white rounded-lg shadow-lg p-4 text-center">
-                <div className="text-2xl font-bold text-purple-600">12</div>
-                <div className="text-sm text-gray-600">Months</div>
+              <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-lg shadow-sm">
+                <div className="text-2xl font-bold">12</div>
+                <div className="text-sm opacity-90">{t('stats.months')}</div>
               </div>
             </div>
           </div>
@@ -156,15 +179,15 @@ function App() {
           <div className="text-center">
             <div className="flex items-center justify-center space-x-2 mb-4">
               <CalendarIcon size={20} />
-              <span className="text-lg font-semibold">Global Holiday Calendar</span>
+              <span className="text-lg font-semibold">{t('footer.title')}</span>
             </div>
             <p className="text-gray-400 text-sm mb-4">
-              Celebrating cultural diversity through shared traditions and holidays
+              {t('footer.description')}
             </p>
             <div className="flex items-center justify-center space-x-6 text-sm text-gray-400">
-              <span>Built with React & Tailwind CSS</span>
+              <span>{t('footer.builtWith')}</span>
               <span>•</span>
-              <span>Cultural education through technology</span>
+              <span>{t('footer.mission')}</span>
             </div>
           </div>
         </div>
