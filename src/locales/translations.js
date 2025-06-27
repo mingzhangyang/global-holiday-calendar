@@ -82,6 +82,17 @@ export const translations = {
     'listView.calendarView': 'Calendar View',
     'listView.listView': 'List View',
     
+    // 节日模态框
+    'holidayModal.significance': 'Significance',
+    'holidayModal.customs': 'Customs & Traditions',
+    'holidayModal.historical': 'Historical Context',
+    'holidayModal.getDetailed': 'Get Detailed Information',
+    'holidayModal.loading': 'Loading...',
+    'holidayModal.refresh': 'Refresh Information',
+    'holidayModal.detailedBackground': 'Detailed Background',
+    'holidayModal.holidayCount': '{count} holiday on this date',
+    'holidayModal.holidayCountPlural': '{count} holidays on this date',
+    
     // 通用
     'common.loading': 'Loading...',
     'common.error': 'Error',
@@ -163,6 +174,17 @@ export const translations = {
     'listView.calendarView': 'Vue Calendrier',
     'listView.listView': 'Vue Liste',
     
+    // 节日模态框
+    'holidayModal.significance': 'Signification',
+    'holidayModal.customs': 'Coutumes et Traditions',
+    'holidayModal.historical': 'Contexte Historique',
+    'holidayModal.getDetailed': 'Obtenir des Informations Détaillées',
+    'holidayModal.loading': 'Chargement...',
+    'holidayModal.refresh': 'Actualiser les Informations',
+    'holidayModal.detailedBackground': 'Contexte Détaillé',
+    'holidayModal.holidayCount': '{count} fête à cette date',
+    'holidayModal.holidayCountPlural': '{count} fêtes à cette date',
+    
     'common.loading': 'Chargement...',
     'common.error': 'Erreur',
     'common.close': 'Fermer',
@@ -233,6 +255,17 @@ export const translations = {
     'language.selector': 'Sprache',
     'language.current': 'Aktuell: {language}',
     'language.change': 'Sprache Ändern',
+    
+    // 节日模态框
+    'holidayModal.significance': 'Bedeutung',
+    'holidayModal.customs': 'Bräuche und Traditionen',
+    'holidayModal.historical': 'Historischer Kontext',
+    'holidayModal.getDetailed': 'Detaillierte Informationen Abrufen',
+    'holidayModal.loading': 'Laden...',
+    'holidayModal.refresh': 'Informationen Aktualisieren',
+    'holidayModal.detailedBackground': 'Detaillierter Hintergrund',
+    'holidayModal.holidayCount': '{count} Feiertag an diesem Datum',
+    'holidayModal.holidayCountPlural': '{count} Feiertage an diesem Datum',
     
     'common.loading': 'Laden...',
     'common.error': 'Fehler',
@@ -305,6 +338,17 @@ export const translations = {
     'language.current': 'Actual: {language}',
     'language.change': 'Cambiar Idioma',
     
+    // 节日模态框
+    'holidayModal.significance': 'Significado',
+    'holidayModal.customs': 'Costumbres y Tradiciones',
+    'holidayModal.historical': 'Contexto Histórico',
+    'holidayModal.getDetailed': 'Obtener Información Detallada',
+    'holidayModal.loading': 'Cargando...',
+    'holidayModal.refresh': 'Actualizar Información',
+    'holidayModal.detailedBackground': 'Antecedentes Detallados',
+    'holidayModal.holidayCount': '{count} fiesta en esta fecha',
+    'holidayModal.holidayCountPlural': '{count} fiestas en esta fecha',
+    
     'common.loading': 'Cargando...',
     'common.error': 'Error',
     'common.close': 'Cerrar',
@@ -376,6 +420,17 @@ export const translations = {
     'language.current': '当前：{language}',
     'language.change': '更改语言',
     
+    // 节日模态框
+    'holidayModal.significance': '意义',
+    'holidayModal.customs': '习俗与传统',
+    'holidayModal.historical': '历史背景',
+    'holidayModal.getDetailed': '获取详细信息',
+    'holidayModal.loading': '加载中...',
+    'holidayModal.refresh': '刷新信息',
+    'holidayModal.detailedBackground': '详细背景',
+    'holidayModal.holidayCount': '此日期有 {count} 个节日',
+    'holidayModal.holidayCountPlural': '此日期有 {count} 个节日',
+    
     'common.loading': '加载中...',
     'common.error': '错误',
     'common.close': '关闭',
@@ -445,6 +500,17 @@ export const translations = {
     'language.selector': '語言',
     'language.current': '當前：{language}',
     'language.change': '更改語言',
+    
+    // 节日模态框
+    'holidayModal.significance': '意義',
+    'holidayModal.customs': '習俗與傳統',
+    'holidayModal.historical': '歷史背景',
+    'holidayModal.getDetailed': '獲取詳細資訊',
+    'holidayModal.loading': '載入中...',
+    'holidayModal.refresh': '刷新資訊',
+    'holidayModal.detailedBackground': '詳細背景',
+    'holidayModal.holidayCount': '此日期有 {count} 個節日',
+    'holidayModal.holidayCountPlural': '此日期有 {count} 個節日',
     
     'common.loading': '載入中...',
     'common.error': '錯誤',
@@ -517,6 +583,17 @@ export const translations = {
     'language.current': '現在：{language}',
     'language.change': '言語を変更',
     
+    // 节日模态框
+    'holidayModal.significance': '意義',
+    'holidayModal.customs': '習慣と伝統',
+    'holidayModal.historical': '歴史的背景',
+    'holidayModal.getDetailed': '詳細情報を取得',
+    'holidayModal.loading': '読み込み中...',
+    'holidayModal.refresh': '情報を更新',
+    'holidayModal.detailedBackground': '詳細な背景',
+    'holidayModal.holidayCount': 'この日付に{count}つの祝日',
+    'holidayModal.holidayCountPlural': 'この日付に{count}つの祝日',
+    
     'common.loading': '読み込み中...',
     'common.error': 'エラー',
     'common.close': '閉じる',
@@ -587,6 +664,17 @@ export const translations = {
     'language.selector': '언어',
     'language.current': '현재: {language}',
     'language.change': '언어 변경',
+    
+    // 节日模态框
+    'holidayModal.significance': '의미',
+    'holidayModal.customs': '관습과 전통',
+    'holidayModal.historical': '역사적 배경',
+    'holidayModal.getDetailed': '자세한 정보 가져오기',
+    'holidayModal.loading': '로딩 중...',
+    'holidayModal.refresh': '정보 새로고침',
+    'holidayModal.detailedBackground': '자세한 배경',
+    'holidayModal.holidayCount': '이 날짜에 {count}개의 휴일',
+    'holidayModal.holidayCountPlural': '이 날짜에 {count}개의 휴일',
     
     'common.loading': '로딩 중...',
     'common.error': '오류',

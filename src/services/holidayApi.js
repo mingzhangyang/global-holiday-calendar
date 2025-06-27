@@ -95,8 +95,11 @@ export async function fetchHolidaysFromWorker(year, countryCode, includeDescript
 
 /**
  * Fetch detailed information about a specific holiday
+ * @param {string} holidayName - The name of the holiday
+ * @param {string} country - The country code or name
+ * @param {string} language - The language code for the response (e.g., 'en', 'zh-CN', 'ja')
  */
-export async function fetchHolidayInfo(holidayName, country) {
+export async function fetchHolidayInfo(holidayName, country, language = 'en') {
   try {
     const response = await fetch(HOLIDAY_INFO_WORKER_URL, {
       method: 'POST',
@@ -105,7 +108,8 @@ export async function fetchHolidayInfo(holidayName, country) {
       },
       body: JSON.stringify({
         holiday: holidayName,
-        country: country
+        country: country,
+        language: language
       })
     });
 

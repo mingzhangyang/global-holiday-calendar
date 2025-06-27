@@ -10,7 +10,7 @@ const Calendar = ({ selectedCountries, onDateClick }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [monthHolidays, setMonthHolidays] = useState({});
   const [loading, setLoading] = useState(false);
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
 
   const today = new Date();
   const currentYear = currentDate.getFullYear();
@@ -112,19 +112,20 @@ const Calendar = ({ selectedCountries, onDateClick }) => {
       // Pre-fetch detailed information for all holidays on this date
       dayInfo.holidays.forEach(async (holiday, index) => {
         const cacheKey = `holiday-info-${holiday.name}-${holiday.country}`;
+        const languageCacheKey = `${cacheKey}-${language}`;
         
         // Check if data is already in localStorage
-        const cachedData = localStorage.getItem(cacheKey);
-        const cachedTimestamp = localStorage.getItem(`${cacheKey}-timestamp`);
+        const cachedData = localStorage.getItem(languageCacheKey);
+        const cachedTimestamp = localStorage.getItem(`${languageCacheKey}-timestamp`);
         const isExpired = cachedTimestamp && (Date.now() - parseInt(cachedTimestamp)) > (7 * 24 * 60 * 60 * 1000); // 7 days
         
         if (!cachedData || isExpired) {
           try {
             const { fetchHolidayInfo } = await import('../services/holidayApi');
-            const info = await fetchHolidayInfo(holiday.name, holiday.country);
+            const info = await fetchHolidayInfo(holiday.name, holiday.country, language);
             if (info) {
-              localStorage.setItem(cacheKey, info);
-              localStorage.setItem(`${cacheKey}-timestamp`, Date.now().toString());
+              localStorage.setItem(languageCacheKey, info);
+              localStorage.setItem(`${languageCacheKey}-timestamp`, Date.now().toString());
             }
           } catch (error) {
             console.error('Error pre-fetching holiday info:', error);

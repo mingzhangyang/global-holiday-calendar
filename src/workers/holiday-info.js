@@ -65,38 +65,80 @@ export default {
    * @returns {Promise<Response>} - The HTTP response.
    */
   async fetch(request, env) {
+    // Handle CORS preflight requests
+    if (request.method === 'OPTIONS') {
+      return new Response(null, {
+        status: 200,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
+          'Access-Control-Max-Age': '86400',
+        },
+      });
+    }
+
     // Only allow POST requests
     if (request.method !== 'POST') {
       return new Response('Please use a POST request.', {
         status: 405,
-        headers: { 'Allow': 'POST' }
+        headers: { 
+          'Allow': 'POST',
+          'Access-Control-Allow-Origin': '*'
+        }
       });
     }
 
     // Check for the ZHIPU_API_KEY secret
     if (!env.ZHIPU_API_KEY) {
-      return new Response('ZHIPU_API_KEY environment variable not set.', { status: 500 });
+      return new Response('ZHIPU_API_KEY environment variable not set.', { 
+        status: 500,
+        headers: {
+          'Access-Control-Allow-Origin': '*'
+        }
+      });
     }
 
-    let holiday, country;
+    let holiday, country, language;
     try {
       const body = await request.json();
       holiday = body.holiday;
       country = body.country;
+      language = body.language || 'en'; // Default to English if not provided
 
       if (!holiday || !country) {
         throw new Error('Missing "holiday" or "country" in the request body.');
       }
     } catch (e) {
-      return new Response(`Invalid request: ${e.message}`, { status: 400 });
+      return new Response(`Invalid request: ${e.message}`, { 
+        status: 400,
+        headers: {
+          'Access-Control-Allow-Origin': '*'
+        }
+      });
     }
 
     try {
       // 1. Generate the Authentication Token
       const authToken = await generateZhipuToken(env.ZHIPU_API_KEY);
 
-      // 2. Construct the prompt for the model
+      // 2. Construct the prompt for the model with language support
+      const languageInstructions = {
+        'en': 'Please respond in English.',
+        'zh-CN': '请用简体中文回答。',
+        'zh-TW': '請用繁體中文回答。',
+        'ja': '日本語で回答してください。',
+        'ko': '한국어로 답변해 주세요。',
+        'fr': 'Veuillez répondre en français.',
+        'de': 'Bitte antworten Sie auf Deutsch.',
+        'es': 'Por favor responda en español.'
+      };
+      
+      const languageInstruction = languageInstructions[language] || languageInstructions['en'];
+      
       const prompt = `
+        ${languageInstruction}
+        
         Please provide a comprehensive background on the holiday "${holiday}" as it is understood and celebrated in "${country}".
         Structure your response clearly, covering the following aspects:
         1.  **Historical Background**: Explain the origins of the holiday. What key events or figures are associated with it?
@@ -129,7 +171,12 @@ export default {
       if (!response.ok) {
         const errorText = await response.text();
         console.error(`Zhipu API Error: ${response.status} ${response.statusText}`, errorText);
-        return new Response(`Error from Zhipu API: ${errorText}`, { status: response.status });
+        return new Response(`Error from Zhipu API: ${errorText}`, { 
+          status: response.status,
+          headers: {
+            'Access-Control-Allow-Origin': '*'
+          }
+        });
       }
 
       const data = await response.json();
@@ -137,17 +184,30 @@ export default {
       // 4. Extract the content and return it
       const content = data.choices[0]?.message?.content;
       if (!content) {
-          return new Response('Failed to get a valid response from the AI model.', { status: 500 });
+          return new Response('Failed to get a valid response from the AI model.', { 
+            status: 500,
+            headers: {
+              'Access-Control-Allow-Origin': '*'
+            }
+          });
       }
       
       return new Response(JSON.stringify({ background: content }), {
         status: 200,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        },
       });
 
     } catch (error) {
       console.error('Worker Error:', error);
-      return new Response(`An internal error occurred: ${error.message}`, { status: 500 });
+      return new Response(`An internal error occurred: ${error.message}`, { 
+        status: 500,
+        headers: {
+          'Access-Control-Allow-Origin': '*'
+        }
+      });
     }
   },
 };
