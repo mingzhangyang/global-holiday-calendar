@@ -13,7 +13,7 @@ const AboutModal = ({ isOpen, onClose }) => {
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900 flex items-center space-x-2">
-            <Globe className="text-blue-600" size={24} />
+            <Globe className="" style={{color: '#ff8c00'}} size={24} />
             <span>{t('about.title')}</span>
           </h2>
           <button
@@ -54,7 +54,7 @@ const AboutModal = ({ isOpen, onClose }) => {
         <div className="flex justify-end p-6 border-t border-gray-200">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-4 py-2 text-white rounded-lg transition-colors duration-200 font-medium" style={{backgroundColor: '#ff8c00'}} onMouseEnter={(e) => e.target.style.backgroundColor = '#e67e00'} onMouseLeave={(e) => e.target.style.backgroundColor = '#ff8c00'}
           >
             Close
           </button>

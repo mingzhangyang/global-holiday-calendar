@@ -56,7 +56,7 @@ const LanguageSelector = () => {
       <button
         onClick={toggleSelector}
         disabled={isLoading}
-        className="flex items-center space-x-2 px-3 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors duration-200 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+        className="flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors duration-200" style={{backgroundColor: '#fff5e6', color: '#cc7000'}} onMouseEnter={(e) => e.target.style.backgroundColor = '#ffe6cc'} onMouseLeave={(e) => e.target.style.backgroundColor = '#fff5e6'}
         aria-label={t('language.selector')}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
@@ -88,11 +88,10 @@ const LanguageSelector = () => {
               <button
                 key={code}
                 onClick={() => handleLanguageSelect(code)}
-                className={`w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-gray-50 transition-colors duration-150 ${
+                className={`w-full flex items-center justify-between px-3 py-2 text-sm transition-colors duration-150 ${
                   currentLanguage === code 
-                    ? 'bg-blue-50 text-blue-700' 
-                    : 'text-gray-700'
-                }`}
+                    ? '' : 'hover:bg-gray-50'
+                }`} style={code === currentLanguage ? {backgroundColor: '#fff5e6', color: '#cc7000'} : {color: '#374151'}} onMouseEnter={(e) => {if (code !== currentLanguage) {e.target.style.backgroundColor = '#f9fafb'}}} onMouseLeave={(e) => {if (code !== currentLanguage) {e.target.style.backgroundColor = 'transparent'}}}
                 role="option"
                 aria-selected={currentLanguage === code}
               >

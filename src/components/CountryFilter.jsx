@@ -46,9 +46,9 @@ const CountryFilter = ({ selectedCountries, onCountriesChange, isLoadingLocation
       'Russia': '🇷🇺',
       'Italy': '🇮🇹',
       'Spain': '🇪🇸',
-      'Netherlands': '🇳🇱',  // Add missing flag
-      'South Korea': '🇰🇷',   // Add missing flag
-      'Turkey': '🇹🇷',        // Add missing flag
+      'Netherlands': '🇳🇱',
+      'South Korea': '🇰🇷',
+      'Turkey': '🇹🇷', 
       'Global': '🌍'
     };
     return flags[country] || '🏳️';
@@ -61,7 +61,7 @@ const CountryFilter = ({ selectedCountries, onCountriesChange, isLoadingLocation
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden">
       {/* Filter Header */}
-      <div className="bg-gradient-to-r from-green-600 to-blue-600 text-white p-4">
+      <div className="text-white p-4" style={{backgroundColor: '#ff8c00'}}>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Filter size={20} />
@@ -107,7 +107,7 @@ const CountryFilter = ({ selectedCountries, onCountriesChange, isLoadingLocation
           <div className="flex flex-wrap gap-2 mb-4">
             <button
               onClick={handleSelectAll}
-              className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors duration-200"
+              className="px-3 py-1 text-sm rounded-full transition-colors duration-200" style={{backgroundColor: '#fff5e6', color: '#cc7000'}} onMouseEnter={(e) => e.target.style.backgroundColor = '#ffe6cc'} onMouseLeave={(e) => e.target.style.backgroundColor = '#fff5e6'}
             >
               {t('countryFilter.showAll')}
             </button>
@@ -144,15 +144,16 @@ const CountryFilter = ({ selectedCountries, onCountriesChange, isLoadingLocation
                     w-full flex items-center space-x-3 p-2 rounded-lg text-left transition-colors duration-200
                     ${
                       isSelected && !isAllSelected
-                        ? 'bg-blue-100 text-blue-900 border border-blue-300'
-                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-transparent'
+                        ? 'border'
+              : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-transparent'
                     }
                   `}
+                  style={isSelected && !isAllSelected ? {backgroundColor: '#fff5e6', color: '#b35f00', borderColor: '#ffcc99'} : {}}
                 >
                   <span className="text-lg">{getCountryFlag(country)}</span>
                   <span className="font-medium flex-1">{country}</span>
                   {isSelected && !isAllSelected && (
-                    <div className="w-2 h-2 bg-blue-600 rounded-full" />
+                    <div className="w-2 h-2 rounded-full" style={{backgroundColor: '#ff8c00'}} />
                   )}
                 </button>
               );
@@ -166,7 +167,7 @@ const CountryFilter = ({ selectedCountries, onCountriesChange, isLoadingLocation
         <div className="p-4">
           <div className="flex flex-wrap gap-2">
             {isAllSelected ? (
-              <div className="flex items-center space-x-2 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
+              <div className="flex items-center space-x-2 px-3 py-1 rounded-full text-sm" style={{backgroundColor: '#fff5e6', color: '#cc7000'}}>
                 <Globe size={14} />
                 <span>{t('countryFilter.allCountries')}</span>
               </div>
@@ -174,7 +175,7 @@ const CountryFilter = ({ selectedCountries, onCountriesChange, isLoadingLocation
               selectedCountries.slice(0, 3).map(country => (
                 <div
                   key={country}
-                  className="flex items-center space-x-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"
+                  className="flex items-center space-x-1 px-2 py-1 rounded-full text-sm" style={{backgroundColor: '#fff5e6', color: '#cc7000'}}
                 >
                   <span>{getCountryFlag(country)}</span>
                   <span>{country}</span>

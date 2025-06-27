@@ -111,7 +111,7 @@ const HolidayListView = ({ selectedCountries }) => {
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4">
+      <div className="text-white p-4" style={{backgroundColor: '#ff8c00'}}>
         <div className="flex items-center justify-between mb-4">
           <button
             onClick={() => navigateMonth(-1)}
@@ -147,7 +147,7 @@ const HolidayListView = ({ selectedCountries }) => {
       <div className="p-4">
         {loading && (
           <div className="flex justify-center items-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{borderBottomColor: '#ff8c00'}}></div>
             <span className="ml-2 text-gray-600">{t('calendar.loading')}</span>
           </div>
         )}
@@ -177,7 +177,7 @@ const HolidayListView = ({ selectedCountries }) => {
                   <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <Calendar className="w-5 h-5 text-blue-600" />
+                        <Calendar className="w-5 h-5" style={{color: '#ff8c00'}} />
                         <h3 className="text-lg font-semibold text-gray-900">
                           {formatDate(dateInfo.date)}
                         </h3>
@@ -243,7 +243,7 @@ const HolidayListView = ({ selectedCountries }) => {
                       <div className="p-4 bg-gray-50">
                         <button
                           onClick={() => toggleDateExpansion(dateInfo.dateStr)}
-                          className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors duration-200"
+                          className="text-sm font-medium transition-colors duration-200" style={{color: '#ff8c00'}} onMouseEnter={(e) => e.target.style.color = '#cc7000'} onMouseLeave={(e) => e.target.style.color = '#ff8c00'}
                         >
                           Show {dateInfo.holidays.length - 2} more holidays
                         </button>

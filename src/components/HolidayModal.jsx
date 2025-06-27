@@ -97,7 +97,7 @@ const HolidayModal = ({ date, holidays, onClose }) => {
         {/* Modal Header */}
         <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Calendar className="text-blue-600" size={20} />
+            <Calendar className="" style={{color: '#ff8c00'}} size={20} />
             <h2 className="text-lg font-semibold text-gray-900">
               {formatDate(date)}
             </h2>
@@ -176,7 +176,7 @@ const HolidayModal = ({ date, holidays, onClose }) => {
                   <button
                     onClick={() => fetchDetailedInfo(holiday, index)}
                     disabled={loadingInfo[index]}
-                    className="flex items-center space-x-2 px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    className="flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer" style={{backgroundColor: '#fff5e6', color: '#cc7000'}} onMouseEnter={(e) => e.target.style.backgroundColor = '#ffe6cc'} onMouseLeave={(e) => e.target.style.backgroundColor = '#fff5e6'}
                   >
                     <Info size={16} />
                     <span className="text-sm font-medium">
@@ -227,7 +227,7 @@ const HolidayModal = ({ date, holidays, onClose }) => {
             </div>
             <button
               onClick={onClose}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium"
+              className="px-4 py-2 text-white rounded-lg transition-colors duration-200 font-medium" style={{backgroundColor: '#ff8c00'}} onMouseEnter={(e) => e.target.style.backgroundColor = '#e67e00'} onMouseLeave={(e) => e.target.style.backgroundColor = '#ff8c00'}
             >
               Close
             </button>

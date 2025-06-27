@@ -10,7 +10,16 @@ import { useI18n, useTranslation } from './hooks/useI18n';
 import { getLanguageFromRegion } from './services/i18nService';
 
 function App() {
-  const [selectedCountries, setSelectedCountries] = useState([]);
+  // Load saved countries from localStorage or use empty array as default
+  const [selectedCountries, setSelectedCountries] = useState(() => {
+    try {
+      const savedCountries = localStorage.getItem('selectedCountries');
+      return savedCountries ? JSON.parse(savedCountries) : [];
+    } catch (error) {
+      console.error('Error loading saved countries:', error);
+      return [];
+    }
+  });
   const [showAboutModal, setShowAboutModal] = useState(false);
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
   const [locationDetected, setLocationDetected] = useState(false);
@@ -28,7 +37,12 @@ function App() {
         const defaultCountry = await getUserDefaultCountry();
         
         if (defaultCountry) {
-          setSelectedCountries([defaultCountry]);
+          // Only set default country if no saved countries exist
+          const savedCountries = localStorage.getItem('selectedCountries');
+          if (!savedCountries || JSON.parse(savedCountries).length === 0) {
+            setSelectedCountries([defaultCountry]);
+            localStorage.setItem('selectedCountries', JSON.stringify([defaultCountry]));
+          }
           setLocationDetected(true);
           console.log('Default country set to:', defaultCountry);
           
@@ -63,6 +77,12 @@ function App() {
 
   const handleCountriesChange = (countries) => {
     setSelectedCountries(countries);
+    // Save selected countries to localStorage
+    try {
+      localStorage.setItem('selectedCountries', JSON.stringify(countries));
+    } catch (error) {
+      console.error('Error saving countries to localStorage:', error);
+    }
   };
 
   const handleDateClick = (dayInfo) => {
@@ -71,16 +91,16 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-[rgb(243,74,217)]" style={{background: 'linear-gradient(to bottom right, #fff5e6, white, rgb(243,74,217))'}}>
       {/* Header */}
-      <header className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-6 shadow-lg">
+      <header className="text-white py-6 shadow-lg" style={{backgroundColor: '#ff8c00'}}>
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <CalendarIcon size={32} />
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold">{t('app.title')}</h1>
-                <p className="text-blue-100 text-sm">{t('app.subtitle')}</p>
+                <p className="text-sm" style={{color: '#ffcc99'}}>{t('app.subtitle')}</p>
               </div>
             </div>
             <div className="flex items-center space-x-3">
@@ -146,19 +166,19 @@ function App() {
               <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('legend.title')}</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-blue-600 rounded-full" />
-                  <span className="text-gray-700">{t('legend.nationalHoliday')}</span>
+                  <div className="w-3 h-3 rounded-full" style={{backgroundColor: '#ff8c00'}} />
+                <span className="text-gray-700">{t('legend.nationalHoliday')}</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-green-600 rounded-full" />
                   <span className="text-gray-700">{t('legend.culturalFestival')}</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-purple-600 rounded-full" />
-                  <span className="text-gray-700">{t('legend.religiousObservance')}</span>
+                  <div className="w-3 h-3 rounded-full" style={{backgroundColor: 'rgb(243, 74, 217)'}} />
+                <span className="text-gray-700">{t('legend.religiousObservance')}</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-orange-600 rounded-full" />
+                  <div className="w-3 h-3 rounded-full" style={{backgroundColor: '#ff8c00'}} />
                   <span className="text-gray-700">{t('legend.traditionalCelebration')}</span>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -190,37 +210,37 @@ function App() {
             
             {/* Quick Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 mt-8">
-              <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-lg shadow-sm">
-                <div className="text-2xl font-bold">50+</div>
-                <div className="text-sm opacity-90">{t('stats.globalHolidays')}</div>
-              </div>
-              <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-lg shadow-sm">
+              <div className="text-white p-4 rounded-lg shadow-sm" style={{background: 'linear-gradient(to right, #ff8c00, #e67e00)'}}>
+              <div className="text-2xl font-bold">50+</div>
+              <div className="text-sm opacity-90">{t('stats.globalHolidays')}</div>
+            </div>
+              <div className="text-white p-4 rounded-lg shadow-sm" style={{background: 'linear-gradient(to right, rgb(243, 74, 217), rgb(200, 50, 180))'}}>
                 <div className="text-2xl font-bold">15+</div>
                 <div className="text-sm opacity-90">{t('stats.countries')}</div>
               </div>
-              <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-lg shadow-sm">
-                <div className="text-2xl font-bold">12</div>
-                <div className="text-sm opacity-90">{t('stats.months')}</div>
-              </div>
+              <div className="text-white p-4 rounded-lg shadow-sm" style={{backgroundColor: 'rgb(243, 74, 217)'}}>
+              <div className="text-2xl font-bold">12</div>
+              <div className="text-sm opacity-90">{t('stats.months')}</div>
+            </div>
             </div>
           </div>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white mt-16">
+      <footer className="bg-white border-t border-gray-200 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <div className="flex items-center justify-center space-x-2 mb-4">
-              <CalendarIcon size={20} />
-              <span className="text-lg font-semibold">{t('footer.title')}</span>
+              <CalendarIcon size={20} className="text-gray-600" />
+              <span className="text-lg font-semibold text-gray-800">{t('footer.title')}</span>
             </div>
-            <p className="text-gray-400 text-sm mb-4">
+            <p className="text-gray-600 text-sm mb-4">
               {t('footer.description')}
             </p>
-            <div className="flex items-center justify-center space-x-6 text-sm text-gray-400">
+            <div className="flex items-center justify-center space-x-6 text-sm text-gray-600">
               <span>{t('footer.builtWith')}</span>
-              <span>•</span>
+              <span className="text-gray-400">•</span>
               <span>{t('footer.mission')}</span>
             </div>
           </div>

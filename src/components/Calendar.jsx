@@ -143,7 +143,7 @@ const Calendar = ({ selectedCountries, onDateClick }) => {
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden">
       {/* Calendar Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4">
+      <div className="text-white p-4" style={{backgroundColor: '#ff8c00'}}>
         <div className="flex items-center justify-between mb-4">
           <button
             onClick={() => navigateMonth(-1)}
@@ -188,7 +188,7 @@ const Calendar = ({ selectedCountries, onDateClick }) => {
       <div className="p-4">
         {loading && (
           <div className="flex justify-center items-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{borderBottomColor: '#ff8c00'}}></div>
             <span className="ml-2 text-gray-600">{t('calendar.loading')}</span>
           </div>
         )}
@@ -204,9 +204,9 @@ const Calendar = ({ selectedCountries, onDateClick }) => {
                   relative flex flex-col p-1 border rounded-lg transition-all duration-200
                   ${
                     dayInfo.isToday
-                      ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                      ? 'text-white shadow-md'
                       : hasHolidays && dayInfo.isCurrentMonth
-                      ? 'bg-gradient-to-br from-green-50 to-blue-50 border-green-200 shadow-sm'
+                      ? 'bg-gradient-to-br from-green-50 border-green-200 shadow-sm'
                       : dayInfo.isCurrentMonth
                       ? 'bg-white border-gray-200 hover:bg-gray-50'
                       : 'bg-gray-50 border-gray-100'
@@ -220,6 +220,7 @@ const Calendar = ({ selectedCountries, onDateClick }) => {
                   }
                   min-h-16 sm:min-h-20
                 `}
+                style={dayInfo.isToday ? {backgroundColor: '#ff8c00', borderColor: '#ff8c00'} : hasHolidays && dayInfo.isCurrentMonth ? {background: 'linear-gradient(to bottom right, #f0fdf4, #fff5e6)'} : {}}
               >
                 <div className="flex justify-between items-start w-full mb-1">
                   <span className={`text-sm font-semibold ${
@@ -260,9 +261,10 @@ const Calendar = ({ selectedCountries, onDateClick }) => {
                         key={holidayIndex}
                         className={`text-xs leading-tight mb-1 truncate ${
                           dayInfo.isToday
-                            ? 'text-blue-100'
+                            ? ''
                             : 'text-gray-700'
                         }`}
+                        style={dayInfo.isToday ? {color: '#ffcc99'} : {}}
                         title={holiday.name}
                       >
                         {holiday.name}
@@ -271,9 +273,10 @@ const Calendar = ({ selectedCountries, onDateClick }) => {
                     {dayInfo.holidays.length > 2 && (
                       <div className={`text-xs font-medium ${
                         dayInfo.isToday
-                          ? 'text-blue-200'
+                          ? ''
                           : 'text-gray-500'
-                      }`}>
+                      }`}
+                      style={dayInfo.isToday ? {color: '#ffe6cc'} : {}}>
                         +{dayInfo.holidays.length - 2} more
                       </div>
                     )}
