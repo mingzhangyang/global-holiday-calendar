@@ -46,6 +46,9 @@ const CountryFilter = ({ selectedCountries, onCountriesChange, isLoadingLocation
       'Russia': '🇷🇺',
       'Italy': '🇮🇹',
       'Spain': '🇪🇸',
+      'Netherlands': '🇳🇱',  // Add missing flag
+      'South Korea': '🇰🇷',   // Add missing flag
+      'Turkey': '🇹🇷',        // Add missing flag
       'Global': '🌍'
     };
     return flags[country] || '🏳️';

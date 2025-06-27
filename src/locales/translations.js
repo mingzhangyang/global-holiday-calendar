@@ -73,6 +73,15 @@ export const translations = {
     'language.current': 'Current: {language}',
     'language.change': 'Change Language',
     
+    // 列表视图
+    'listView.noCountriesSelected': 'No Countries Selected',
+    'listView.selectCountriesPrompt': 'Please select one or more countries from the filter to view holidays.',
+    'listView.noHolidays': 'No Holidays Found',
+    'listView.noHolidaysDescription': 'No holidays found for the selected countries in this month.',
+    'listView.viewToggle': 'View',
+    'listView.calendarView': 'Calendar View',
+    'listView.listView': 'List View',
+    
     // 通用
     'common.loading': 'Loading...',
     'common.error': 'Error',
@@ -144,6 +153,15 @@ export const translations = {
     'language.selector': 'Langue',
     'language.current': 'Actuel : {language}',
     'language.change': 'Changer de Langue',
+    
+    // Vue liste
+    'listView.noCountriesSelected': 'Aucun Pays Sélectionné',
+    'listView.selectCountriesPrompt': 'Veuillez sélectionner un ou plusieurs pays dans le filtre pour voir les fêtes.',
+    'listView.noHolidays': 'Aucune Fête Trouvée',
+    'listView.noHolidaysDescription': 'Aucune fête trouvée pour les pays sélectionnés ce mois-ci.',
+    'listView.viewToggle': 'Vue',
+    'listView.calendarView': 'Vue Calendrier',
+    'listView.listView': 'Vue Liste',
     
     'common.loading': 'Chargement...',
     'common.error': 'Erreur',

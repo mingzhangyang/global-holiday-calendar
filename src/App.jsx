@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { CalendarIcon, Globe, Info } from 'lucide-react';
+import { CalendarIcon, Globe, Info, Calendar as CalendarViewIcon, List } from 'lucide-react';
 import Calendar from './components/Calendar';
+import HolidayListView from './components/HolidayListView';
 import CountryFilter from './components/CountryFilter';
 import LanguageSelector from './components/LanguageSelector';
 import AboutModal from './components/AboutModal';
@@ -13,6 +14,7 @@ function App() {
   const [showAboutModal, setShowAboutModal] = useState(false);
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
   const [locationDetected, setLocationDetected] = useState(false);
+  const [currentView, setCurrentView] = useState('calendar'); // 'calendar' or 'list'
   
   // 国际化
   const { detectLanguage } = useI18n();
@@ -82,6 +84,32 @@ function App() {
               </div>
             </div>
             <div className="flex items-center space-x-3">
+              {/* View Toggle */}
+              <div className="flex items-center bg-white/20 rounded-lg p-1">
+                <button
+                  onClick={() => setCurrentView('calendar')}
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-colors duration-200 ${
+                    currentView === 'calendar'
+                      ? 'bg-white/30 text-white'
+                      : 'text-white/80 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <CalendarViewIcon size={16} />
+                  <span className="hidden sm:inline text-sm">{t('listView.calendarView')}</span>
+                </button>
+                <button
+                  onClick={() => setCurrentView('list')}
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-colors duration-200 ${
+                    currentView === 'list'
+                      ? 'bg-white/30 text-white'
+                      : 'text-white/80 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <List size={16} />
+                  <span className="hidden sm:inline text-sm">{t('listView.listView')}</span>
+                </button>
+              </div>
+              
               <LanguageSelector />
               <button
                 onClick={() => setShowAboutModal(true)}
@@ -147,12 +175,18 @@ function App() {
             </div>
           </div>
 
-          {/* Calendar Main Area */}
+          {/* Main View Area */}
           <div className="lg:col-span-3">
-            <Calendar
-              selectedCountries={selectedCountries}
-              onDateClick={handleDateClick}
-            />
+            {currentView === 'calendar' ? (
+              <Calendar
+                selectedCountries={selectedCountries}
+                onDateClick={handleDateClick}
+              />
+            ) : (
+              <HolidayListView
+                selectedCountries={selectedCountries}
+              />
+            )}
             
             {/* Quick Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 mt-8">

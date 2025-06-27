@@ -176,7 +176,7 @@ const HolidayModal = ({ date, holidays, onClose }) => {
                   <button
                     onClick={() => fetchDetailedInfo(holiday, index)}
                     disabled={loadingInfo[index]}
-                    className="flex items-center space-x-2 px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex items-center space-x-2 px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
                     <Info size={16} />
                     <span className="text-sm font-medium">
