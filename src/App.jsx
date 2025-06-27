@@ -91,7 +91,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-[rgb(243,74,217)]" style={{background: 'linear-gradient(to bottom right, #fff5e6, white, rgb(243,74,217))'}}>
+    <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="text-white py-6 shadow-lg" style={{backgroundColor: '#ff8c00'}}>
         <div className="max-w-6xl mx-auto px-4">
@@ -228,19 +228,19 @@ function App() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-16">
+      <footer className="border-t border-gray-200 mt-16" style={{backgroundColor: 'rgb(243, 74, 217)'}}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <div className="flex items-center justify-center space-x-2 mb-4">
-              <CalendarIcon size={20} className="text-gray-600" />
-              <span className="text-lg font-semibold text-gray-800">{t('footer.title')}</span>
+              <CalendarIcon size={20} className="text-white" />
+              <span className="text-lg font-semibold text-white">{t('footer.title')}</span>
             </div>
-            <p className="text-gray-600 text-sm mb-4">
+            <p className="text-white/90 text-sm mb-4">
               {t('footer.description')}
             </p>
-            <div className="flex items-center justify-center space-x-6 text-sm text-gray-600">
+            <div className="flex items-center justify-center space-x-6 text-sm text-white/80">
               <span>{t('footer.builtWith')}</span>
-              <span className="text-gray-400">•</span>
+              <span className="text-white/60">•</span>
               <span>{t('footer.mission')}</span>
             </div>
           </div>

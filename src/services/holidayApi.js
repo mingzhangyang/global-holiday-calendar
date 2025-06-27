@@ -187,7 +187,22 @@ export async function getHolidaysForDate(date, selectedCountries = []) {
     try {
       const holidays = await fetchHolidaysFromWorker(year, countryCode, true);
       const dayHolidays = holidays.filter(holiday => holiday.date === dateStr);
-      allHolidays.push(...dayHolidays);
+      
+      // Add holidays with deduplication
+      dayHolidays.forEach(holiday => {
+        const normalizedName = holiday.name.toLowerCase().replace(/\s+/g, ' ').trim();
+        const isDuplicate = allHolidays.some(existingHoliday => {
+          const existingNormalizedName = existingHoliday.name.toLowerCase().replace(/\s+/g, ' ').trim();
+          // Check for exact match or if one name contains the other (e.g., "Spring Equinox" vs "春分 (Spring Equinox)")
+          return existingNormalizedName === normalizedName || 
+                 existingNormalizedName.includes(normalizedName) || 
+                 normalizedName.includes(existingNormalizedName);
+        });
+        
+        if (!isDuplicate) {
+          allHolidays.push(holiday);
+        }
+      });
     } catch (error) {
       console.error(`Error fetching holidays for ${countryCode}:`, error);
     }
@@ -225,7 +240,20 @@ export async function getHolidaysForMonth(year, month, selectedCountries = []) {
           if (!monthHolidays[dateStr]) {
             monthHolidays[dateStr] = [];
           }
-          monthHolidays[dateStr].push(holiday);
+          
+          // Check for duplicates based on normalized name and date
+          const normalizedName = holiday.name.toLowerCase().replace(/\s+/g, ' ').trim();
+          const isDuplicate = monthHolidays[dateStr].some(existingHoliday => {
+            const existingNormalizedName = existingHoliday.name.toLowerCase().replace(/\s+/g, ' ').trim();
+            // Check for exact match or if one name contains the other (e.g., "Spring Equinox" vs "春分 (Spring Equinox)")
+            return existingNormalizedName === normalizedName || 
+                   existingNormalizedName.includes(normalizedName) || 
+                   normalizedName.includes(existingNormalizedName);
+          });
+          
+          if (!isDuplicate) {
+            monthHolidays[dateStr].push(holiday);
+          }
         }
       });
     } catch (error) {

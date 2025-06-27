@@ -58,8 +58,8 @@ export default {
       // --- END FIXED CACHE KEY GENERATION ---
 
       // Try to get from cache first
-      const cache = caches.default;
-      let response = await cache.match(cacheKeyRequest);
+  const cache = caches.default;
+  let response = await cache.match(cacheKeyRequest);
 
       if (response) {
         const newResponse = new Response(response.body, response);
@@ -81,12 +81,15 @@ export default {
         total: holidays.length
       };
 
+      // Enable caching for all years
+      const cacheControl = 'public, max-age=86400';
+      
       response = new Response(JSON.stringify(responseData, null, 2), {
         status: 200,
         headers: {
           ...corsHeaders,
           'Content-Type': 'application/json',
-          'Cache-Control': 'public, max-age=86400'
+          'Cache-Control': cacheControl
         }
       });
 
@@ -134,8 +137,23 @@ async function fetchHolidays(year, countryCode, includeDescription, env) {
   let holidays = [...nagerHolidays, ...calendarificHolidays];
   
   // Add cultural observances (non-holiday cultural dates)
-  const culturalObservances = getCulturalObservances(year, countryCode);
+  const culturalObservances = await getCulturalObservances(year, countryCode);
   holidays = [...holidays, ...culturalObservances];
+  
+  // Convert global astronomical events to country-specific events
+  // This prevents duplicates when multiple countries are selected in the frontend
+  holidays = holidays.map(holiday => {
+    if (holiday.countryCode === 'GLOBAL' && holiday.subtype === 'astronomical') {
+      // Convert global astronomical events to country-specific events
+      return {
+        ...holiday,
+        countryCode: countryCode,
+        country: getCountryName(countryCode),
+        id: `astronomical-${holiday.date.split('-')[0]}-${holiday.name.replace(/\s+/g, '-').toLowerCase()}-${countryCode}`
+      };
+    }
+    return holiday;
+  });
   
   if (includeDescription && holidays.length > 0) {
     const countryName = getCountryName(countryCode);
@@ -222,13 +240,13 @@ async function fetchFromCalendarific(year, countryCode, apiKey) {
 }
 
 // Get cultural observances for different countries
-function getCulturalObservances(year, countryCode) {
+async function getCulturalObservances(year, countryCode) {
   let observances = [];
   
   // Add country-specific cultural observances
   switch (countryCode) {
     case 'CN':
-      observances = [...observances, ...getChineseSolarTerms(year)];
+      observances = [...observances, ...await getChineseSolarTerms(year)];
       break;
     case 'JP':
       observances = [...observances, ...getJapaneseSeasons(year)];
@@ -248,64 +266,163 @@ function getCulturalObservances(year, countryCode) {
       break;
   }
   
-  // Add global astronomical events for all countries
-  observances = [...observances, ...getAstronomicalEvents(year)];
+  // Add global astronomical events for all countries (except those that have their own solar terms)
+  // Skip astronomical events for countries that have their own detailed solar term systems
+  if (countryCode !== 'CN') {
+    observances = [...observances, ...getAstronomicalEvents(year)];
+  }
   
   return observances;
 }
 
-// Get Chinese Solar Terms (二十四节气) for a given year
-function getChineseSolarTerms(year) {
-  // Solar terms data with approximate dates (these are calculated based on astronomical events)
-  const solarTermsData = [
-    { name: '立春', englishName: 'Beginning of Spring', month: 2, day: 4 },
-    { name: '雨水', englishName: 'Rain Water', month: 2, day: 19 },
-    { name: '惊蛰', englishName: 'Awakening of Insects', month: 3, day: 6 },
-    { name: '春分', englishName: 'Spring Equinox', month: 3, day: 21 },
-    { name: '清明', englishName: 'Clear and Bright', month: 4, day: 5 },
-    { name: '谷雨', englishName: 'Grain Rain', month: 4, day: 20 },
-    { name: '立夏', englishName: 'Beginning of Summer', month: 5, day: 6 },
-    { name: '小满', englishName: 'Grain Buds', month: 5, day: 21 },
-    { name: '芒种', englishName: 'Grain in Ear', month: 6, day: 6 },
-    { name: '夏至', englishName: 'Summer Solstice', month: 6, day: 21 },
-    { name: '小暑', englishName: 'Slight Heat', month: 7, day: 7 },
-    { name: '大暑', englishName: 'Great Heat', month: 7, day: 23 },
-    { name: '立秋', englishName: 'Beginning of Autumn', month: 8, day: 8 },
-    { name: '处暑', englishName: 'Stopping the Heat', month: 8, day: 23 },
-    { name: '白露', englishName: 'White Dew', month: 9, day: 8 },
-    { name: '秋分', englishName: 'Autumn Equinox', month: 9, day: 23 },
-    { name: '寒露', englishName: 'Cold Dew', month: 10, day: 8 },
-    { name: '霜降', englishName: 'Frost Descent', month: 10, day: 24 },
-    { name: '立冬', englishName: 'Beginning of Winter', month: 11, day: 7 },
-    { name: '小雪', englishName: 'Slight Snow', month: 11, day: 22 },
-    { name: '大雪', englishName: 'Great Snow', month: 12, day: 7 },
-    { name: '冬至', englishName: 'Winter Solstice', month: 12, day: 22 }
-  ];
+// Get Chinese solar terms (二十四节气) using consistent astronomical calculations
+async function getChineseSolarTerms(year) {
+  try {
+    // Use consistent astronomical calculation to avoid cache inconsistencies
+    // This ensures the same calculation method is always used regardless of CDN availability
+    const solarTermsData = [
+      { name: '立春', englishName: 'Beginning of Spring', approxMonth: 2, approxDay: 4 },
+      { name: '雨水', englishName: 'Rain Water', approxMonth: 2, approxDay: 19 },
+      { name: '惊蛰', englishName: 'Awakening of Insects', approxMonth: 3, approxDay: 6 },
+      { name: '春分', englishName: 'Spring Equinox', approxMonth: 3, approxDay: 21 },
+      { name: '清明', englishName: 'Clear and Bright', approxMonth: 4, approxDay: 5 },
+      { name: '谷雨', englishName: 'Grain Rain', approxMonth: 4, approxDay: 20 },
+      { name: '立夏', englishName: 'Beginning of Summer', approxMonth: 5, approxDay: 6 },
+      { name: '小满', englishName: 'Grain Buds', approxMonth: 5, approxDay: 21 },
+      { name: '芒种', englishName: 'Grain in Ear', approxMonth: 6, approxDay: 6 },
+      { name: '夏至', englishName: 'Summer Solstice', approxMonth: 6, approxDay: 21 },
+      { name: '小暑', englishName: 'Slight Heat', approxMonth: 7, approxDay: 7 },
+      { name: '大暑', englishName: 'Great Heat', approxMonth: 7, approxDay: 23 },
+      { name: '立秋', englishName: 'Beginning of Autumn', approxMonth: 8, approxDay: 8 },
+      { name: '处暑', englishName: 'Stopping the Heat', approxMonth: 8, approxDay: 23 },
+      { name: '白露', englishName: 'White Dew', approxMonth: 9, approxDay: 8 },
+      { name: '秋分', englishName: 'Autumn Equinox', approxMonth: 9, approxDay: 23 },
+      { name: '寒露', englishName: 'Cold Dew', approxMonth: 10, approxDay: 8 },
+      { name: '霜降', englishName: 'Frost Descent', approxMonth: 10, approxDay: 24 },
+      { name: '立冬', englishName: 'Beginning of Winter', approxMonth: 11, approxDay: 7 },
+      { name: '小雪', englishName: 'Slight Snow', approxMonth: 11, approxDay: 22 },
+      { name: '大雪', englishName: 'Great Snow', approxMonth: 12, approxDay: 7 },
+      { name: '冬至', englishName: 'Winter Solstice', approxMonth: 12, approxDay: 22 }
+    ];
 
-  return solarTermsData.map((term, index) => {
-    // Calculate more accurate dates based on astronomical calculations
-    const adjustedDate = calculateSolarTermDate(year, index);
-    const dateStr = adjustedDate.toISOString().split('T')[0];
+    const solarTerms = solarTermsData.map((term, index) => {
+      // Calculate accurate date using improved astronomical calculation
+      const accurateDate = calculateAccurateSolarTermDate(year, index, term.approxMonth, term.approxDay);
+      const dateStr = accurateDate.toISOString().split('T')[0];
+      
+      return {
+        id: `solar-term-${year}-${term.name}`,
+        name: `${term.name} (${term.englishName})`,
+        date: dateStr,
+        country: 'China',
+        countryCode: 'CN',
+        type: 'cultural-observance',
+        subtype: 'solar-term',
+        source: 'astronomical-calculation',
+        localName: term.name,
+        englishName: term.englishName,
+        description: `${term.name} (${term.englishName}) is one of the 24 solar terms in the traditional Chinese calendar, marking important agricultural and seasonal transitions. This is a cultural observance, not a public holiday.`,
+        culturalInfo: {
+          origin: "Ancient Chinese astronomical observations",
+          significance: "Marks seasonal transitions and agricultural activities in traditional Chinese culture",
+          traditions: "Agricultural planning, seasonal foods, traditional medicine practices"
+        }
+      };
+    });
     
-    return {
-      id: `solar-term-${year}-${term.name}`,
-      name: `${term.name} (${term.englishName})`,
-      date: dateStr,
-      country: 'China',
-      countryCode: 'CN',
-      type: 'cultural-observance',
-      subtype: 'solar-term',
-      source: 'chinese-calendar',
-      localName: term.name,
-      englishName: term.englishName,
-      description: `${term.name} (${term.englishName}) is one of the 24 solar terms in the traditional Chinese calendar, marking important agricultural and seasonal transitions. This is a cultural observance, not a public holiday.`,
-      culturalInfo: {
-        origin: "Ancient Chinese astronomical observations",
-        significance: "Marks seasonal transitions and agricultural activities in traditional Chinese culture",
-        traditions: "Agricultural planning, seasonal foods, traditional medicine practices"
+    return solarTerms;
+    
+  } catch (error) {
+    console.error('Error calculating solar terms:', error);
+    // Return empty array if calculation fails
+    return [];
+  }
+}
+
+// More accurate solar term calculation based on astronomical data
+function calculateAccurateSolarTermDate(year, termIndex, approxMonth, approxDay) {
+  // 优化的节气计算算法 - 减少CPU使用时间
+  // 使用预计算的修正值和简化的天文公式
+  
+  // 基准年份的精确节气日期（2020年）
+  const baseYear = 2020;
+  const baseYearSolarTerms = [
+    { month: 2, day: 4.2 },   // 立春
+    { month: 2, day: 18.9 },  // 雨水
+    { month: 3, day: 5.6 },   // 惊蛰
+    { month: 3, day: 20.1 },  // 春分
+    { month: 4, day: 4.8 },   // 清明
+    { month: 4, day: 19.6 },  // 谷雨
+    { month: 5, day: 5.3 },   // 立夏
+    { month: 5, day: 20.9 },  // 小满
+    { month: 6, day: 5.6 },   // 芒种
+    { month: 6, day: 21.0 },  // 夏至
+    { month: 7, day: 6.7 },   // 小暑
+    { month: 7, day: 22.4 },  // 大暑
+    { month: 8, day: 7.1 },   // 立秋
+    { month: 8, day: 22.7 },  // 处暑
+    { month: 9, day: 7.1 },   // 白露
+    { month: 9, day: 22.4 },  // 秋分
+    { month: 10, day: 8.1 },  // 寒露
+    { month: 10, day: 23.2 }, // 霜降
+    { month: 11, day: 7.1 },  // 立冬
+    { month: 11, day: 22.1 }, // 小雪
+    { month: 12, day: 7.0 },  // 大雪
+    { month: 12, day: 21.3 }  // 冬至
+  ];
+  
+  const baseTerm = baseYearSolarTerms[termIndex];
+  const yearDiff = year - baseYear;
+  
+  // 简化的年度修正公式
+  // 考虑地球轨道的长期变化和闰年效应
+  let yearCorrection = 0;
+  
+  // 基本年度漂移（约0.242天/年，但有复杂的周期性）
+  const basicDrift = yearDiff * 0.242;
+  
+  // 闰年修正
+  const leapYearCorrection = -Math.floor((year - 1) / 4) + Math.floor((baseYear - 1) / 4) +
+                            Math.floor((year - 1) / 100) - Math.floor((baseYear - 1) / 100) -
+                            Math.floor((year - 1) / 400) + Math.floor((baseYear - 1) / 400);
+  
+  // 轨道偏心率的长期变化（简化）
+  const eccentricityEffect = yearDiff * 0.000043 * Math.sin((termIndex * 15 + 90) * Math.PI / 180);
+  
+  // 岁差效应（简化）
+  const precessionEffect = yearDiff * yearDiff * 0.000001;
+  
+  yearCorrection = basicDrift + leapYearCorrection + eccentricityEffect + precessionEffect;
+  
+  // 计算修正后的日期
+  const correctedDay = baseTerm.day + yearCorrection;
+  const month = baseTerm.month;
+  
+  // 处理月份边界
+  let finalMonth = month;
+  let finalDay = Math.round(correctedDay);
+  
+  if (correctedDay < 1) {
+    finalMonth = month - 1;
+    if (finalMonth < 1) {
+      finalMonth = 12;
+      year = year - 1;
+    }
+    const daysInPrevMonth = new Date(year, finalMonth, 0).getDate();
+    finalDay = daysInPrevMonth + Math.round(correctedDay);
+  } else {
+    const daysInMonth = new Date(year, month, 0).getDate();
+    if (correctedDay > daysInMonth) {
+      finalMonth = month + 1;
+      if (finalMonth > 12) {
+        finalMonth = 1;
+        year = year + 1;
       }
-    };
-  });
+      finalDay = Math.round(correctedDay - daysInMonth);
+    }
+  }
+  
+  return new Date(year, finalMonth - 1, finalDay);
 }
 
 // Get Japanese seasonal observances (二十四節気 + 雑節)
