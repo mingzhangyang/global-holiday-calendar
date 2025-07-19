@@ -1,1 +1,29 @@
 @import "tailwindcss";
+
+/* Gradient animation for header and footer */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Additional modern effects */
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+}
+
+/* Subtle shadow effects */
+.text-shadow {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Smooth transitions */
+* {
+  transition: all 0.3s ease;
+}

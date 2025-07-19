@@ -93,13 +93,23 @@ function App() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="text-white py-6 shadow-lg" style={{backgroundColor: '#ff8c00'}}>
-        <div className="max-w-6xl mx-auto px-4">
+      <header className="text-white py-6 shadow-lg relative overflow-hidden" style={{
+        background: 'linear-gradient(135deg, #ff8c00 0%, #ff6b35 50%, #f7931e 100%)',
+        backgroundSize: '400% 400%',
+        animation: 'gradientShift 8s ease infinite'
+      }}>
+        {/* Decorative background elements */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-32 h-32 bg-white rounded-full -translate-x-16 -translate-y-16"></div>
+          <div className="absolute top-0 right-0 w-24 h-24 bg-white rounded-full translate-x-12 -translate-y-12"></div>
+          <div className="absolute bottom-0 left-1/4 w-16 h-16 bg-white rounded-full translate-y-8"></div>
+        </div>
+        <div className="max-w-6xl mx-auto px-4 relative z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <CalendarIcon size={32} />
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold">{t('app.title')}</h1>
+                <h1 className="text-2xl font-bold text-shadow" style={{textShadow: '0 0 5px rgba(0, 0, 0, 0.2)'}}>{t('app.title')}</h1>
                 <p className="text-sm" style={{color: '#ffcc99'}}>{t('app.subtitle')}</p>
               </div>
             </div>
@@ -228,8 +238,19 @@ function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-gray-200 mt-16" style={{backgroundColor: 'rgb(243, 74, 217)'}}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <footer className="border-t border-gray-200 mt-16 relative overflow-hidden" style={{
+        background: 'linear-gradient(135deg, rgb(243, 74, 217) 0%, rgb(200, 50, 180) 50%, rgb(160, 30, 140) 100%)',
+        backgroundSize: '400% 400%',
+        animation: 'gradientShift 10s ease infinite reverse'
+      }}>
+        {/* Decorative background pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-4 left-8 w-20 h-20 bg-white rounded-full"></div>
+          <div className="absolute top-8 right-16 w-12 h-12 bg-white rounded-full"></div>
+          <div className="absolute bottom-4 left-1/3 w-16 h-16 bg-white rounded-full"></div>
+          <div className="absolute bottom-8 right-8 w-8 h-8 bg-white rounded-full"></div>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
           <div className="text-center">
             <div className="flex items-center justify-center space-x-2 mb-4">
               <CalendarIcon size={20} className="text-white" />
