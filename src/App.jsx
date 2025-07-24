@@ -95,7 +95,7 @@ function App() {
     <div className="min-h-screen bg-white">
       {/* Header */}
       <header 
-        className="text-white py-4 md:py-6 shadow-md relative overflow-hidden" 
+        className="text-white py-4 md:py-6 shadow-md relative" 
         style={{
           background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%)',
           backgroundSize: '400% 400%',
@@ -105,7 +105,7 @@ function App() {
         aria-label="Site header"
       >
         {/* Decorative background elements */}
-        <div className="absolute inset-0 opacity-10" aria-hidden="true">
+        <div className="absolute inset-0 opacity-10 overflow-hidden" aria-hidden="true">
           <div className="absolute top-0 left-0 w-32 h-32 bg-white rounded-full -translate-x-16 -translate-y-16"></div>
           <div className="absolute top-0 right-0 w-24 h-24 bg-white rounded-full translate-x-12 -translate-y-12"></div>
           <div className="absolute bottom-0 left-1/4 w-16 h-16 bg-white rounded-full translate-y-8"></div>

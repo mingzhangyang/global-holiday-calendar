@@ -420,6 +420,15 @@ export const translations = {
     'language.current': '当前：{language}',
     'language.change': '更改语言',
     
+    // 列表视图
+    'listView.noCountriesSelected': '未选择国家',
+    'listView.selectCountriesPrompt': '请从筛选器中选择一个或多个国家以查看节日。',
+    'listView.noHolidays': '未找到节日',
+    'listView.noHolidaysDescription': '本月所选国家未找到节日。',
+    'listView.viewToggle': '视图',
+    'listView.calendarView': '日历视图',
+    'listView.listView': '列表视图',
+    
     // 节日模态框
     'holidayModal.significance': '意义',
     'holidayModal.customs': '习俗与传统',
