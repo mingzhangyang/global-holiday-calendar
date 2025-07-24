@@ -2,7 +2,13 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="https://orangely.xyz/orange-calendar-icon.svg" />
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/logo-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/logo-16x16.png" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Interactive Global Holiday Calendar - Discover cultural celebrations from around the world" />
     <meta name="keywords" content="holidays, calendar, global, cultural, celebrations, festivals" />
@@ -19,6 +25,16 @@
     <meta property="twitter:description" content="Explore cultural celebrations from around the world with our interactive holiday calendar" />
     
     <title>Global Holiday Calendar - Discover Cultural Celebrations Worldwide</title>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-8F5FGZ8QZ2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-8F5FGZ8QZ2');
+    </script>
   </head>
   <body>
     <div id="root"></div>
