@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Globe, Info, MapPin, Calendar as CalendarViewIcon, List, Menu, X } from 'lucide-react';
 import Calendar from './components/Calendar';
 import HolidayListView from './components/HolidayListView';
@@ -8,6 +8,8 @@ import AboutModal from './components/AboutModal';
 import Logo from './components/Logo';
 import { getUserDefaultCountry } from './services/locationService';
 import { useI18n, useTranslation } from './hooks/useI18n';
+import { useSeo } from './hooks/useSeo';
+import { getLocaleFromLanguage } from './services/i18nService';
 
 function App() {
   // Load saved countries from localStorage or use empty array as default
@@ -28,7 +30,7 @@ function App() {
   
   // 国际化
   const { detectLanguage } = useI18n();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
 
   // 在组件挂载时检测用户位置并设置默认国家和语言
   useEffect(() => {
@@ -141,6 +143,58 @@ function App() {
     ? selectedCountries.join(', ')
     : `${selectedCountries.slice(0, 2).join(', ')} +${selectedCountries.length - 2}`;
 
+  const faqItems = useMemo(() => {
+    const items = t('faq.items');
+    return Array.isArray(items) ? items : [];
+  }, [t]);
+
+  const monthLabel = useMemo(() => {
+    const months = t('calendar.months');
+    return Array.isArray(months) ? months[new Date().getMonth()] : '';
+  }, [t]);
+
+  const canonicalUrl = typeof window !== 'undefined'
+    ? `${window.location.origin}${window.location.pathname}`
+    : 'https://holidays.orangely.xyz/';
+  const localizedLocale = getLocaleFromLanguage(language);
+  const seoTitle = `${t('app.title')} | ${currentView === 'calendar' ? t('listView.calendarView') : t('listView.listView')}`;
+  const seoDescription = `${t('app.subtitle')}. ${monthLabel ? `${monthLabel} ${new Date().getFullYear()}. ` : ''}${selectionSummary}. ${t('legend.note')}`;
+  const seoImage = `${typeof window !== 'undefined' ? window.location.origin : 'https://holidays.orangely.xyz'}/logo.png`;
+  const structuredData = useMemo(() => ({
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebPage',
+        name: seoTitle,
+        description: seoDescription,
+        url: canonicalUrl,
+        inLanguage: language,
+        primaryImageOfPage: seoImage
+      },
+      {
+        '@type': 'FAQPage',
+        mainEntity: faqItems.map(item => ({
+          '@type': 'Question',
+          name: item.question,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: item.answer
+          }
+        }))
+      }
+    ]
+  }), [canonicalUrl, faqItems, language, seoDescription, seoImage, seoTitle]);
+
+  useSeo({
+    title: seoTitle,
+    description: seoDescription,
+    language,
+    canonical: canonicalUrl,
+    image: seoImage,
+    locale: localizedLocale,
+    structuredData
+  });
+
   const renderHeaderControls = (isMobile = false) => (
     <div className={isMobile ? 'flex flex-col gap-3' : 'flex items-center gap-3 w-full sm:w-auto'}>
       <div
@@ -208,7 +262,7 @@ function App() {
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
       <header 
-        className="sticky top-0 z-40 text-white py-4 md:py-6 shadow-md relative" 
+        className="sticky top-0 z-40 text-white py-4 md:py-6 shadow-md" 
         style={{
           background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%)',
           backgroundSize: '400% 400%',
@@ -233,6 +287,7 @@ function App() {
                 showText={true} 
                 useImage={true} 
                 logoFormat="png"
+                titleAs="h1"
                 className="text-left"
               />
 
@@ -280,6 +335,12 @@ function App() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <section className="mb-4 sm:mb-6 animate-fade-in-up" aria-label="Introduction">
+          <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-4xl">
+            {t('app.subtitle')}. {t('legend.note')}
+          </p>
+        </section>
+
         <div className="mb-4 sm:mb-6 flex flex-wrap items-center gap-2">
           <div className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 text-sm text-slate-700 shadow-sm ring-1 ring-slate-200/80">
             {currentView === 'calendar' ? <CalendarViewIcon size={16} aria-hidden="true" /> : <List size={16} aria-hidden="true" />}
@@ -293,7 +354,7 @@ function App() {
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
           {/* Country Filter Sidebar */}
-          <div className="lg:col-span-1 space-y-4 sm:space-y-6 lg:sticky lg:top-28 self-start">
+          <aside className="lg:col-span-1 space-y-4 sm:space-y-6 lg:sticky lg:top-28 self-start" aria-label="Country filters and legend">
             <CountryFilter
               selectedCountries={selectedCountries}
               onCountriesChange={handleCountriesChange}
@@ -333,10 +394,10 @@ function App() {
                 </p>
               </div>
             </div>
-          </div>
+          </aside>
 
           {/* Main View Area */}
-          <div className="lg:col-span-3 space-y-5 sm:space-y-8" id="main-view" role="main" aria-live="polite">
+          <section className="lg:col-span-3 space-y-5 sm:space-y-8" id="main-view" aria-live="polite" aria-label="Holiday results">
             {currentView === 'calendar' ? (
               <Calendar
                 selectedCountries={selectedCountries}
@@ -363,7 +424,28 @@ function App() {
                 <div className="text-xs sm:text-sm opacity-90 leading-relaxed">{t('stats.months')}</div>
               </div>
             </div>
-          </div>
+
+            {faqItems.length > 0 && (
+              <section className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200/70 p-4 sm:p-6 animate-fade-in-up" aria-labelledby="faq-heading">
+                <h2 id="faq-heading" className="text-lg sm:text-xl font-semibold text-slate-900 mb-4">
+                  {t('faq.title')}
+                </h2>
+                <div className="space-y-3">
+                  {faqItems.map((item, index) => (
+                    <details key={index} className="group rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3">
+                      <summary className="cursor-pointer list-none font-medium text-slate-900 flex items-center justify-between gap-3">
+                        <span>{item.question}</span>
+                        <span className="text-slate-400 transition-transform group-open:rotate-45" aria-hidden="true">+</span>
+                      </summary>
+                      <p className="mt-3 text-sm sm:text-base leading-relaxed text-slate-600">
+                        {item.answer}
+                      </p>
+                    </details>
+                  ))}
+                </div>
+              </section>
+            )}
+          </section>
         </div>
       </main>
 
@@ -395,6 +477,7 @@ function App() {
                 showText={true} 
                 useImage={true} 
                 logoFormat="png"
+                titleAs="div"
                 className="text-white"
               />
             </div>

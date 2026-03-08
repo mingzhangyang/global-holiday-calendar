@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://holidays.orangely.xyz/sitemap.xml
+Host: holidays.orangely.xyz

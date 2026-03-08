@@ -61,6 +61,25 @@ export const translations = {
       'The app automatically detects your location and shows relevant countries\' holidays',
       'You can select multiple countries simultaneously to view holidays'
     ],
+    'faq.title': 'Frequently asked questions',
+    'faq.items': [
+      {
+        question: 'How do I use the Global Holiday Calendar?',
+        answer: 'Choose one or more countries, browse the calendar or list view, and click a holiday to learn about its history, customs, and significance.'
+      },
+      {
+        question: 'Which holidays can I discover here?',
+        answer: 'The app highlights public holidays, cultural festivals, religious observances, and traditional celebrations from multiple countries.'
+      },
+      {
+        question: 'Can I explore holidays on mobile devices?',
+        answer: 'Yes. The interface is optimized for mobile browsers with swipe month navigation, quick filters, and responsive holiday details.'
+      },
+      {
+        question: 'Does the calendar support multiple countries at once?',
+        answer: 'Yes. You can compare holidays across selected countries and switch between calendar and list layouts at any time.'
+      }
+    ],
     
     // 页脚
     'footer.title': 'Global Holiday Calendar',
@@ -166,6 +185,25 @@ export const translations = {
       'L\'application détecte automatiquement votre position et affiche les fêtes des pays pertinents',
       'Vous pouvez sélectionner plusieurs pays simultanément pour voir les fêtes'
     ],
+    'faq.title': 'Questions fréquentes',
+    'faq.items': [
+      {
+        question: 'Comment utiliser le Calendrier des Fêtes Mondiales ?',
+        answer: 'Choisissez un ou plusieurs pays, parcourez la vue calendrier ou liste, puis cliquez sur une fête pour découvrir son histoire, ses coutumes et sa signification.'
+      },
+      {
+        question: 'Quelles fêtes puis-je découvrir ici ?',
+        answer: 'L’application met en avant les jours fériés, festivals culturels, observances religieuses et célébrations traditionnelles de plusieurs pays.'
+      },
+      {
+        question: 'Puis-je explorer les fêtes sur mobile ?',
+        answer: 'Oui. L’interface est optimisée pour les navigateurs mobiles avec un changement de mois par balayage, des filtres rapides et des fiches détaillées adaptatives.'
+      },
+      {
+        question: 'Le calendrier prend-il en charge plusieurs pays à la fois ?',
+        answer: 'Oui. Vous pouvez comparer les fêtes de plusieurs pays sélectionnés et passer librement entre les vues calendrier et liste.'
+      }
+    ],
     
     'footer.title': 'Calendrier des Fêtes Mondiales',
     'footer.description': 'Célébrer la diversité culturelle à travers les traditions et fêtes partagées',
@@ -268,6 +306,25 @@ export const translations = {
       'Die App erkennt automatisch Ihren Standort und zeigt relevante Länderfeiertage',
       'Sie können mehrere Länder gleichzeitig auswählen, um Feiertage anzuzeigen'
     ],
+    'faq.title': 'Häufig gestellte Fragen',
+    'faq.items': [
+      {
+        question: 'Wie nutze ich den Globalen Feiertagskalender?',
+        answer: 'Wählen Sie ein oder mehrere Länder aus, wechseln Sie zwischen Kalender- und Listenansicht und klicken Sie auf einen Feiertag, um mehr über Geschichte, Bräuche und Bedeutung zu erfahren.'
+      },
+      {
+        question: 'Welche Feiertage kann ich hier entdecken?',
+        answer: 'Die App zeigt gesetzliche Feiertage, kulturelle Feste, religiöse Anlässe und traditionelle Feierlichkeiten aus mehreren Ländern.'
+      },
+      {
+        question: 'Kann ich die Feiertage auch mobil erkunden?',
+        answer: 'Ja. Die Oberfläche ist für mobile Browser optimiert und bietet Wisch-Navigation, schnelle Filter und responsive Detailansichten.'
+      },
+      {
+        question: 'Unterstützt der Kalender mehrere Länder gleichzeitig?',
+        answer: 'Ja. Sie können Feiertage aus mehreren ausgewählten Ländern vergleichen und jederzeit zwischen Kalender- und Listenlayout wechseln.'
+      }
+    ],
     
     'footer.title': 'Globaler Feiertagskalender',
     'footer.description': 'Kulturelle Vielfalt durch gemeinsame Traditionen und Feiertage feiern',
@@ -368,6 +425,25 @@ export const translations = {
       'La aplicación detecta automáticamente su ubicación y muestra fiestas de países relevantes',
       'Puede seleccionar múltiples países simultáneamente para ver fiestas'
     ],
+    'faq.title': 'Preguntas frecuentes',
+    'faq.items': [
+      {
+        question: '¿Cómo uso el Calendario de Fiestas Globales?',
+        answer: 'Seleccione uno o más países, explore la vista de calendario o de lista y haga clic en una festividad para conocer su historia, costumbres y significado.'
+      },
+      {
+        question: '¿Qué festividades puedo descubrir aquí?',
+        answer: 'La aplicación destaca días festivos públicos, festivales culturales, observancias religiosas y celebraciones tradicionales de varios países.'
+      },
+      {
+        question: '¿Puedo explorar las festividades en el móvil?',
+        answer: 'Sí. La interfaz está optimizada para navegadores móviles con navegación por deslizamiento, filtros rápidos y detalles adaptables.'
+      },
+      {
+        question: '¿El calendario admite varios países al mismo tiempo?',
+        answer: 'Sí. Puede comparar festividades entre los países seleccionados y cambiar entre la vista de calendario y la vista de lista en cualquier momento.'
+      }
+    ],
     
     'footer.title': 'Calendario de Fiestas Globales',
     'footer.description': 'Celebrando la diversidad cultural a través de tradiciones y fiestas compartidas',
@@ -467,6 +543,25 @@ export const translations = {
       '点击"今天"返回当前日期',
       '应用会自动检测您的位置并显示相关国家的节日',
       '您可以同时选择多个国家查看节日'
+    ],
+    'faq.title': '常见问题',
+    'faq.items': [
+      {
+        question: '如何使用全球节日日历？',
+        answer: '选择一个或多个国家，浏览日历视图或列表视图，然后点击节日即可查看其历史、习俗和文化意义。'
+      },
+      {
+        question: '这里可以发现哪些节日？',
+        answer: '应用会展示多个国家的公共假日、文化节庆、宗教纪念日和传统庆典。'
+      },
+      {
+        question: '可以在手机上使用吗？',
+        answer: '可以。界面已针对移动浏览器优化，支持滑动切换月份、快速筛选和响应式详情展示。'
+      },
+      {
+        question: '是否支持同时查看多个国家？',
+        answer: '支持。您可以比较多个已选国家的节日，并随时在日历视图和列表视图之间切换。'
+      }
     ],
     
     'footer.title': '全球节日日历',
@@ -570,6 +665,25 @@ export const translations = {
       '應用會自動檢測您的位置並顯示相關國家的節日',
       '您可以同時選擇多個國家查看節日'
     ],
+    'faq.title': '常見問題',
+    'faq.items': [
+      {
+        question: '如何使用全球節日日曆？',
+        answer: '選擇一個或多個國家，瀏覽日曆視圖或列表視圖，然後點擊節日即可查看其歷史、習俗與文化意義。'
+      },
+      {
+        question: '這裡可以探索哪些節日？',
+        answer: '應用會展示多個國家的公共假日、文化節慶、宗教紀念日與傳統慶典。'
+      },
+      {
+        question: '可以在手機上使用嗎？',
+        answer: '可以。介面已針對行動瀏覽器最佳化，支援滑動切換月份、快速篩選與響應式詳情顯示。'
+      },
+      {
+        question: '是否支援同時查看多個國家？',
+        answer: '支援。您可以比較多個已選國家的節日，並隨時在日曆視圖與列表視圖之間切換。'
+      }
+    ],
     
     'footer.title': '全球節日日曆',
     'footer.description': '通過共同的傳統和節日慶祝文化多樣性',
@@ -670,6 +784,25 @@ export const translations = {
       'アプリは自動的にあなたの位置を検出し、関連する国の祝日を表示',
       '複数の国を同時に選択して祝日を表示できます'
     ],
+    'faq.title': 'よくある質問',
+    'faq.items': [
+      {
+        question: 'グローバル祝日カレンダーはどのように使いますか？',
+        answer: '1つ以上の国を選び、カレンダー表示またはリスト表示で閲覧し、祝日をクリックすると歴史や習慣、意味を確認できます。'
+      },
+      {
+        question: 'ここではどのような祝日を見つけられますか？',
+        answer: '複数の国にまたがる公休日、文化祭、宗教的行事、伝統的な祝祭を確認できます。'
+      },
+      {
+        question: 'モバイルでも使えますか？',
+        answer: 'はい。モバイルブラウザ向けに最適化されており、スワイプで月を切り替え、素早い絞り込みや詳細表示が行えます。'
+      },
+      {
+        question: '複数の国を同時に比較できますか？',
+        answer: 'はい。選択した複数の国の祝日を比較しながら、カレンダー表示とリスト表示を自由に切り替えられます。'
+      }
+    ],
     
     'footer.title': 'グローバル祝日カレンダー',
     'footer.description': '共有された伝統と祝日を通じて文化の多様性を祝う',
@@ -769,6 +902,25 @@ export const translations = {
       '"오늘"을 클릭하여 현재 날짜로 돌아가기',
       '앱이 자동으로 귀하의 위치를 감지하고 관련 국가의 휴일을 표시',
       '여러 국가를 동시에 선택하여 휴일을 볼 수 있습니다'
+    ],
+    'faq.title': '자주 묻는 질문',
+    'faq.items': [
+      {
+        question: '글로벌 휴일 달력은 어떻게 사용하나요?',
+        answer: '하나 이상의 국가를 선택하고 달력 보기 또는 목록 보기로 탐색한 다음, 휴일을 눌러 역사와 관습, 의미를 확인하세요.'
+      },
+      {
+        question: '여기에서 어떤 휴일을 찾을 수 있나요?',
+        answer: '이 앱은 여러 국가의 공휴일, 문화 축제, 종교 행사, 전통 기념일을 보여줍니다.'
+      },
+      {
+        question: '모바일에서도 사용할 수 있나요?',
+        answer: '네. 모바일 브라우저에 최적화되어 있어 스와이프로 월을 전환하고 빠른 필터와 반응형 상세 보기를 이용할 수 있습니다.'
+      },
+      {
+        question: '여러 국가를 동시에 비교할 수 있나요?',
+        answer: '네. 선택한 여러 국가의 휴일을 비교하면서 달력 보기와 목록 보기를 자유롭게 전환할 수 있습니다.'
+      }
     ],
     
     'footer.title': '글로벌 휴일 달력',

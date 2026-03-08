@@ -7,7 +7,8 @@ const Logo = ({
   showText = true, 
   className = '',
   useImage = false,
-  logoFormat = 'svg' // 'svg', 'png', or 'icon'
+  logoFormat = 'svg', // 'svg', 'png', or 'icon'
+  titleAs = 'h1'
 }) => {
   const { t } = useTranslation();
   const sizeClasses = {
@@ -29,6 +30,7 @@ const Logo = ({
   };
 
   const currentSize = sizeClasses[size];
+  const TitleTag = titleAs;
 
   const getLogoSrc = () => {
     if (logoFormat === 'svg') return '/logo.svg';
@@ -73,12 +75,12 @@ const Logo = ({
       
       {showText && (
         <div className="text-center sm:text-left">
-          <h1 
+          <TitleTag 
             className={`${currentSize.text} font-bold`}
             style={{textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)'}}
           >
             {t('app.title')}
-          </h1>
+          </TitleTag>
           {size === 'medium' || size === 'large' ? (
             <p 
               className="text-xs md:text-sm mt-1" 
