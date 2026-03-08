@@ -93,6 +93,14 @@ function normalizeCountryCode(country) {
   return code || country;
 }
 
+export function getCountryCodeByName(countryName) {
+  return normalizeCountryCode(countryName);
+}
+
+export function getCountryNameByCode(countryCode) {
+  return COUNTRY_NAMES[countryCode] || countryCode;
+}
+
 function normalizeHolidayName(name) {
   return name.toLowerCase().replace(/\s+/g, ' ').trim();
 }

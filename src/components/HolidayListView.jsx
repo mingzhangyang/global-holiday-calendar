@@ -5,8 +5,7 @@ import HolidayModal from './HolidayModal';
 import { useTranslation } from '../hooks/useI18n';
 import { getLocaleFromLanguage } from '../services/i18nService';
 
-const HolidayListView = ({ selectedCountries }) => {
-  const [currentDate, setCurrentDate] = useState(new Date());
+const HolidayListView = ({ currentDate, onCurrentDateChange, selectedCountries }) => {
   const [monthHolidays, setMonthHolidays] = useState({});
   const [loading, setLoading] = useState(false);
   const [showLoadingState, setShowLoadingState] = useState(false);
@@ -81,7 +80,7 @@ const HolidayListView = ({ selectedCountries }) => {
   }, [monthHolidays]);
 
   const navigateMonth = (direction) => {
-    setCurrentDate(prev => {
+    onCurrentDateChange(prev => {
       const newDate = new Date(prev);
       newDate.setMonth(prev.getMonth() + direction);
       return newDate;
@@ -89,7 +88,7 @@ const HolidayListView = ({ selectedCountries }) => {
   };
 
   const navigateToToday = () => {
-    setCurrentDate(new Date());
+    onCurrentDateChange(new Date());
   };
 
   const handleTouchStart = (event) => {

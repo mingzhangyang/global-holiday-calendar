@@ -10,10 +10,70 @@ import { getUserDefaultCountry } from './services/locationService';
 import { useI18n, useTranslation } from './hooks/useI18n';
 import { useSeo } from './hooks/useSeo';
 import { getLocaleFromLanguage } from './services/i18nService';
+import { getCountryCodeByName, getCountryNameByCode } from './services/holidayApi';
+
+const SUPPORTED_LANGUAGE_CODES = ['en', 'fr', 'de', 'es', 'zh-CN', 'zh-TW', 'ja', 'ko'];
+
+function getInitialMonthFromUrl() {
+  if (typeof window === 'undefined') {
+    return new Date();
+  }
+
+  const monthParam = new URLSearchParams(window.location.search).get('month');
+  if (!monthParam || !/^\d{4}-\d{2}$/.test(monthParam)) {
+    return new Date();
+  }
+
+  const [year, month] = monthParam.split('-').map(Number);
+  return new Date(year, month - 1, 1);
+}
+
+function getInitialViewFromUrl() {
+  if (typeof window === 'undefined') {
+    return 'calendar';
+  }
+
+  const viewParam = new URLSearchParams(window.location.search).get('view');
+  return viewParam === 'list' ? 'list' : 'calendar';
+}
+
+function getInitialCountriesFromUrl() {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  const countriesParam = new URLSearchParams(window.location.search).get('countries');
+  if (!countriesParam) {
+    return null;
+  }
+
+  const parsedCountries = countriesParam
+    .split(',')
+    .map(code => getCountryNameByCode(code.trim().toUpperCase()))
+    .filter(Boolean);
+
+  return parsedCountries.length > 0 ? parsedCountries : null;
+}
+
+function getInitialLanguageFromUrl() {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  const langParam = new URLSearchParams(window.location.search).get('lang');
+  return SUPPORTED_LANGUAGE_CODES.includes(langParam) ? langParam : null;
+}
 
 function App() {
+  const initialCountriesFromUrl = getInitialCountriesFromUrl();
+  const initialLanguageFromUrl = getInitialLanguageFromUrl();
+
   // Load saved countries from localStorage or use empty array as default
   const [selectedCountries, setSelectedCountries] = useState(() => {
+    if (initialCountriesFromUrl) {
+      return initialCountriesFromUrl;
+    }
+
     try {
       const savedCountries = localStorage.getItem('selectedCountries');
       return savedCountries ? JSON.parse(savedCountries) : [];
@@ -25,11 +85,12 @@ function App() {
   const [showAboutModal, setShowAboutModal] = useState(false);
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
   const [locationDetected, setLocationDetected] = useState(false);
-  const [currentView, setCurrentView] = useState('calendar'); // 'calendar' or 'list'
+  const [currentView, setCurrentView] = useState(getInitialViewFromUrl); // 'calendar' or 'list'
+  const [currentDate, setCurrentDate] = useState(getInitialMonthFromUrl);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   // 国际化
-  const { detectLanguage } = useI18n();
+  const { detectLanguage, changeLanguage } = useI18n();
   const { t, language } = useTranslation();
 
   // 在组件挂载时检测用户位置并设置默认国家和语言
@@ -37,12 +98,16 @@ function App() {
     const initializeDefaults = async () => {
       try {
         setIsLoadingLocation(true);
+        if (initialLanguageFromUrl) {
+          await changeLanguage(initialLanguageFromUrl);
+        }
+
         const defaultCountry = await getUserDefaultCountry();
         
         if (defaultCountry) {
           // Only set default country if no saved countries exist
           const savedCountries = localStorage.getItem('selectedCountries');
-          if (!savedCountries || JSON.parse(savedCountries).length === 0) {
+          if (!initialCountriesFromUrl && (!savedCountries || JSON.parse(savedCountries).length === 0)) {
             setSelectedCountries([defaultCountry]);
             localStorage.setItem('selectedCountries', JSON.stringify([defaultCountry]));
           }
@@ -61,22 +126,28 @@ function App() {
           else if (defaultCountry === 'South Korea') countryCode = 'KR';
           
           // 检测并设置语言
-          await detectLanguage(countryCode);
+          if (!initialLanguageFromUrl) {
+            await detectLanguage(countryCode);
+          }
         } else {
           // 如果没有检测到国家，仍然检测语言
-          await detectLanguage();
+          if (!initialLanguageFromUrl) {
+            await detectLanguage();
+          }
         }
       } catch (error) {
         console.error('Error initializing defaults:', error);
         // 即使出错也要检测语言
-        await detectLanguage();
+        if (!initialLanguageFromUrl) {
+          await detectLanguage();
+        }
       } finally {
         setIsLoadingLocation(false);
       }
     };
 
     initializeDefaults();
-  }, [detectLanguage]);
+  }, [changeLanguage, detectLanguage, initialCountriesFromUrl, initialLanguageFromUrl]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -143,6 +214,28 @@ function App() {
     ? selectedCountries.join(', ')
     : `${selectedCountries.slice(0, 2).join(', ')} +${selectedCountries.length - 2}`;
 
+  const currentMonthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    params.set('lang', language);
+    params.set('view', currentView);
+    params.set('month', currentMonthKey);
+
+    if (selectedCountries.length > 0) {
+      params.set('countries', selectedCountries.map(getCountryCodeByName).join(','));
+    } else {
+      params.delete('countries');
+    }
+
+    const nextUrl = `${window.location.pathname}?${params.toString()}`;
+    window.history.replaceState({}, '', nextUrl);
+  }, [currentMonthKey, currentView, language, selectedCountries]);
+
   const faqItems = useMemo(() => {
     const items = t('faq.items');
     return Array.isArray(items) ? items : [];
@@ -150,16 +243,39 @@ function App() {
 
   const monthLabel = useMemo(() => {
     const months = t('calendar.months');
-    return Array.isArray(months) ? months[new Date().getMonth()] : '';
-  }, [t]);
+    return Array.isArray(months) ? months[currentDate.getMonth()] : '';
+  }, [currentDate, t]);
 
   const canonicalUrl = typeof window !== 'undefined'
     ? `${window.location.origin}${window.location.pathname}`
     : 'https://holidays.orangely.xyz/';
+  const buildLocalizedUrl = (langCode) => {
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://holidays.orangely.xyz';
+    const params = new URLSearchParams();
+    params.set('lang', langCode);
+    params.set('view', currentView);
+    params.set('month', currentMonthKey);
+
+    if (selectedCountries.length > 0) {
+      params.set('countries', selectedCountries.map(getCountryCodeByName).join(','));
+    }
+
+    return `${baseUrl}/?${params.toString()}`;
+  };
   const localizedLocale = getLocaleFromLanguage(language);
   const seoTitle = `${t('app.title')} | ${currentView === 'calendar' ? t('listView.calendarView') : t('listView.listView')}`;
   const seoDescription = `${t('app.subtitle')}. ${monthLabel ? `${monthLabel} ${new Date().getFullYear()}. ` : ''}${selectionSummary}. ${t('legend.note')}`;
   const seoImage = `${typeof window !== 'undefined' ? window.location.origin : 'https://holidays.orangely.xyz'}/logo.png`;
+  const alternateLinks = useMemo(() => ([
+    ...SUPPORTED_LANGUAGE_CODES.map(code => ({
+      hreflang: code.toLowerCase(),
+      href: buildLocalizedUrl(code)
+    })),
+    {
+      hreflang: 'x-default',
+      href: buildLocalizedUrl('en')
+    }
+  ]), [currentMonthKey, currentView, selectedCountries]);
   const structuredData = useMemo(() => ({
     '@context': 'https://schema.org',
     '@graph': [
@@ -167,9 +283,26 @@ function App() {
         '@type': 'WebPage',
         name: seoTitle,
         description: seoDescription,
-        url: canonicalUrl,
+        url: buildLocalizedUrl(language),
         inLanguage: language,
         primaryImageOfPage: seoImage
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: t('app.title'),
+            item: buildLocalizedUrl(language)
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: monthLabel || currentMonthKey,
+            item: buildLocalizedUrl(language)
+          }
+        ]
       },
       {
         '@type': 'FAQPage',
@@ -183,16 +316,17 @@ function App() {
         }))
       }
     ]
-  }), [canonicalUrl, faqItems, language, seoDescription, seoImage, seoTitle]);
+  }), [faqItems, language, monthLabel, seoDescription, seoImage, seoTitle, t]);
 
   useSeo({
     title: seoTitle,
     description: seoDescription,
     language,
-    canonical: canonicalUrl,
+    canonical: buildLocalizedUrl(language),
     image: seoImage,
     locale: localizedLocale,
-    structuredData
+    structuredData,
+    alternateLinks
   });
 
   const renderHeaderControls = (isMobile = false) => (
@@ -400,11 +534,15 @@ function App() {
           <section className="lg:col-span-3 space-y-5 sm:space-y-8" id="main-view" aria-live="polite" aria-label="Holiday results">
             {currentView === 'calendar' ? (
               <Calendar
+                currentDate={currentDate}
+                onCurrentDateChange={setCurrentDate}
                 selectedCountries={selectedCountries}
                 onDateClick={handleDateClick}
               />
             ) : (
               <HolidayListView
+                currentDate={currentDate}
+                onCurrentDateChange={setCurrentDate}
                 selectedCountries={selectedCountries}
               />
             )}

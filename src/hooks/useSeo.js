@@ -19,7 +19,8 @@ export function useSeo({
   canonical,
   image,
   locale,
-  structuredData
+  structuredData,
+  alternateLinks = []
 }) {
   useEffect(() => {
     if (typeof document === 'undefined') {
@@ -47,6 +48,19 @@ export function useSeo({
     }
     canonicalLink.setAttribute('href', canonical);
 
+    document.head
+      .querySelectorAll('link[data-seo-alternate="true"]')
+      .forEach(link => link.remove());
+
+    alternateLinks.forEach(({ href, hreflang }) => {
+      const alternateLink = document.createElement('link');
+      alternateLink.setAttribute('rel', 'alternate');
+      alternateLink.setAttribute('hreflang', hreflang);
+      alternateLink.setAttribute('href', href);
+      alternateLink.setAttribute('data-seo-alternate', 'true');
+      document.head.appendChild(alternateLink);
+    });
+
     let structuredDataScript = document.head.querySelector('#dynamic-seo-structured-data');
     if (!structuredDataScript) {
       structuredDataScript = document.createElement('script');
@@ -55,5 +69,5 @@ export function useSeo({
       document.head.appendChild(structuredDataScript);
     }
     structuredDataScript.textContent = JSON.stringify(structuredData);
-  }, [title, description, language, canonical, image, locale, structuredData]);
+  }, [title, description, language, canonical, image, locale, structuredData, alternateLinks]);
 }
