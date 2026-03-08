@@ -4,6 +4,11 @@
 const HOLIDAYS_WORKER_URL = '/api/holidays';
 const HOLIDAY_INFO_WORKER_URL = '/api/holiday-info';
 
+function createApiUrl(path) {
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
+  return new URL(path, baseUrl);
+}
+
 // Cache for storing fetched holiday data
 const holidayCache = new Map();
 const cacheExpiry = new Map();
@@ -55,7 +60,7 @@ export async function fetchHolidaysFromWorker(year, countryCode, includeDescript
   }
 
   try {
-    const url = new URL(HOLIDAYS_WORKER_URL);
+    const url = createApiUrl(HOLIDAYS_WORKER_URL);
     url.searchParams.set('year', year.toString());
     url.searchParams.set('country', countryCode);
     url.searchParams.set('description', includeDescription.toString());
