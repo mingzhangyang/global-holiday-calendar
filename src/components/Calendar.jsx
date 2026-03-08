@@ -159,7 +159,7 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
       setIsModalOpen(true);
       
       // Pre-fetch detailed information for all holidays on this date
-      dayInfo.holidays.forEach(async (holiday, index) => {
+      dayInfo.holidays.forEach(async (holiday) => {
         const cacheKey = `holiday-info-${holiday.name}-${holiday.country}`;
         const languageCacheKey = `${cacheKey}-${language}`;
         
@@ -262,9 +262,9 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
         </div>
         
         {/* Day headers */}
-        <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
+        <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
           {dayNames.map((day, index) => (
-            <div key={day} className="text-center text-[11px] sm:text-sm font-medium py-2 uppercase sm:normal-case tracking-wide sm:tracking-normal">
+            <div key={day} className="text-center text-[11px] sm:text-sm font-medium py-1.5 sm:py-2 uppercase sm:normal-case tracking-wide sm:tracking-normal">
               <span className="sm:hidden">{mobileDayNames[index]}</span>
               <span className="hidden sm:inline">{day}</span>
             </div>
@@ -273,11 +273,11 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
       </div>
 
       {/* Calendar Grid */}
-      <div className="p-2 sm:p-4 relative">
+      <div className="relative bg-slate-50/80 p-1.5 sm:p-3">
         {loading && showLoadingState && !hasMonthData ? (
-          <div className="grid grid-cols-7 gap-0.5 sm:gap-1 animate-fade-in-up" aria-hidden="true">
+          <div className="grid grid-cols-7 gap-1 sm:gap-1.5 animate-fade-in-up" aria-hidden="true">
             {Array.from({ length: 42 }).map((_, index) => (
-              <div key={index} className="aspect-[0.88] min-h-[4.25rem] sm:min-h-20 sm:aspect-auto rounded-xl border border-slate-200/80 bg-slate-100/70 p-1 sm:p-1.5">
+              <div key={index} className="min-h-[3.85rem] sm:min-h-[5.5rem] lg:min-h-[6.5rem] rounded-lg sm:rounded-xl border border-slate-200/80 bg-white/70 p-1.5 sm:p-2">
                 <div className="skeleton-shimmer h-3 w-5 rounded-full mb-2" />
                 <div className="hidden sm:block skeleton-shimmer h-2.5 w-full rounded-full mb-1.5" />
                 <div className="hidden sm:block skeleton-shimmer h-2.5 w-2/3 rounded-full" />
@@ -285,10 +285,11 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
             ))}
           </div>
         ) : (
-        <div className={`grid grid-cols-7 gap-0.5 sm:gap-1 ${loading && showLoadingState ? 'opacity-70' : ''}`}>
+        <div className={`grid grid-cols-7 gap-1 sm:gap-1.5 ${loading && showLoadingState ? 'opacity-70' : ''}`}>
           {calendarDays.map((dayInfo, index) => {
             const hasHolidays = dayInfo.holidays.length > 0;
             const isInteractive = hasHolidays && dayInfo.isCurrentMonth;
+            const primaryHoliday = dayInfo.holidays[0];
             
             return (
               <button
@@ -297,72 +298,78 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
                 onClick={() => handleDateClick(dayInfo)}
                 disabled={!isInteractive}
                 className={`
-                  relative flex flex-col p-1 sm:p-1.5 border rounded-xl transition-all duration-200 text-left
+                  relative flex min-h-[3.85rem] sm:min-h-[5.5rem] lg:min-h-[6.5rem] flex-col overflow-hidden rounded-lg sm:rounded-xl border px-1 py-1.5 sm:p-2 transition-all duration-200 text-left
                   ${
                     dayInfo.isToday
                       ? 'text-white shadow-md'
                       : hasHolidays && dayInfo.isCurrentMonth
-                      ? 'bg-gradient-to-br from-green-50 border-green-200 shadow-sm'
+                      ? 'border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-amber-50 shadow-sm'
                       : dayInfo.isCurrentMonth
-                      ? 'bg-white border-gray-200 hover:bg-gray-50'
-                      : 'bg-gray-50 border-gray-100'
+                      ? 'bg-white border-slate-200 hover:bg-slate-50'
+                      : 'bg-slate-100/80 border-slate-200/70'
                   }
                   ${
                     isInteractive
-                      ? 'cursor-pointer active:scale-[0.98] sm:hover:shadow-md sm:hover:scale-[1.02] transform'
+                      ? 'cursor-pointer active:scale-[0.98] sm:hover:-translate-y-0.5 sm:hover:shadow-md transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300 focus-visible:ring-offset-2'
                       : 'cursor-default'
                   }
-                  aspect-[0.88] min-h-[4.25rem] sm:min-h-20 sm:aspect-auto
                 `}
                 aria-label={formatCalendarLabel(dayInfo.date)}
                 aria-disabled={!isInteractive}
                 style={dayInfo.isToday ? {backgroundColor: '#ff8c00', borderColor: '#ff8c00'} : hasHolidays && dayInfo.isCurrentMonth ? {background: 'linear-gradient(to bottom right, #f0fdf4, #fff5e6)'} : {}}
               >
-                <div className="flex justify-between items-start w-full mb-1">
-                  <span className={`text-xs sm:text-sm font-semibold ${
+                <div className="mb-1 flex w-full items-start justify-between gap-1 sm:mb-1.5">
+                  <span className={`inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-xs sm:text-sm font-semibold ${
                     dayInfo.isToday
-                      ? 'text-white'
+                      ? 'bg-white/15 text-white'
                       : dayInfo.isCurrentMonth 
-                      ? 'text-gray-900' 
-                      : 'text-gray-400'
+                      ? 'text-slate-900' 
+                      : 'text-slate-400'
                   }`}>
                     {dayInfo.day}
                   </span>
                   
                   {/* Holiday indicators */}
                   {hasHolidays && (
-                    <div className="hidden sm:flex flex-wrap gap-1">
-                      {dayInfo.holidays.slice(0, 3).map((holiday, holidayIndex) => (
-                        <div
-                          key={holidayIndex}
-                          className="w-2 h-2 rounded-full shadow-sm"
-                          style={{ backgroundColor: holiday.color || '#3B82F6' }}
-                          title={holiday.name}
-                        />
-                      ))}
-                      {dayInfo.holidays.length > 3 && (
-                        <div className="text-xs text-gray-600 font-medium">
-                          +{dayInfo.holidays.length - 3}
-                        </div>
-                      )}
+                    <div className="flex items-center gap-1 self-start">
+                      <div className="hidden sm:flex flex-wrap items-center gap-1">
+                        {dayInfo.holidays.slice(0, 3).map((holiday, holidayIndex) => (
+                          <div
+                            key={holidayIndex}
+                            className="h-2 w-2 rounded-full shadow-sm"
+                            style={{ backgroundColor: holiday.color || '#3B82F6' }}
+                            title={holiday.name}
+                          />
+                        ))}
+                        {dayInfo.holidays.length > 3 && (
+                          <div className="text-[11px] font-semibold text-slate-600">
+                            +{dayInfo.holidays.length - 3}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
                 
                 {/* Holiday names */}
                 {hasHolidays && dayInfo.isCurrentMonth && (
-                  <div className="flex-1 w-full overflow-hidden">
-                    <div className="sm:hidden mt-auto inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium bg-black/5 text-gray-700 max-w-full">
-                      <span className="truncate">{dayInfo.holidays[0].name}</span>
-                      {dayInfo.holidays.length > 1 && <span className="ml-1">{t('common.moreCount', { count: dayInfo.holidays.length - 1 })}</span>}
+                  <div className="flex flex-1 flex-col justify-end overflow-hidden">
+                    <div className="mt-auto flex items-center gap-1 sm:hidden" aria-hidden="true">
+                      {dayInfo.holidays.slice(0, 3).map((holiday, holidayIndex) => (
+                        <span
+                          key={holidayIndex}
+                          className={`h-1.5 w-1.5 rounded-full ${dayInfo.isToday ? 'ring-1 ring-white/30' : ''}`}
+                          style={{ backgroundColor: holiday.color || '#3B82F6' }}
+                        />
+                      ))}
                     </div>
                     {dayInfo.holidays.slice(0, 2).map((holiday, holidayIndex) => (
                       <div
                         key={holidayIndex}
-                        className={`hidden sm:block text-xs leading-tight mb-1 truncate ${
+                        className={`hidden truncate text-[11px] leading-4 sm:block ${
                           dayInfo.isToday
                             ? ''
-                            : 'text-gray-700'
+                            : 'text-slate-700'
                         }`}
                         style={dayInfo.isToday ? {color: '#ffcc99'} : {}}
                         title={holiday.name}
@@ -371,10 +378,10 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
                       </div>
                     ))}
                     {dayInfo.holidays.length > 2 && (
-                      <div className={`hidden sm:block text-xs font-medium ${
+                      <div className={`hidden pt-0.5 text-[11px] font-semibold sm:block ${
                         dayInfo.isToday
                           ? ''
-                          : 'text-gray-500'
+                          : 'text-slate-500'
                       }`}
                       style={dayInfo.isToday ? {color: '#ffe6cc'} : {}}>
                         {t('common.moreCount', { count: dayInfo.holidays.length - 2 })}
