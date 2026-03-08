@@ -1,8 +1,8 @@
 // Holiday API service to fetch data from Cloudflare Workers
 
-// Cloudflare Worker URLs
-const HOLIDAYS_WORKER_URL = import.meta.env.VITE_HOLIDAYS_WORKER_URL || 'https://holidays.orangely.workers.dev';
-const HOLIDAY_INFO_WORKER_URL = import.meta.env.VITE_HOLIDAY_INFO_WORKER_URL || 'https://holiday-info.orangely.workers.dev';
+// API routes served by the same Worker
+const HOLIDAYS_WORKER_URL = '/api/holidays';
+const HOLIDAY_INFO_WORKER_URL = '/api/holiday-info';
 
 // Cache for storing fetched holiday data
 const holidayCache = new Map();
