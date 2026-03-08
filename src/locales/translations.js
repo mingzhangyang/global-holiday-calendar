@@ -10,7 +10,10 @@ export const translations = {
     
     // 国家筛选器
     'countryFilter.title': 'Country Filter',
+    'countryFilter.expand': 'Expand country filter',
+    'countryFilter.collapse': 'Collapse country filter',
     'countryFilter.showingAll': 'Showing all countries',
+    'countryFilter.allCountries': 'All countries',
     'countryFilter.selectedCount': '{count} of {total} countries selected',
     'countryFilter.detectingLocation': 'Detecting your location...',
     'countryFilter.basedOnLocation': 'Showing {count} countries based on your location',
@@ -19,6 +22,7 @@ export const translations = {
     'countryFilter.smartRecommend': 'Smart Recommend',
     'countryFilter.smartRecommendTooltip': 'Re-detect your location',
     'countryFilter.locationBased': 'Showing {count} countries based on your location',
+    'countryFilter.moreCountries': '+{count} more countries',
     
     // 日历
     'calendar.today': 'Today',
@@ -138,7 +142,10 @@ export const translations = {
     'header.about': 'À propos',
     
     'countryFilter.title': 'Filtre par Pays',
+    'countryFilter.expand': 'Développer le filtre pays',
+    'countryFilter.collapse': 'Réduire le filtre pays',
     'countryFilter.showingAll': 'Affichage de tous les pays',
+    'countryFilter.allCountries': 'Tous les pays',
     'countryFilter.selectedCount': '{count} sur {total} pays sélectionnés',
     'countryFilter.detectingLocation': 'Détection de votre position...',
     'countryFilter.basedOnLocation': 'Affichage de {count} pays basé sur votre position',
@@ -147,6 +154,7 @@ export const translations = {
     'countryFilter.smartRecommend': 'Recommandation Intelligente',
     'countryFilter.smartRecommendTooltip': 'Re-détecter votre position',
     'countryFilter.locationBased': 'Affichage de {count} pays basé sur votre position',
+    'countryFilter.moreCountries': '+{count} pays supplémentaires',
     
     'calendar.today': 'Aujourd\'hui',
     'calendar.previousMonth': 'Mois précédent',
@@ -259,7 +267,10 @@ export const translations = {
     'header.about': 'Über uns',
     
     'countryFilter.title': 'Länderfilter',
+    'countryFilter.expand': 'Länderfilter erweitern',
+    'countryFilter.collapse': 'Länderfilter reduzieren',
     'countryFilter.showingAll': 'Alle Länder anzeigen',
+    'countryFilter.allCountries': 'Alle Länder',
     'countryFilter.selectedCount': '{count} von {total} Ländern ausgewählt',
     'countryFilter.detectingLocation': 'Standort wird erkannt...',
     'countryFilter.basedOnLocation': '{count} Länder basierend auf Ihrem Standort anzeigen',
@@ -268,6 +279,7 @@ export const translations = {
     'countryFilter.smartRecommend': 'Intelligente Empfehlung',
     'countryFilter.smartRecommendTooltip': 'Standort erneut erkennen',
     'countryFilter.locationBased': '{count} Länder basierend auf Ihrem Standort anzeigen',
+    'countryFilter.moreCountries': '+{count} weitere Länder',
     
     'calendar.today': 'Heute',
     'calendar.previousMonth': 'Vorheriger Monat',
@@ -378,7 +390,10 @@ export const translations = {
     'header.about': 'Acerca de',
     
     'countryFilter.title': 'Filtro de País',
+    'countryFilter.expand': 'Expandir filtro de países',
+    'countryFilter.collapse': 'Contraer filtro de países',
     'countryFilter.showingAll': 'Mostrando todos los países',
+    'countryFilter.allCountries': 'Todos los países',
     'countryFilter.selectedCount': '{count} de {total} países seleccionados',
     'countryFilter.detectingLocation': 'Detectando su ubicación...',
     'countryFilter.basedOnLocation': 'Mostrando {count} países basado en su ubicación',
@@ -387,6 +402,7 @@ export const translations = {
     'countryFilter.smartRecommend': 'Recomendación Inteligente',
     'countryFilter.smartRecommendTooltip': 'Re-detectar su ubicación',
     'countryFilter.locationBased': 'Mostrando {count} países basado en su ubicación',
+    'countryFilter.moreCountries': '+{count} países más',
     
     'calendar.today': 'Hoy',
     'calendar.previousMonth': 'Mes anterior',
@@ -497,7 +513,10 @@ export const translations = {
     'header.about': '关于',
     
     'countryFilter.title': '国家筛选',
+    'countryFilter.expand': '展开国家筛选',
+    'countryFilter.collapse': '收起国家筛选',
     'countryFilter.showingAll': '显示所有国家',
+    'countryFilter.allCountries': '所有国家',
     'countryFilter.selectedCount': '已选择 {count} / {total} 个国家',
     'countryFilter.detectingLocation': '检测您的位置...',
     'countryFilter.basedOnLocation': '基于您的位置显示 {count} 个国家',
@@ -506,6 +525,7 @@ export const translations = {
     'countryFilter.smartRecommend': '智能推荐',
     'countryFilter.smartRecommendTooltip': '重新检测您的位置',
     'countryFilter.locationBased': '基于您的位置显示 {count} 个国家',
+    'countryFilter.moreCountries': '+{count} 个国家',
     
     'calendar.today': '今天',
     'calendar.previousMonth': '上个月',
@@ -618,7 +638,10 @@ export const translations = {
     'header.about': '關於',
     
     'countryFilter.title': '國家篩選',
+    'countryFilter.expand': '展開國家篩選',
+    'countryFilter.collapse': '收起國家篩選',
     'countryFilter.showingAll': '顯示所有國家',
+    'countryFilter.allCountries': '所有國家',
     'countryFilter.selectedCount': '已選擇 {count} / {total} 個國家',
     'countryFilter.detectingLocation': '檢測您的位置...',
     'countryFilter.basedOnLocation': '基於您的位置顯示 {count} 個國家',
@@ -627,6 +650,7 @@ export const translations = {
     'countryFilter.smartRecommend': '智能推薦',
     'countryFilter.smartRecommendTooltip': '重新檢測您的位置',
     'countryFilter.locationBased': '基於您的位置顯示 {count} 個國家',
+    'countryFilter.moreCountries': '+{count} 個國家',
     
     'calendar.today': '今天',
     'calendar.previousMonth': '上個月',
@@ -737,7 +761,10 @@ export const translations = {
     'header.about': 'について',
     
     'countryFilter.title': '国フィルター',
+    'countryFilter.expand': '国フィルターを展開',
+    'countryFilter.collapse': '国フィルターを折りたたむ',
     'countryFilter.showingAll': 'すべての国を表示',
+    'countryFilter.allCountries': 'すべての国',
     'countryFilter.selectedCount': '{total}カ国中{count}カ国を選択',
     'countryFilter.detectingLocation': '位置を検出中...',
     'countryFilter.basedOnLocation': 'あなたの位置に基づいて{count}カ国を表示',
@@ -746,6 +773,7 @@ export const translations = {
     'countryFilter.smartRecommend': 'スマート推奨',
     'countryFilter.smartRecommendTooltip': '位置を再検出',
     'countryFilter.locationBased': 'あなたの位置に基づいて{count}カ国を表示',
+    'countryFilter.moreCountries': '+{count}カ国',
     
     'calendar.today': '今日',
     'calendar.previousMonth': '前月',
@@ -856,7 +884,10 @@ export const translations = {
     'header.about': '정보',
     
     'countryFilter.title': '국가 필터',
+    'countryFilter.expand': '국가 필터 펼치기',
+    'countryFilter.collapse': '국가 필터 접기',
     'countryFilter.showingAll': '모든 국가 표시',
+    'countryFilter.allCountries': '모든 국가',
     'countryFilter.selectedCount': '{total}개국 중 {count}개국 선택됨',
     'countryFilter.detectingLocation': '위치를 감지하는 중...',
     'countryFilter.basedOnLocation': '귀하의 위치를 기반으로 {count}개국 표시',
@@ -865,6 +896,7 @@ export const translations = {
     'countryFilter.smartRecommend': '스마트 추천',
     'countryFilter.smartRecommendTooltip': '위치 재감지',
     'countryFilter.locationBased': '귀하의 위치를 기반으로 {count}개국 표시',
+    'countryFilter.moreCountries': '+{count}개 국가',
     
     'calendar.today': '오늘',
     'calendar.previousMonth': '이전 달',

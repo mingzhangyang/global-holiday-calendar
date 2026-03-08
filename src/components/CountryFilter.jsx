@@ -100,7 +100,7 @@ const CountryFilter = ({ selectedCountries, onCountriesChange, isLoadingLocation
           {isLoadingLocation ? (
             <span className="flex items-center space-x-1">
               <div className="animate-spin rounded-full h-3 w-3 border border-white border-t-transparent" />
-              <span>{t('countryFilter.detecting')}</span>
+              <span>{t('countryFilter.detectingLocation')}</span>
             </span>
           ) : locationDetected && selectedCount > 0 ? (
             <span className="flex items-center space-x-1">
@@ -114,7 +114,7 @@ const CountryFilter = ({ selectedCountries, onCountriesChange, isLoadingLocation
             </span>
           ) : (
             <span>
-              {t('countryFilter.selected', { selected: selectedCount, total: totalCount })}
+              {t('countryFilter.selectedCount', { count: selectedCount, total: totalCount })}
             </span>
           )}
         </div>

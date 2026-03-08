@@ -8,7 +8,8 @@ const Logo = ({
   className = '',
   useImage = false,
   logoFormat = 'svg', // 'svg', 'png', or 'icon'
-  titleAs = 'h1'
+  titleAs = 'h1',
+  variant = 'dark'
 }) => {
   const { t } = useTranslation();
   const sizeClasses = {
@@ -31,6 +32,7 @@ const Logo = ({
 
   const currentSize = sizeClasses[size];
   const TitleTag = titleAs;
+  const isLightVariant = variant === 'light';
 
   const getLogoSrc = () => {
     if (logoFormat === 'svg') return '/logo.svg';
@@ -40,7 +42,11 @@ const Logo = ({
 
   return (
     <div className={`flex items-center ${currentSize.container} ${className}`}>
-      <div className="flex shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-white/12 p-2 shadow-lg backdrop-blur-md">
+      <div className={`flex shrink-0 items-center justify-center rounded-2xl p-2 backdrop-blur-md ${
+        isLightVariant
+          ? 'border border-slate-200/80 bg-white shadow-sm'
+          : 'border border-white/15 bg-white/12 shadow-lg'
+      }`}>
         {useImage ? (
           logoFormat === 'svg' ? (
             <img 
@@ -77,13 +83,13 @@ const Logo = ({
       {showText && (
         <div className="text-center sm:text-left">
           <TitleTag 
-            className={`${currentSize.text} font-bold tracking-tight`}
+            className={`${currentSize.text} font-bold tracking-tight ${isLightVariant ? 'text-slate-950' : 'text-white'}`}
           >
             {t('app.title')}
           </TitleTag>
           {size === 'medium' || size === 'large' ? (
             <p 
-              className="mt-1 text-xs text-white/70 md:text-sm"
+              className={`mt-1 text-xs md:text-sm ${isLightVariant ? 'text-slate-500' : 'text-white/70'}`}
             >
               {t('app.subtitle')}
             </p>
