@@ -43,7 +43,7 @@ export function useI18n() {
 
   // 更改语言
   const changeLanguage = useCallback(async (newLanguage) => {
-    if (newLanguage === language) return;
+    if (newLanguage === globalLanguage) return;
     
     setIsLoading(true);
     try {
@@ -56,14 +56,14 @@ export function useI18n() {
     } finally {
       setIsLoading(false);
     }
-  }, [language]);
+  }, []);
 
   // 自动检测语言
   const detectLanguage = useCallback(async (countryCode = null) => {
     setIsLoading(true);
     try {
       const detectedLanguage = await detectUserLanguage(countryCode);
-      if (detectedLanguage && detectedLanguage !== language) {
+      if (detectedLanguage && detectedLanguage !== globalLanguage) {
         const success = updateCurrentLanguage(detectedLanguage);
         if (success) {
           notifyLanguageChange(detectedLanguage);
@@ -72,11 +72,11 @@ export function useI18n() {
       return detectedLanguage;
     } catch (error) {
       console.error('Error detecting language:', error);
-      return language;
+      return globalLanguage;
     } finally {
       setIsLoading(false);
     }
-  }, [language]);
+  }, []);
 
   // 获取当前语言的所有翻译
   const translations = getTranslations(language);

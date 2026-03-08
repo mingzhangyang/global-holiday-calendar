@@ -40,51 +40,50 @@ const Logo = ({
 
   return (
     <div className={`flex items-center ${currentSize.container} ${className}`}>
-      {useImage ? (
-        logoFormat === 'svg' ? (
-          <img 
-            src={getLogoSrc()}
-            alt={t('app.title')}
-            className={`flex-shrink-0`}
-            style={{ 
-              width: currentSize.icon, 
-              height: currentSize.icon,
-              filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))'
-            }}
-          />
+      <div className="flex shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-white/12 p-2 shadow-lg backdrop-blur-md">
+        {useImage ? (
+          logoFormat === 'svg' ? (
+            <img 
+              src={getLogoSrc()}
+              alt={t('app.title')}
+              className={`flex-shrink-0`}
+              style={{ 
+                width: currentSize.icon, 
+                height: currentSize.icon,
+                filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.12))'
+              }}
+            />
+          ) : (
+            <img 
+              src={getLogoSrc()}
+              alt={t('app.title')}
+              className="object-contain flex-shrink-0 rounded-xl"
+              style={{ 
+                width: currentSize.icon, 
+                height: currentSize.icon,
+                filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))'
+              }}
+            />
+          )
         ) : (
-          <img 
-            src={getLogoSrc()}
-            alt={t('app.title')}
-            className={`w-${currentSize.icon/4} h-${currentSize.icon/4} object-contain flex-shrink-0 rounded-2xl`}
-            style={{ 
-              width: currentSize.icon, 
-              height: currentSize.icon,
-              borderRadius: '8px',
-              filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))'
-            }}
+          <CalendarIcon 
+            size={currentSize.icon} 
+            className="flex-shrink-0" 
+            aria-hidden="true" 
           />
-        )
-      ) : (
-        <CalendarIcon 
-          size={currentSize.icon} 
-          className="flex-shrink-0" 
-          aria-hidden="true" 
-        />
-      )}
+        )}
+      </div>
       
       {showText && (
         <div className="text-center sm:text-left">
           <TitleTag 
-            className={`${currentSize.text} font-bold`}
-            style={{textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)'}}
+            className={`${currentSize.text} font-bold tracking-tight`}
           >
             {t('app.title')}
           </TitleTag>
           {size === 'medium' || size === 'large' ? (
             <p 
-              className="text-xs md:text-sm mt-1" 
-              style={{color: '#e0e7ff'}}
+              className="mt-1 text-xs text-white/70 md:text-sm"
             >
               {t('app.subtitle')}
             </p>

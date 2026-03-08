@@ -95,41 +95,41 @@ const HolidayModal = ({ date, holidays, onClose }) => {
 
   return (
     <div 
-      className="fixed inset-0 bg-black/55 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/55 p-0 backdrop-blur-sm sm:items-center sm:p-4"
       onClick={onClose}
     >
       <div 
-        className="bg-white rounded-t-3xl sm:rounded-2xl max-w-2xl w-full max-h-[92dvh] sm:max-h-[90vh] overflow-y-auto shadow-xl"
+        className="surface-card-strong w-full max-w-2xl max-h-[92dvh] overflow-y-auto rounded-t-3xl sm:max-h-[90vh] sm:rounded-[28px]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 sm:p-4 flex items-start sm:items-center justify-between gap-3">
+        <div className="sticky top-0 flex items-start justify-between gap-3 border-b border-slate-200/80 bg-white/85 px-4 py-3 backdrop-blur-xl sm:items-center sm:p-4">
           <div className="flex items-start sm:items-center space-x-2 min-w-0">
-            <Calendar className="" style={{color: '#ff8c00'}} size={20} />
-            <h2 className="text-base sm:text-lg font-semibold text-gray-900 leading-tight">
+            <Calendar className="text-teal-500" size={20} />
+            <h2 className="text-base sm:text-lg font-semibold text-slate-900 leading-tight">
               {formatDate(date)}
             </h2>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+            className="focus-ring rounded-full p-2 hover:bg-slate-100"
             aria-label={t('common.close')}
           >
-            <X size={20} className="text-gray-500" />
+            <X size={20} className="text-slate-500" />
           </button>
         </div>
 
         {/* Modal Content */}
         <div className="p-4 sm:p-5 space-y-5 sm:space-y-6">
           {holidays.map((holiday, index) => (
-            <div key={index} className="border-l-4 pl-4" style={{ borderColor: holiday.color }}>
+            <div key={index} className="rounded-[24px] border border-slate-200/80 bg-white/70 p-4 shadow-sm sm:p-5">
               {/* Holiday Header */}
-              <div className="mb-3">
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 leading-snug">
+              <div className="mb-4 border-l-4 pl-4" style={{ borderColor: holiday.color }}>
+                <h3 className="mb-1 text-lg font-bold leading-snug text-slate-900 sm:text-xl">
                   {holiday.name}
                 </h3>
-                <div className="flex items-center space-x-2 text-sm text-gray-600 flex-wrap">
+                <div className="flex flex-wrap items-center space-x-2 text-sm text-slate-600">
                   <MapPin size={16} />
                   <span className="font-medium">{holiday.country}</span>
                 </div>
@@ -137,7 +137,7 @@ const HolidayModal = ({ date, holidays, onClose }) => {
 
               {/* Holiday Description */}
               <div className="mb-4">
-                <p className="text-gray-700 leading-relaxed">
+                <p className="leading-relaxed text-slate-700">
                   {holiday.description}
                 </p>
               </div>
@@ -151,9 +151,9 @@ const HolidayModal = ({ date, holidays, onClose }) => {
                       className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: holiday.color }}
                     />
-                    <h4 className="font-semibold text-gray-900">{t('holidayModal.significance')}</h4>
+                    <h4 className="font-semibold text-slate-900">{t('holidayModal.significance')}</h4>
                   </div>
-                  <p className="text-gray-700 text-sm leading-relaxed ml-5">
+                  <p className="ml-5 text-sm leading-relaxed text-slate-700">
                     {holiday.significance}
                   </p>
                 </div>
@@ -161,10 +161,10 @@ const HolidayModal = ({ date, holidays, onClose }) => {
                 {/* Customs */}
                 <div>
                   <div className="flex items-center space-x-2 mb-2">
-                    <Clock size={16} className="text-gray-500" />
-                    <h4 className="font-semibold text-gray-900">{t('holidayModal.customs')}</h4>
+                    <Clock size={16} className="text-slate-500" />
+                    <h4 className="font-semibold text-slate-900">{t('holidayModal.customs')}</h4>
                   </div>
-                  <p className="text-gray-700 text-sm leading-relaxed ml-5">
+                  <p className="ml-5 text-sm leading-relaxed text-slate-700">
                     {holiday.customs}
                   </p>
                 </div>
@@ -172,10 +172,10 @@ const HolidayModal = ({ date, holidays, onClose }) => {
                 {/* History */}
                 <div>
                   <div className="flex items-center space-x-2 mb-2">
-                    <Book size={16} className="text-gray-500" />
-                    <h4 className="font-semibold text-gray-900">{t('holidayModal.historical')}</h4>
+                    <Book size={16} className="text-slate-500" />
+                    <h4 className="font-semibold text-slate-900">{t('holidayModal.historical')}</h4>
                   </div>
-                  <p className="text-gray-700 text-sm leading-relaxed ml-5">
+                  <p className="ml-5 text-sm leading-relaxed text-slate-700">
                     {holiday.history}
                   </p>
                 </div>
@@ -186,7 +186,7 @@ const HolidayModal = ({ date, holidays, onClose }) => {
                     type="button"
                     onClick={() => fetchDetailedInfo(holiday, index)}
                     disabled={loadingInfo[index]}
-                    className="flex w-full sm:w-auto items-center justify-center space-x-2 px-3 py-2.5 rounded-xl transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer" style={{backgroundColor: '#fff5e6', color: '#cc7000'}} onMouseEnter={(e) => e.target.style.backgroundColor = '#ffe6cc'} onMouseLeave={(e) => e.target.style.backgroundColor = '#fff5e6'}
+                    className="accent-button-soft focus-ring flex w-full cursor-pointer items-center justify-center space-x-2 rounded-2xl px-3 py-2.5 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                   >
                     <Info size={16} />
                     <span className="text-sm font-medium">
@@ -197,21 +197,21 @@ const HolidayModal = ({ date, holidays, onClose }) => {
 
                 {/* Detailed Information Display */}
                 {detailedInfo[index] && (
-                  <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                    <h4 className="font-semibold text-gray-900 mb-2">{t('holidayModal.detailedBackground')}</h4>
-                    <div className="text-sm text-gray-700 prose prose-sm max-w-none">
+                  <div className="surface-card-muted mt-4 rounded-2xl p-4">
+                    <h4 className="mb-2 font-semibold text-slate-900">{t('holidayModal.detailedBackground')}</h4>
+                    <div className="prose prose-sm max-w-none text-sm text-slate-700">
                       <ReactMarkdown 
                         components={{
-                          h1: ({children}) => <h1 className="text-lg font-bold text-gray-900 mb-2 mt-4">{children}</h1>,
-                          h2: ({children}) => <h2 className="text-base font-semibold text-gray-900 mb-2 mt-4">{children}</h2>,
-                          h3: ({children}) => <h3 className="text-sm font-medium text-gray-900 mb-1 mt-3">{children}</h3>,
+                          h1: ({children}) => <h1 className="mb-2 mt-4 text-lg font-bold text-slate-900">{children}</h1>,
+                          h2: ({children}) => <h2 className="mb-2 mt-4 text-base font-semibold text-slate-900">{children}</h2>,
+                          h3: ({children}) => <h3 className="mb-1 mt-3 text-sm font-medium text-slate-900">{children}</h3>,
                           p: ({children}) => <p className="mb-2">{children}</p>,
                           ul: ({children}) => <ul className="list-disc list-inside mb-2">{children}</ul>,
                           ol: ({children}) => <ol className="list-decimal list-inside mb-2">{children}</ol>,
-                          li: ({children}) => <li className="text-gray-700">{children}</li>,
-                          strong: ({children}) => <strong className="font-semibold text-gray-900">{children}</strong>,
+                          li: ({children}) => <li className="text-slate-700">{children}</li>,
+                          strong: ({children}) => <strong className="font-semibold text-slate-900">{children}</strong>,
                           em: ({children}) => <em className="italic">{children}</em>,
-                          blockquote: ({children}) => <blockquote className="border-l-4 border-gray-300 pl-4 italic text-gray-600 mb-2">{children}</blockquote>
+                          blockquote: ({children}) => <blockquote className="mb-2 border-l-4 border-slate-300 pl-4 italic text-slate-600">{children}</blockquote>
                         }}
                       >
                         {detailedInfo[index]}
@@ -223,22 +223,22 @@ const HolidayModal = ({ date, holidays, onClose }) => {
 
               {/* Separator for multiple holidays */}
               {index < holidays.length - 1 && (
-                <div className="mt-6 pt-6 border-t border-gray-200" />
+                <div className="soft-divider mt-6 border-t pt-6" />
               )}
             </div>
           ))}
         </div>
 
         {/* Modal Footer */}
-        <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-4">
+        <div className="sticky bottom-0 border-t border-slate-200/80 bg-slate-50/85 p-4 backdrop-blur-xl">
           <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
-            <div className="text-sm text-gray-500 text-center sm:text-left">
+            <div className="text-center text-sm text-slate-500 sm:text-left">
               {t(holidays.length === 1 ? 'holidayModal.holidayCount' : 'holidayModal.holidayCountPlural', { count: holidays.length })}
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="w-full sm:w-auto px-4 py-2.5 text-white rounded-xl transition-colors duration-200 font-medium" style={{backgroundColor: '#ff8c00'}} onMouseEnter={(e) => e.target.style.backgroundColor = '#e67e00'} onMouseLeave={(e) => e.target.style.backgroundColor = '#ff8c00'}
+              className="accent-button focus-ring w-full rounded-2xl px-4 py-2.5 font-medium sm:w-auto"
             >
               {t('common.close')}
             </button>

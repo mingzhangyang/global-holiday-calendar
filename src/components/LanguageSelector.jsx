@@ -57,7 +57,7 @@ const LanguageSelector = ({ fullWidth = false }) => {
         type="button"
         onClick={toggleSelector}
         disabled={isLoading}
-        className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors duration-200 ${fullWidth ? 'w-full justify-between' : ''}`} style={{backgroundColor: '#fff5e6', color: '#cc7000'}} onMouseEnter={(e) => e.target.style.backgroundColor = '#ffe6cc'} onMouseLeave={(e) => e.target.style.backgroundColor = '#fff5e6'}
+        className={`focus-ring accent-button-soft flex items-center space-x-2 rounded-2xl px-3 py-2.5 text-sm font-medium ${fullWidth ? 'w-full justify-between' : ''}`}
         aria-label={t('language.selector')}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
@@ -79,8 +79,8 @@ const LanguageSelector = ({ fullWidth = false }) => {
 
       {/* 下拉菜单 */}
       {isOpen && (
-        <div className={`absolute top-full mt-2 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[9999] ${fullWidth ? 'left-0 right-0 w-full' : 'right-0 w-48'}`}>
-          <div className="px-3 py-2 text-xs font-medium text-gray-500 border-b border-gray-100">
+        <div className={`surface-card-strong absolute top-full mt-2 overflow-hidden rounded-2xl py-2 z-[9999] ${fullWidth ? 'left-0 right-0 w-full' : 'right-0 w-56'}`}>
+          <div className="border-b border-slate-200/80 px-3 py-2 text-xs font-medium uppercase tracking-[0.16em] text-slate-500">
             {t('language.change')}
           </div>
           
@@ -90,10 +90,10 @@ const LanguageSelector = ({ fullWidth = false }) => {
                 type="button"
                 key={code}
                 onClick={() => handleLanguageSelect(code)}
-                className={`w-full flex items-center justify-between px-3 py-2 text-sm transition-colors duration-150 ${
+                className={`w-full flex items-center justify-between px-3 py-2.5 text-sm transition-colors duration-150 ${
                   currentLanguage === code 
-                    ? '' : 'hover:bg-gray-50'
-                }`} style={code === currentLanguage ? {backgroundColor: '#fff5e6', color: '#cc7000'} : {color: '#374151'}} onMouseEnter={(e) => {if (code !== currentLanguage) {e.target.style.backgroundColor = '#f9fafb'}}} onMouseLeave={(e) => {if (code !== currentLanguage) {e.target.style.backgroundColor = 'transparent'}}}
+                    ? 'bg-teal-50/80 text-teal-700' : 'text-slate-700 hover:bg-slate-50'
+                }`}
                 role="option"
                 aria-selected={currentLanguage === code}
               >
@@ -107,13 +107,13 @@ const LanguageSelector = ({ fullWidth = false }) => {
                 </span>
                 
                 {currentLanguage === code && (
-                  <Check size={16} className="text-blue-600" />
+                  <Check size={16} className="text-teal-600" />
                 )}
               </button>
             ))}
           </div>
           
-          <div className="px-3 py-2 text-xs text-gray-400 border-t border-gray-100 mt-2">
+          <div className="mt-2 border-t border-slate-200/80 px-3 py-2 text-xs text-slate-400">
             {t('language.current', { language: getLanguageDisplayName(currentLanguage) })}
           </div>
         </div>

@@ -78,9 +78,9 @@ const CountryFilter = ({ selectedCountries, onCountriesChange, isLoadingLocation
   const isAllSelected = selectedCount === 0; // Empty array means all countries
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200/70 overflow-hidden">
+    <div className="surface-card overflow-hidden rounded-[24px]">
       {/* Filter Header */}
-      <div className="text-white p-4" style={{backgroundColor: '#ff8c00'}}>
+      <div className="bg-gradient-to-br from-slate-950 via-teal-950 to-cyan-600 p-4 text-white">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Filter size={20} />
@@ -89,7 +89,7 @@ const CountryFilter = ({ selectedCountries, onCountriesChange, isLoadingLocation
           <button
             type="button"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="p-1 hover:bg-white/20 rounded-full transition-colors duration-200"
+            className="focus-ring rounded-full border border-white/10 bg-white/10 p-2 hover:bg-white/15"
             aria-label={isExpanded ? t('countryFilter.collapse') : t('countryFilter.expand')}
           >
             {isExpanded ? <X size={20} /> : <Filter size={20} />}
@@ -128,7 +128,7 @@ const CountryFilter = ({ selectedCountries, onCountriesChange, isLoadingLocation
             <button
               type="button"
               onClick={handleSelectAll}
-              className="px-3 py-2 text-sm rounded-xl transition-colors duration-200 text-center" style={{backgroundColor: '#fff5e6', color: '#cc7000'}} onMouseEnter={(e) => e.target.style.backgroundColor = '#ffe6cc'} onMouseLeave={(e) => e.target.style.backgroundColor = '#fff5e6'}
+              className="accent-button-soft focus-ring rounded-2xl px-3 py-2 text-center text-sm font-medium"
             >
               {t('countryFilter.showAll')}
             </button>
@@ -136,7 +136,7 @@ const CountryFilter = ({ selectedCountries, onCountriesChange, isLoadingLocation
               <button
                 type="button"
                 onClick={handleClearAll}
-                className="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors duration-200"
+                className="focus-ring rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
               >
                 {t('countryFilter.clearSelection')}
               </button>
@@ -145,7 +145,7 @@ const CountryFilter = ({ selectedCountries, onCountriesChange, isLoadingLocation
               <button
                 type="button"
                 onClick={() => window.location.reload()}
-                className="px-3 py-2 text-sm bg-green-100 text-green-700 rounded-xl hover:bg-green-200 transition-colors duration-200 flex items-center justify-center space-x-1"
+                className="focus-ring flex items-center justify-center space-x-1 rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-100"
                 title={t('countryFilter.smartRecommendTooltip')}
               >
                 <MapPin size={12} />
@@ -165,19 +165,18 @@ const CountryFilter = ({ selectedCountries, onCountriesChange, isLoadingLocation
                   type="button"
                   onClick={() => handleCountryToggle(country)}
                   className={`
-                    w-full flex items-center space-x-3 p-3 rounded-xl text-left transition-colors duration-200
+                    focus-ring w-full flex items-center space-x-3 rounded-2xl border p-3 text-left transition-all duration-200
                     ${
                       isSelected && !isAllSelected
-                        ? 'border'
-              : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-transparent'
+                        ? 'border-teal-200 bg-teal-50/80 text-teal-900 shadow-sm'
+              : 'border-transparent bg-white/65 text-slate-700 hover:border-slate-200 hover:bg-white'
                     }
                   `}
-                  style={isSelected && !isAllSelected ? {backgroundColor: '#fff5e6', color: '#b35f00', borderColor: '#ffcc99'} : {}}
                 >
                   <span className="text-lg">{getCountryFlag(country)}</span>
                   <span className="font-medium flex-1">{country}</span>
                   {isSelected && !isAllSelected && (
-                    <div className="w-2 h-2 rounded-full" style={{backgroundColor: '#ff8c00'}} />
+                    <div className="h-2.5 w-2.5 rounded-full bg-teal-500 shadow-[0_0_0_4px_rgba(20,184,166,0.15)]" />
                   )}
                 </button>
               );
@@ -191,7 +190,7 @@ const CountryFilter = ({ selectedCountries, onCountriesChange, isLoadingLocation
         <div className="p-3 sm:p-4">
           <div className="flex flex-wrap gap-2">
             {isAllSelected ? (
-              <div className="flex items-center space-x-2 px-3 py-1.5 rounded-full text-sm" style={{backgroundColor: '#fff5e6', color: '#cc7000'}}>
+              <div className="accent-button-soft flex items-center space-x-2 rounded-full px-3 py-1.5 text-sm font-medium">
                 <Globe size={14} />
                 <span>{t('countryFilter.allCountries')}</span>
               </div>
@@ -199,7 +198,7 @@ const CountryFilter = ({ selectedCountries, onCountriesChange, isLoadingLocation
               selectedCountries.slice(0, 3).map(country => (
                 <div
                   key={country}
-                  className="flex items-center space-x-1 px-2.5 py-1.5 rounded-full text-sm max-w-full" style={{backgroundColor: '#fff5e6', color: '#cc7000'}}
+                  className="accent-button-soft flex max-w-full items-center space-x-1 rounded-full px-2.5 py-1.5 text-sm font-medium"
                 >
                   <span>{getCountryFlag(country)}</span>
                   <span className="truncate max-w-[10rem]">{country}</span>
@@ -207,7 +206,7 @@ const CountryFilter = ({ selectedCountries, onCountriesChange, isLoadingLocation
               ))
             )}
             {selectedCount > 3 && (
-              <div className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
+              <div className="rounded-full bg-slate-100 px-2.5 py-1.5 text-sm text-slate-600">
                 {t('countryFilter.moreCountries', { count: selectedCount - 3 })}
               </div>
             )}

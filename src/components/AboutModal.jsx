@@ -28,21 +28,21 @@ const AboutModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/55 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4" onClick={onClose}>
-      <div className="bg-white rounded-t-3xl sm:rounded-2xl max-w-2xl w-full max-h-[92dvh] sm:max-h-[90vh] overflow-y-auto shadow-xl" onClick={(event) => event.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/55 p-0 backdrop-blur-sm sm:items-center sm:p-4" onClick={onClose}>
+      <div className="surface-card-strong w-full max-w-2xl max-h-[92dvh] overflow-y-auto rounded-t-3xl sm:max-h-[90vh] sm:rounded-[28px]" onClick={(event) => event.stopPropagation()}>
         <div className="sm:hidden flex justify-center pt-2">
           <div className="h-1.5 w-12 rounded-full bg-gray-300" aria-hidden="true" />
         </div>
         {/* Header */}
-        <div className="sticky top-0 bg-white flex items-center justify-between px-4 py-3 sm:p-6 border-b border-gray-200">
-          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center space-x-2 pr-3">
-            <Globe className="" style={{color: '#ff8c00'}} size={24} />
+        <div className="sticky top-0 flex items-center justify-between border-b border-slate-200/80 bg-white/85 px-4 py-3 backdrop-blur-xl sm:p-6">
+          <h2 className="flex items-center space-x-2 pr-3 text-lg font-semibold text-slate-900 sm:text-xl">
+            <Globe className="text-teal-500" size={24} />
             <span>{t('about.title')}</span>
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-full hover:bg-gray-100"
+            className="focus-ring rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
           >
             <X size={24} />
           </button>
@@ -50,13 +50,13 @@ const AboutModal = ({ isOpen, onClose }) => {
 
         {/* Content */}
         <div className="p-4 sm:p-6">
-          <div className="text-gray-700 space-y-4">
+          <div className="space-y-5 text-slate-700">
             <p className="text-sm sm:text-base leading-relaxed">
               {t('about.description')}
             </p>
             
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-2">
+            <div className="surface-card-muted rounded-2xl p-4">
+              <h3 className="mb-2 font-semibold text-slate-900">
                 {t('about.howToUse')}
               </h3>
               <ul className="list-disc list-inside space-y-2 ml-2 sm:ml-4 text-sm leading-relaxed">
@@ -66,8 +66,8 @@ const AboutModal = ({ isOpen, onClose }) => {
               </ul>
             </div>
             
-            <div className="pt-4 border-t border-gray-200">
-              <p className="text-sm text-gray-500">
+            <div className="soft-divider border-t pt-4">
+              <p className="text-sm text-slate-500">
                 {t('legend.note')}
               </p>
             </div>
@@ -75,11 +75,11 @@ const AboutModal = ({ isOpen, onClose }) => {
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end p-4 sm:p-6 border-t border-gray-200 bg-gray-50">
+        <div className="flex justify-end border-t border-slate-200/80 bg-slate-50/80 p-4 sm:p-6">
           <button
             type="button"
             onClick={onClose}
-            className="w-full sm:w-auto px-4 py-2.5 text-white rounded-xl transition-colors duration-200 font-medium" style={{backgroundColor: '#ff8c00'}} onMouseEnter={(e) => e.target.style.backgroundColor = '#e67e00'} onMouseLeave={(e) => e.target.style.backgroundColor = '#ff8c00'}
+            className="accent-button focus-ring w-full rounded-2xl px-4 py-2.5 font-medium sm:w-auto"
           >
             {t('common.close')}
           </button>

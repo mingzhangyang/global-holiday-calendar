@@ -210,17 +210,17 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
 
   return (
     <div
-      className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200/70 overflow-hidden animate-fade-in-up"
+      className="surface-card overflow-hidden rounded-[28px] animate-fade-in-up"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
       {/* Calendar Header */}
-      <div className="text-white p-3 sm:p-4" style={{backgroundColor: '#ff8c00'}}>
+      <div className="bg-gradient-to-br from-slate-950 via-teal-950 to-cyan-600 p-3 text-white sm:p-4">
         <div className="flex items-center justify-between gap-2 sm:gap-4 mb-3 sm:mb-4">
           <button
             type="button"
             onClick={() => navigateMonth(-1)}
-            className="p-2.5 hover:bg-white/20 rounded-full transition-colors duration-200"
+            className="focus-ring rounded-full border border-white/10 bg-white/10 p-2.5 hover:bg-white/15"
             aria-label={t('calendar.previousMonth')}
           >
             <ChevronLeft className="w-5 h-5" />
@@ -233,7 +233,7 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
             <button
               type="button"
               onClick={navigateToToday}
-              className="inline-flex items-center justify-center rounded-full bg-white/15 px-3 py-1 text-xs sm:text-sm opacity-90 hover:opacity-100 transition-opacity duration-200 mt-1"
+              className="mt-1 inline-flex items-center justify-center rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs sm:text-sm opacity-90 hover:bg-white/15"
             >
               {t('calendar.today')}
             </button>
@@ -242,7 +242,7 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
           <button
               type="button"
               onClick={() => navigateMonth(1)}
-              className="p-2.5 hover:bg-white/20 rounded-full transition-colors duration-200"
+              className="focus-ring rounded-full border border-white/10 bg-white/10 p-2.5 hover:bg-white/15"
               aria-label={t('calendar.nextMonth')}
           >
             <ChevronRight className="w-5 h-5" />
@@ -273,7 +273,7 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
       </div>
 
       {/* Calendar Grid */}
-      <div className="relative bg-slate-50/80 p-1.5 sm:p-3">
+      <div className="relative bg-white/40 p-1.5 sm:p-3">
         {loading && showLoadingState && !hasMonthData ? (
           <div className="grid grid-cols-7 gap-1 sm:gap-1.5 animate-fade-in-up" aria-hidden="true">
             {Array.from({ length: 42 }).map((_, index) => (
@@ -310,13 +310,13 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
                   }
                   ${
                     isInteractive
-                      ? 'cursor-pointer active:scale-[0.98] sm:hover:-translate-y-0.5 sm:hover:shadow-md transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300 focus-visible:ring-offset-2'
+                      ? 'cursor-pointer active:scale-[0.98] sm:hover:-translate-y-0.5 sm:hover:shadow-md transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300 focus-visible:ring-offset-2'
                       : 'cursor-default'
                   }
                 `}
                 aria-label={formatCalendarLabel(dayInfo.date)}
                 aria-disabled={!isInteractive}
-                style={dayInfo.isToday ? {backgroundColor: '#ff8c00', borderColor: '#ff8c00'} : hasHolidays && dayInfo.isCurrentMonth ? {background: 'linear-gradient(to bottom right, #f0fdf4, #fff5e6)'} : {}}
+                style={dayInfo.isToday ? {backgroundColor: '#14b8a6', borderColor: '#14b8a6'} : hasHolidays && dayInfo.isCurrentMonth ? {background: 'linear-gradient(to bottom right, #ecfeff, #f0fdfa)'} : {}}
               >
                 <div className="mb-1 flex w-full items-start justify-between gap-1 sm:mb-1.5">
                   <span className={`inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-xs sm:text-sm font-semibold ${
@@ -371,7 +371,7 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
                             ? ''
                             : 'text-slate-700'
                         }`}
-                        style={dayInfo.isToday ? {color: '#ffcc99'} : {}}
+                        style={dayInfo.isToday ? {color: '#ccfbf1'} : {}}
                         title={holiday.name}
                       >
                         {holiday.name}
@@ -383,7 +383,7 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
                           ? ''
                           : 'text-slate-500'
                       }`}
-                      style={dayInfo.isToday ? {color: '#ffe6cc'} : {}}>
+                      style={dayInfo.isToday ? {color: '#99f6e4'} : {}}>
                         {t('common.moreCount', { count: dayInfo.holidays.length - 2 })}
                       </div>
                     )}
@@ -398,7 +398,7 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
         {loading && showLoadingState && hasMonthData && (
           <div className="pointer-events-none absolute inset-x-0 top-2 flex justify-center sm:hidden">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/95 px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm ring-1 ring-slate-200/80">
-              <span className="h-2 w-2 rounded-full bg-orange-400 animate-pulse" aria-hidden="true" />
+              <span className="h-2 w-2 rounded-full bg-teal-400 animate-pulse" aria-hidden="true" />
               <span>{t('calendar.loading')}</span>
             </div>
           </div>
