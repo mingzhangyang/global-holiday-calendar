@@ -124,6 +124,21 @@ export function getLanguageDisplayName(languageCode) {
   return SUPPORTED_LANGUAGES[languageCode] || languageCode;
 }
 
+export function getLocaleFromLanguage(languageCode = 'en') {
+  const localeMap = {
+    'en': 'en-US',
+    'fr': 'fr-FR',
+    'de': 'de-DE',
+    'es': 'es-ES',
+    'zh-CN': 'zh-CN',
+    'zh-TW': 'zh-TW',
+    'ja': 'ja-JP',
+    'ko': 'ko-KR'
+  };
+
+  return localeMap[languageCode] || 'en-US';
+}
+
 // 获取所有支持的语言
 export function getSupportedLanguages() {
   return Object.entries(SUPPORTED_LANGUAGES).map(([code, name]) => ({

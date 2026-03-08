@@ -30,6 +30,7 @@ export const translations = {
       'July', 'August', 'September', 'October', 'November', 'December'
     ],
     'calendar.loading': 'Loading holidays...',
+    'calendar.swipeHint': 'Swipe across the calendar to change months',
     
     // 图例
     'legend.title': 'Legend',
@@ -81,6 +82,10 @@ export const translations = {
     'listView.viewToggle': 'View',
     'listView.calendarView': 'Calendar View',
     'listView.listView': 'List View',
+    'listView.todayDate': '{date} (Today)',
+    'listView.holidayCount': '{count} holiday',
+    'listView.holidayCountPlural': '{count} holidays',
+    'listView.showMoreHolidays': 'Show {count} more holidays',
     
     // 节日模态框
     'holidayModal.significance': 'Significance',
@@ -92,13 +97,19 @@ export const translations = {
     'holidayModal.detailedBackground': 'Detailed Background',
     'holidayModal.holidayCount': '{count} holiday on this date',
     'holidayModal.holidayCountPlural': '{count} holidays on this date',
+    'holidayType.public': 'Public holiday',
+    'holidayType.religious': 'Religious observance',
+    'holidayType.observance': 'Observance',
+    'holidayType.national': 'National holiday',
+    'holidayType.default': 'Holiday',
     
     // 通用
     'common.loading': 'Loading...',
     'common.error': 'Error',
     'common.close': 'Close',
     'common.save': 'Save',
-    'common.cancel': 'Cancel'
+    'common.cancel': 'Cancel',
+    'common.moreCount': '+{count} more'
   },
   
   // 法语
@@ -127,6 +138,7 @@ export const translations = {
       'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
     ],
     'calendar.loading': 'Chargement des fêtes...',
+    'calendar.swipeHint': 'Balayez le calendrier pour changer de mois',
     
     'legend.title': 'Légende',
     'legend.nationalHoliday': 'Fête Nationale',
@@ -173,6 +185,10 @@ export const translations = {
     'listView.viewToggle': 'Vue',
     'listView.calendarView': 'Vue Calendrier',
     'listView.listView': 'Vue Liste',
+    'listView.todayDate': '{date} (Aujourd’hui)',
+    'listView.holidayCount': '{count} fête',
+    'listView.holidayCountPlural': '{count} fêtes',
+    'listView.showMoreHolidays': 'Afficher {count} fêtes supplémentaires',
     
     // 节日模态框
     'holidayModal.significance': 'Signification',
@@ -184,12 +200,18 @@ export const translations = {
     'holidayModal.detailedBackground': 'Contexte Détaillé',
     'holidayModal.holidayCount': '{count} fête à cette date',
     'holidayModal.holidayCountPlural': '{count} fêtes à cette date',
+    'holidayType.public': 'Jour férié',
+    'holidayType.religious': 'Observance religieuse',
+    'holidayType.observance': 'Observance',
+    'holidayType.national': 'Fête nationale',
+    'holidayType.default': 'Fête',
     
     'common.loading': 'Chargement...',
     'common.error': 'Erreur',
     'common.close': 'Fermer',
     'common.save': 'Sauvegarder',
-    'common.cancel': 'Annuler'
+    'common.cancel': 'Annuler',
+    'common.moreCount': '+{count} de plus'
   },
   
   // 德语
@@ -218,6 +240,7 @@ export const translations = {
       'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'
     ],
     'calendar.loading': 'Feiertage werden geladen...',
+    'calendar.swipeHint': 'Wischen Sie über den Kalender, um den Monat zu wechseln',
     
     'legend.title': 'Legende',
     'legend.nationalHoliday': 'Nationaler Feiertag',
@@ -255,6 +278,17 @@ export const translations = {
     'language.selector': 'Sprache',
     'language.current': 'Aktuell: {language}',
     'language.change': 'Sprache Ändern',
+    'listView.noCountriesSelected': 'Keine Länder ausgewählt',
+    'listView.selectCountriesPrompt': 'Bitte wählen Sie einen oder mehrere Länder im Filter aus, um Feiertage anzuzeigen.',
+    'listView.noHolidays': 'Keine Feiertage gefunden',
+    'listView.noHolidaysDescription': 'Für die ausgewählten Länder wurden in diesem Monat keine Feiertage gefunden.',
+    'listView.viewToggle': 'Ansicht',
+    'listView.calendarView': 'Kalenderansicht',
+    'listView.listView': 'Listenansicht',
+    'listView.todayDate': '{date} (Heute)',
+    'listView.holidayCount': '{count} Feiertag',
+    'listView.holidayCountPlural': '{count} Feiertage',
+    'listView.showMoreHolidays': '{count} weitere Feiertage anzeigen',
     
     // 节日模态框
     'holidayModal.significance': 'Bedeutung',
@@ -266,12 +300,18 @@ export const translations = {
     'holidayModal.detailedBackground': 'Detaillierter Hintergrund',
     'holidayModal.holidayCount': '{count} Feiertag an diesem Datum',
     'holidayModal.holidayCountPlural': '{count} Feiertage an diesem Datum',
+    'holidayType.public': 'Gesetzlicher Feiertag',
+    'holidayType.religious': 'Religiöse Feier',
+    'holidayType.observance': 'Gedenktag',
+    'holidayType.national': 'Nationalfeiertag',
+    'holidayType.default': 'Feiertag',
     
     'common.loading': 'Laden...',
     'common.error': 'Fehler',
     'common.close': 'Schließen',
     'common.save': 'Speichern',
-    'common.cancel': 'Abbrechen'
+    'common.cancel': 'Abbrechen',
+    'common.moreCount': '+{count} mehr'
   },
   
   // 西班牙语
@@ -300,6 +340,7 @@ export const translations = {
       'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
     ],
     'calendar.loading': 'Cargando festividades...',
+    'calendar.swipeHint': 'Desliza el calendario para cambiar de mes',
     
     'legend.title': 'Leyenda',
     'legend.nationalHoliday': 'Fiesta Nacional',
@@ -337,6 +378,17 @@ export const translations = {
     'language.selector': 'Idioma',
     'language.current': 'Actual: {language}',
     'language.change': 'Cambiar Idioma',
+    'listView.noCountriesSelected': 'Ningún país seleccionado',
+    'listView.selectCountriesPrompt': 'Seleccione uno o más países en el filtro para ver las festividades.',
+    'listView.noHolidays': 'No se encontraron festividades',
+    'listView.noHolidaysDescription': 'No se encontraron festividades para los países seleccionados en este mes.',
+    'listView.viewToggle': 'Vista',
+    'listView.calendarView': 'Vista de Calendario',
+    'listView.listView': 'Vista de Lista',
+    'listView.todayDate': '{date} (Hoy)',
+    'listView.holidayCount': '{count} festividad',
+    'listView.holidayCountPlural': '{count} festividades',
+    'listView.showMoreHolidays': 'Mostrar {count} festividades más',
     
     // 节日模态框
     'holidayModal.significance': 'Significado',
@@ -348,12 +400,18 @@ export const translations = {
     'holidayModal.detailedBackground': 'Antecedentes Detallados',
     'holidayModal.holidayCount': '{count} fiesta en esta fecha',
     'holidayModal.holidayCountPlural': '{count} fiestas en esta fecha',
+    'holidayType.public': 'Festividad pública',
+    'holidayType.religious': 'Observancia religiosa',
+    'holidayType.observance': 'Observancia',
+    'holidayType.national': 'Fiesta nacional',
+    'holidayType.default': 'Festividad',
     
     'common.loading': 'Cargando...',
     'common.error': 'Error',
     'common.close': 'Cerrar',
     'common.save': 'Guardar',
-    'common.cancel': 'Cancelar'
+    'common.cancel': 'Cancelar',
+    'common.moreCount': '+{count} más'
   },
   
   // 简体中文
@@ -382,6 +440,7 @@ export const translations = {
       '七月', '八月', '九月', '十月', '十一月', '十二月'
     ],
     'calendar.loading': '正在加载节日...',
+    'calendar.swipeHint': '左右滑动日历以切换月份',
     
     'legend.title': '图例',
     'legend.nationalHoliday': '国家节日',
@@ -428,6 +487,10 @@ export const translations = {
     'listView.viewToggle': '视图',
     'listView.calendarView': '日历视图',
     'listView.listView': '列表视图',
+    'listView.todayDate': '{date}（今天）',
+    'listView.holidayCount': '{count} 个节日',
+    'listView.holidayCountPlural': '{count} 个节日',
+    'listView.showMoreHolidays': '显示另外 {count} 个节日',
     
     // 节日模态框
     'holidayModal.significance': '意义',
@@ -439,12 +502,18 @@ export const translations = {
     'holidayModal.detailedBackground': '详细背景',
     'holidayModal.holidayCount': '此日期有 {count} 个节日',
     'holidayModal.holidayCountPlural': '此日期有 {count} 个节日',
+    'holidayType.public': '公共假日',
+    'holidayType.religious': '宗教纪念日',
+    'holidayType.observance': '纪念活动',
+    'holidayType.national': '国家节日',
+    'holidayType.default': '节日',
     
     'common.loading': '加载中...',
     'common.error': '错误',
     'common.close': '关闭',
     'common.save': '保存',
-    'common.cancel': '取消'
+    'common.cancel': '取消',
+    'common.moreCount': '还有 {count} 个'
   },
   
   // 繁体中文
@@ -472,6 +541,8 @@ export const translations = {
       '一月', '二月', '三月', '四月', '五月', '六月',
       '七月', '八月', '九月', '十月', '十一月', '十二月'
     ],
+    'calendar.loading': '正在載入節日...',
+    'calendar.swipeHint': '左右滑動日曆以切換月份',
     
     'legend.title': '圖例',
     'legend.nationalHoliday': '國家節日',
@@ -509,6 +580,17 @@ export const translations = {
     'language.selector': '語言',
     'language.current': '當前：{language}',
     'language.change': '更改語言',
+    'listView.noCountriesSelected': '未選擇國家',
+    'listView.selectCountriesPrompt': '請從篩選器中選擇一個或多個國家以查看節日。',
+    'listView.noHolidays': '未找到節日',
+    'listView.noHolidaysDescription': '本月所選國家未找到節日。',
+    'listView.viewToggle': '視圖',
+    'listView.calendarView': '日曆視圖',
+    'listView.listView': '列表視圖',
+    'listView.todayDate': '{date}（今天）',
+    'listView.holidayCount': '{count} 個節日',
+    'listView.holidayCountPlural': '{count} 個節日',
+    'listView.showMoreHolidays': '顯示另外 {count} 個節日',
     
     // 节日模态框
     'holidayModal.significance': '意義',
@@ -520,12 +602,18 @@ export const translations = {
     'holidayModal.detailedBackground': '詳細背景',
     'holidayModal.holidayCount': '此日期有 {count} 個節日',
     'holidayModal.holidayCountPlural': '此日期有 {count} 個節日',
+    'holidayType.public': '公共假日',
+    'holidayType.religious': '宗教紀念日',
+    'holidayType.observance': '紀念活動',
+    'holidayType.national': '國家節日',
+    'holidayType.default': '節日',
     
     'common.loading': '載入中...',
     'common.error': '錯誤',
     'common.close': '關閉',
     'common.save': '保存',
-    'common.cancel': '取消'
+    'common.cancel': '取消',
+    'common.moreCount': '還有 {count} 個'
   },
   
   // 日语
@@ -554,6 +642,7 @@ export const translations = {
       '7月', '8月', '9月', '10月', '11月', '12月'
     ],
     'calendar.loading': '祝日を読み込み中...',
+    'calendar.swipeHint': 'カレンダーをスワイプして月を切り替え',
     
     'legend.title': '凡例',
     'legend.nationalHoliday': '国民の祝日',
@@ -591,6 +680,17 @@ export const translations = {
     'language.selector': '言語',
     'language.current': '現在：{language}',
     'language.change': '言語を変更',
+    'listView.noCountriesSelected': '国が選択されていません',
+    'listView.selectCountriesPrompt': '祝日を表示するには、フィルターから1つ以上の国を選択してください。',
+    'listView.noHolidays': '祝日が見つかりません',
+    'listView.noHolidaysDescription': '今月、選択した国の祝日は見つかりませんでした。',
+    'listView.viewToggle': '表示',
+    'listView.calendarView': 'カレンダー表示',
+    'listView.listView': 'リスト表示',
+    'listView.todayDate': '{date}（今日）',
+    'listView.holidayCount': '{count}件の祝日',
+    'listView.holidayCountPlural': '{count}件の祝日',
+    'listView.showMoreHolidays': 'さらに{count}件の祝日を表示',
     
     // 节日模态框
     'holidayModal.significance': '意義',
@@ -602,12 +702,18 @@ export const translations = {
     'holidayModal.detailedBackground': '詳細な背景',
     'holidayModal.holidayCount': 'この日付に{count}つの祝日',
     'holidayModal.holidayCountPlural': 'この日付に{count}つの祝日',
+    'holidayType.public': '公休日',
+    'holidayType.religious': '宗教的行事',
+    'holidayType.observance': '記念行事',
+    'holidayType.national': '国民の祝日',
+    'holidayType.default': '祝日',
     
     'common.loading': '読み込み中...',
     'common.error': 'エラー',
     'common.close': '閉じる',
     'common.save': '保存',
-    'common.cancel': 'キャンセル'
+    'common.cancel': 'キャンセル',
+    'common.moreCount': 'あと{count}件'
   },
   
   // 韩语
@@ -636,6 +742,7 @@ export const translations = {
       '7월', '8월', '9월', '10월', '11월', '12월'
     ],
     'calendar.loading': '휴일을 불러오는 중...',
+    'calendar.swipeHint': '달력을 스와이프하여 월을 전환하세요',
     
     'legend.title': '범례',
     'legend.nationalHoliday': '국경일',
@@ -673,6 +780,17 @@ export const translations = {
     'language.selector': '언어',
     'language.current': '현재: {language}',
     'language.change': '언어 변경',
+    'listView.noCountriesSelected': '선택된 국가가 없습니다',
+    'listView.selectCountriesPrompt': '휴일을 보려면 필터에서 하나 이상의 국가를 선택하세요.',
+    'listView.noHolidays': '휴일을 찾을 수 없습니다',
+    'listView.noHolidaysDescription': '이번 달에는 선택한 국가의 휴일이 없습니다.',
+    'listView.viewToggle': '보기',
+    'listView.calendarView': '달력 보기',
+    'listView.listView': '목록 보기',
+    'listView.todayDate': '{date} (오늘)',
+    'listView.holidayCount': '{count}개의 휴일',
+    'listView.holidayCountPlural': '{count}개의 휴일',
+    'listView.showMoreHolidays': '휴일 {count}개 더 보기',
     
     // 节日模态框
     'holidayModal.significance': '의미',
@@ -684,12 +802,18 @@ export const translations = {
     'holidayModal.detailedBackground': '자세한 배경',
     'holidayModal.holidayCount': '이 날짜에 {count}개의 휴일',
     'holidayModal.holidayCountPlural': '이 날짜에 {count}개의 휴일',
+    'holidayType.public': '공휴일',
+    'holidayType.religious': '종교 행사',
+    'holidayType.observance': '기념일',
+    'holidayType.national': '국경일',
+    'holidayType.default': '휴일',
     
     'common.loading': '로딩 중...',
     'common.error': '오류',
     'common.close': '닫기',
     'common.save': '저장',
-    'common.cancel': '취소'
+    'common.cancel': '취소',
+    'common.moreCount': '추가 {count}개'
   }
 };
 

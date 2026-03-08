@@ -3,7 +3,7 @@ import React, { useRef, useEffect } from 'react';
 import { Globe, ChevronDown, Check } from 'lucide-react';
 import { useLanguageSelector, useTranslation } from '../hooks/useI18n';
 
-const LanguageSelector = () => {
+const LanguageSelector = ({ fullWidth = false }) => {
   const {
     currentLanguage,
     isOpen,
@@ -51,18 +51,19 @@ const LanguageSelector = () => {
   }, [isOpen, closeSelector]);
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className={`relative ${fullWidth ? 'w-full' : ''}`} ref={dropdownRef}>
       {/* 语言选择按钮 */}
       <button
+        type="button"
         onClick={toggleSelector}
         disabled={isLoading}
-        className="flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors duration-200" style={{backgroundColor: '#fff5e6', color: '#cc7000'}} onMouseEnter={(e) => e.target.style.backgroundColor = '#ffe6cc'} onMouseLeave={(e) => e.target.style.backgroundColor = '#fff5e6'}
+        className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors duration-200 ${fullWidth ? 'w-full justify-between' : ''}`} style={{backgroundColor: '#fff5e6', color: '#cc7000'}} onMouseEnter={(e) => e.target.style.backgroundColor = '#ffe6cc'} onMouseLeave={(e) => e.target.style.backgroundColor = '#fff5e6'}
         aria-label={t('language.selector')}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
       >
         <Globe size={18} />
-        <span className="hidden sm:inline text-sm">
+        <span className={`${fullWidth ? 'inline text-sm flex-1 text-left' : 'hidden sm:inline text-sm'}`}>
           {getLanguageDisplayName(currentLanguage)}
         </span>
         <ChevronDown 
@@ -78,7 +79,7 @@ const LanguageSelector = () => {
 
       {/* 下拉菜单 */}
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[9999]">
+        <div className={`absolute top-full mt-2 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[9999] ${fullWidth ? 'left-0 right-0 w-full' : 'right-0 w-48'}`}>
           <div className="px-3 py-2 text-xs font-medium text-gray-500 border-b border-gray-100">
             {t('language.change')}
           </div>
@@ -86,6 +87,7 @@ const LanguageSelector = () => {
           <div className="max-h-64 overflow-y-auto" role="listbox">
             {supportedLanguages.map(({ code, name }) => (
               <button
+                type="button"
                 key={code}
                 onClick={() => handleLanguageSelect(code)}
                 className={`w-full flex items-center justify-between px-3 py-2 text-sm transition-colors duration-150 ${

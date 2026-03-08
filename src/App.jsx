@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CalendarIcon, Globe, Info, Calendar as CalendarViewIcon, List } from 'lucide-react';
+import { Globe, Info, MapPin, Calendar as CalendarViewIcon, List, Menu, X } from 'lucide-react';
 import Calendar from './components/Calendar';
 import HolidayListView from './components/HolidayListView';
 import CountryFilter from './components/CountryFilter';
@@ -8,7 +8,6 @@ import AboutModal from './components/AboutModal';
 import Logo from './components/Logo';
 import { getUserDefaultCountry } from './services/locationService';
 import { useI18n, useTranslation } from './hooks/useI18n';
-import { getLanguageFromRegion } from './services/i18nService';
 
 function App() {
   // Load saved countries from localStorage or use empty array as default
@@ -25,6 +24,7 @@ function App() {
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
   const [locationDetected, setLocationDetected] = useState(false);
   const [currentView, setCurrentView] = useState('calendar'); // 'calendar' or 'list'
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   // 国际化
   const { detectLanguage } = useI18n();
@@ -76,6 +76,40 @@ function App() {
     initializeDefaults();
   }, [detectLanguage]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 640) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) {
+      document.body.style.overflow = '';
+      return;
+    }
+
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobileMenuOpen]);
+
   const handleCountriesChange = (countries) => {
     setSelectedCountries(countries);
     // Save selected countries to localStorage
@@ -91,11 +125,90 @@ function App() {
     console.log('Date clicked:', dayInfo);
   };
 
+  const handleViewChange = (view) => {
+    setCurrentView(view);
+    setIsMobileMenuOpen(false);
+  };
+
+  const handleOpenAboutModal = () => {
+    setShowAboutModal(true);
+    setIsMobileMenuOpen(false);
+  };
+
+  const selectionSummary = selectedCountries.length === 0
+    ? t('countryFilter.allCountries')
+    : selectedCountries.length <= 2
+    ? selectedCountries.join(', ')
+    : `${selectedCountries.slice(0, 2).join(', ')} +${selectedCountries.length - 2}`;
+
+  const renderHeaderControls = (isMobile = false) => (
+    <div className={isMobile ? 'flex flex-col gap-3' : 'flex items-center gap-3 w-full sm:w-auto'}>
+      <div
+        className={isMobile ? 'flex items-center bg-white/10 rounded-xl p-1.5 backdrop-blur-sm' : 'flex items-center bg-white/20 rounded-lg p-1'}
+        role="tablist"
+        aria-label="View selection"
+      >
+        <button
+          type="button"
+          onClick={() => handleViewChange('calendar')}
+          className={`flex items-center justify-center space-x-2 rounded-lg transition-colors duration-200 text-sm ${
+            isMobile ? 'flex-1 px-4 py-2.5' : 'px-2 md:px-3 py-2'
+          } ${
+            currentView === 'calendar'
+              ? 'bg-white/30 text-white shadow-sm'
+              : 'text-white/80 hover:text-white hover:bg-white/10'
+          }`}
+          role="tab"
+          aria-selected={currentView === 'calendar'}
+          aria-controls="main-view"
+        >
+          <CalendarViewIcon size={16} aria-hidden="true" />
+          <span className={isMobile ? 'inline' : 'hidden sm:inline'}>{t('listView.calendarView')}</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => handleViewChange('list')}
+          className={`flex items-center justify-center space-x-2 rounded-lg transition-colors duration-200 text-sm ${
+            isMobile ? 'flex-1 px-4 py-2.5' : 'px-2 md:px-3 py-2'
+          } ${
+            currentView === 'list'
+              ? 'bg-white/30 text-white shadow-sm'
+              : 'text-white/80 hover:text-white hover:bg-white/10'
+          }`}
+          role="tab"
+          aria-selected={currentView === 'list'}
+          aria-controls="main-view"
+        >
+          <List size={16} aria-hidden="true" />
+          <span className={isMobile ? 'inline' : 'hidden sm:inline'}>{t('listView.listView')}</span>
+        </button>
+      </div>
+
+      <div className={isMobile ? 'w-full' : ''}>
+        <LanguageSelector fullWidth={isMobile} />
+      </div>
+
+      <button
+        type="button"
+        onClick={handleOpenAboutModal}
+        className={`flex items-center justify-center space-x-2 rounded-lg transition-colors duration-200 text-sm ${
+          isMobile
+            ? 'w-full bg-white/10 hover:bg-white/20 px-4 py-3 backdrop-blur-sm'
+            : 'bg-white/20 hover:bg-white/30 px-3 md:px-4 py-2'
+        }`}
+        aria-label={t('about.button')}
+      >
+        <Info size={18} aria-hidden="true" />
+        <span className={isMobile ? 'inline' : 'hidden sm:inline'}>{t('about.button')}</span>
+      </button>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
       <header 
-        className="text-white py-4 md:py-6 shadow-md relative" 
+        className="sticky top-0 z-40 text-white py-4 md:py-6 shadow-md relative" 
         style={{
           background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%)',
           backgroundSize: '400% 400%',
@@ -112,60 +225,49 @@ function App() {
         </div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            {/* Logo and Title Section */}
-            <Logo 
-              size="medium" 
-              showText={true} 
-              useImage={true} 
-              logoFormat="png"
-              className="text-center sm:text-left"
-            />
-            
-            {/* Controls Section */}
-            <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-              {/* View Toggle */}
-              <div className="flex items-center bg-white/20 rounded-lg p-1" role="tablist" aria-label="View selection">
-                <button
-                  onClick={() => setCurrentView('calendar')}
-                  className={`flex items-center space-x-2 px-2 md:px-3 py-2 rounded-md transition-colors duration-200 text-sm ${
-                    currentView === 'calendar'
-                      ? 'bg-white/30 text-white'
-                      : 'text-white/80 hover:text-white hover:bg-white/10'
-                  }`}
-                  role="tab"
-                  aria-selected={currentView === 'calendar'}
-                  aria-controls="main-view"
-                >
-                  <CalendarViewIcon size={16} aria-hidden="true" />
-                  <span className="hidden sm:inline">{t('listView.calendarView')}</span>
-                </button>
-                <button
-                  onClick={() => setCurrentView('list')}
-                  className={`flex items-center space-x-2 px-2 md:px-3 py-2 rounded-md transition-colors duration-200 text-sm ${
-                    currentView === 'list'
-                      ? 'bg-white/30 text-white'
-                      : 'text-white/80 hover:text-white hover:bg-white/10'
-                  }`}
-                  role="tab"
-                  aria-selected={currentView === 'list'}
-                  aria-controls="main-view"
-                >
-                  <List size={16} aria-hidden="true" />
-                  <span className="hidden sm:inline">{t('listView.listView')}</span>
-                </button>
-              </div>
-              
-              <LanguageSelector />
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between gap-4">
+              {/* Logo and Title Section */}
+              <Logo 
+                size="medium" 
+                showText={true} 
+                useImage={true} 
+                logoFormat="png"
+                className="text-left"
+              />
+
               <button
-                onClick={() => setShowAboutModal(true)}
-                className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 px-3 md:px-4 py-2 rounded-lg transition-colors duration-200 text-sm"
-                aria-label={t('about.button')}
+                type="button"
+                onClick={() => setIsMobileMenuOpen(open => !open)}
+                className="sm:hidden inline-flex items-center justify-center rounded-xl bg-white/15 p-3 text-white shadow-lg backdrop-blur-sm transition-colors duration-200 hover:bg-white/25"
+                aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+                aria-expanded={isMobileMenuOpen}
+                aria-controls="mobile-header-menu"
               >
-                <Info size={18} aria-hidden="true" />
-                <span className="hidden sm:inline">{t('about.button')}</span>
+                {isMobileMenuOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
               </button>
             </div>
+
+            <div className="hidden sm:flex sm:items-center sm:justify-end">
+              {renderHeaderControls(false)}
+            </div>
+
+            {isMobileMenuOpen && (
+              <>
+                <button
+                  type="button"
+                  className="sm:hidden fixed inset-0 top-[88px] bg-slate-950/25"
+                  aria-label="Close navigation menu"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                />
+                <div
+                  id="mobile-header-menu"
+                  className="sm:hidden rounded-2xl border border-white/20 bg-white/10 p-4 shadow-xl backdrop-blur-md"
+                >
+                  {renderHeaderControls(true)}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -177,10 +279,21 @@ function App() {
       />
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div className="mb-4 sm:mb-6 flex flex-wrap items-center gap-2">
+          <div className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 text-sm text-slate-700 shadow-sm ring-1 ring-slate-200/80">
+            {currentView === 'calendar' ? <CalendarViewIcon size={16} aria-hidden="true" /> : <List size={16} aria-hidden="true" />}
+            <span>{currentView === 'calendar' ? t('listView.calendarView') : t('listView.listView')}</span>
+          </div>
+          <div className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 text-sm text-slate-700 shadow-sm ring-1 ring-slate-200/80 max-w-full">
+            {locationDetected ? <MapPin size={16} aria-hidden="true" /> : <Globe size={16} aria-hidden="true" />}
+            <span className="truncate max-w-[16rem]">{selectionSummary}</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
           {/* Country Filter Sidebar */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 space-y-4 sm:space-y-6 lg:sticky lg:top-28 self-start">
             <CountryFilter
               selectedCountries={selectedCountries}
               onCountriesChange={handleCountriesChange}
@@ -189,8 +302,8 @@ function App() {
             />
             
             {/* Legend */}
-            <div className="mt-6 bg-white rounded-lg shadow-lg p-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('legend.title')}</h3>
+            <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200/70 p-4 sm:p-5">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3">{t('legend.title')}</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 rounded-full" style={{backgroundColor: '#ff8c00'}} />
@@ -223,7 +336,7 @@ function App() {
           </div>
 
           {/* Main View Area */}
-          <div className="lg:col-span-3" id="main-view" role="main" aria-live="polite">
+          <div className="lg:col-span-3 space-y-5 sm:space-y-8" id="main-view" role="main" aria-live="polite">
             {currentView === 'calendar' ? (
               <Calendar
                 selectedCountries={selectedCountries}
@@ -236,18 +349,18 @@ function App() {
             )}
             
             {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 mt-8">
-              <div className="text-white p-4 rounded-lg shadow-sm" style={{background: 'linear-gradient(to right, #6366f1, #5b21b6)'}}>
-                <div className="text-2xl font-bold">50+</div>
-                <div className="text-sm opacity-90">{t('stats.globalHolidays')}</div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-2">
+              <div className="text-white p-4 rounded-2xl shadow-sm" style={{background: 'linear-gradient(to right, #6366f1, #5b21b6)'}}>
+                <div className="text-xl sm:text-2xl font-bold">50+</div>
+                <div className="text-xs sm:text-sm opacity-90 leading-relaxed">{t('stats.globalHolidays')}</div>
               </div>
-              <div className="text-white p-4 rounded-lg shadow-sm" style={{background: 'linear-gradient(to right, #8b5cf6, #7c3aed)'}}>
-                <div className="text-2xl font-bold">15+</div>
-                <div className="text-sm opacity-90">{t('stats.countries')}</div>
+              <div className="text-white p-4 rounded-2xl shadow-sm" style={{background: 'linear-gradient(to right, #8b5cf6, #7c3aed)'}}>
+                <div className="text-xl sm:text-2xl font-bold">15+</div>
+                <div className="text-xs sm:text-sm opacity-90 leading-relaxed">{t('stats.countries')}</div>
               </div>
-              <div className="text-white p-4 rounded-lg shadow-sm" style={{background: 'linear-gradient(to right, #a855f7, #9333ea)'}}>
-                <div className="text-2xl font-bold">12</div>
-                <div className="text-sm opacity-90">{t('stats.months')}</div>
+              <div className="text-white p-4 rounded-2xl shadow-sm" style={{background: 'linear-gradient(to right, #a855f7, #9333ea)'}}>
+                <div className="text-xl sm:text-2xl font-bold">12</div>
+                <div className="text-xs sm:text-sm opacity-90 leading-relaxed">{t('stats.months')}</div>
               </div>
             </div>
           </div>
@@ -256,7 +369,7 @@ function App() {
 
       {/* Footer */}
       <footer 
-        className="border-t border-gray-200 mt-16 relative overflow-hidden" 
+        className="border-t border-gray-200 mt-10 sm:mt-16 relative overflow-hidden" 
         style={{
           background: 'linear-gradient(135deg, #64748b 0%, #475569 50%, #334155 100%)',
           backgroundSize: '400% 400%',
@@ -276,7 +389,7 @@ function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 relative z-10">
           <div className="text-center">
             {/* Footer Brand */}
-            <div className="flex items-center justify-center mb-6">
+            <div className="flex items-center justify-center mb-4 sm:mb-6">
               <Logo 
                 size="small" 
                 showText={true} 
@@ -287,7 +400,7 @@ function App() {
             </div>
             
             {/* Footer Description */}
-            <p className="text-white/90 text-sm md:text-base mb-6 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-white/90 text-sm md:text-base mb-5 sm:mb-6 max-w-2xl mx-auto leading-relaxed px-2 sm:px-0">
               {t('footer.description')}
             </p>
             

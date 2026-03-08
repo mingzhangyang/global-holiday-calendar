@@ -1,5 +1,6 @@
 import React from 'react';
 import { CalendarIcon } from 'lucide-react';
+import { useTranslation } from '../hooks/useI18n';
 
 const Logo = ({ 
   size = 'medium', 
@@ -8,6 +9,7 @@ const Logo = ({
   useImage = false,
   logoFormat = 'svg' // 'svg', 'png', or 'icon'
 }) => {
+  const { t } = useTranslation();
   const sizeClasses = {
     small: {
       icon: 20,
@@ -40,7 +42,7 @@ const Logo = ({
         logoFormat === 'svg' ? (
           <img 
             src={getLogoSrc()}
-            alt="Global Holiday Calendar Logo"
+            alt={t('app.title')}
             className={`flex-shrink-0`}
             style={{ 
               width: currentSize.icon, 
@@ -51,7 +53,7 @@ const Logo = ({
         ) : (
           <img 
             src={getLogoSrc()}
-            alt="Global Holiday Calendar Logo"
+            alt={t('app.title')}
             className={`w-${currentSize.icon/4} h-${currentSize.icon/4} object-contain flex-shrink-0 rounded-2xl`}
             style={{ 
               width: currentSize.icon, 
@@ -75,14 +77,14 @@ const Logo = ({
             className={`${currentSize.text} font-bold`}
             style={{textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)'}}
           >
-            Global Holiday Calendar
+            {t('app.title')}
           </h1>
           {size === 'medium' || size === 'large' ? (
             <p 
               className="text-xs md:text-sm mt-1" 
               style={{color: '#e0e7ff'}}
             >
-              Discover cultural celebrations worldwide
+              {t('app.subtitle')}
             </p>
           ) : null}
         </div>
@@ -91,4 +93,4 @@ const Logo = ({
   );
 };
 
-export default Logo;
+export default React.memo(Logo);

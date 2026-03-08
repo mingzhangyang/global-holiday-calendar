@@ -3,6 +3,7 @@ import { X, Calendar, MapPin, Clock, Book, Info } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { fetchHolidayInfo } from '../services/holidayApi';
 import { useI18n, useTranslation } from '../hooks/useI18n';
+import { getLocaleFromLanguage } from '../services/i18nService';
 
 const HolidayModal = ({ date, holidays, onClose }) => {
   const [detailedInfo, setDetailedInfo] = useState({});
@@ -83,18 +84,7 @@ const HolidayModal = ({ date, holidays, onClose }) => {
   };
 
   const formatDate = (date) => {
-    const localeMap = {
-      'en': 'en-US',
-      'fr': 'fr-FR',
-      'de': 'de-DE',
-      'es': 'es-ES',
-      'zh-CN': 'zh-CN',
-      'zh-TW': 'zh-TW',
-      'ja': 'ja-JP',
-      'ko': 'ko-KR'
-    };
-    
-    const locale = localeMap[language] || 'en-US';
+    const locale = getLocaleFromLanguage(language);
     return date.toLocaleDateString(locale, {
       weekday: 'long',
       year: 'numeric',
@@ -105,40 +95,41 @@ const HolidayModal = ({ date, holidays, onClose }) => {
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/55 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4"
       onClick={onClose}
     >
       <div 
-        className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl"
+        className="bg-white rounded-t-3xl sm:rounded-2xl max-w-2xl w-full max-h-[92dvh] sm:max-h-[90vh] overflow-y-auto shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 sm:p-4 flex items-start sm:items-center justify-between gap-3">
+          <div className="flex items-start sm:items-center space-x-2 min-w-0">
             <Calendar className="" style={{color: '#ff8c00'}} size={20} />
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-base sm:text-lg font-semibold text-gray-900 leading-tight">
               {formatDate(date)}
             </h2>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-full transition-colors duration-200"
-            aria-label="Close modal"
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+            aria-label={t('common.close')}
           >
             <X size={20} className="text-gray-500" />
           </button>
         </div>
 
         {/* Modal Content */}
-        <div className="p-4 space-y-6">
+        <div className="p-4 sm:p-5 space-y-5 sm:space-y-6">
           {holidays.map((holiday, index) => (
             <div key={index} className="border-l-4 pl-4" style={{ borderColor: holiday.color }}>
               {/* Holiday Header */}
               <div className="mb-3">
-                <h3 className="text-xl font-bold text-gray-900 mb-1">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 leading-snug">
                   {holiday.name}
                 </h3>
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <div className="flex items-center space-x-2 text-sm text-gray-600 flex-wrap">
                   <MapPin size={16} />
                   <span className="font-medium">{holiday.country}</span>
                 </div>
@@ -192,9 +183,10 @@ const HolidayModal = ({ date, holidays, onClose }) => {
                 {/* Detailed Information Button */}
                 <div className="mt-4">
                   <button
+                    type="button"
                     onClick={() => fetchDetailedInfo(holiday, index)}
                     disabled={loadingInfo[index]}
-                    className="flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer" style={{backgroundColor: '#fff5e6', color: '#cc7000'}} onMouseEnter={(e) => e.target.style.backgroundColor = '#ffe6cc'} onMouseLeave={(e) => e.target.style.backgroundColor = '#fff5e6'}
+                    className="flex w-full sm:w-auto items-center justify-center space-x-2 px-3 py-2.5 rounded-xl transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer" style={{backgroundColor: '#fff5e6', color: '#cc7000'}} onMouseEnter={(e) => e.target.style.backgroundColor = '#ffe6cc'} onMouseLeave={(e) => e.target.style.backgroundColor = '#fff5e6'}
                   >
                     <Info size={16} />
                     <span className="text-sm font-medium">
@@ -239,13 +231,14 @@ const HolidayModal = ({ date, holidays, onClose }) => {
 
         {/* Modal Footer */}
         <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-4">
-          <div className="flex justify-between items-center">
-            <div className="text-sm text-gray-500">
+          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+            <div className="text-sm text-gray-500 text-center sm:text-left">
               {t(holidays.length === 1 ? 'holidayModal.holidayCount' : 'holidayModal.holidayCountPlural', { count: holidays.length })}
             </div>
             <button
+              type="button"
               onClick={onClose}
-              className="px-4 py-2 text-white rounded-lg transition-colors duration-200 font-medium" style={{backgroundColor: '#ff8c00'}} onMouseEnter={(e) => e.target.style.backgroundColor = '#e67e00'} onMouseLeave={(e) => e.target.style.backgroundColor = '#ff8c00'}
+              className="w-full sm:w-auto px-4 py-2.5 text-white rounded-xl transition-colors duration-200 font-medium" style={{backgroundColor: '#ff8c00'}} onMouseEnter={(e) => e.target.style.backgroundColor = '#e67e00'} onMouseLeave={(e) => e.target.style.backgroundColor = '#ff8c00'}
             >
               {t('common.close')}
             </button>

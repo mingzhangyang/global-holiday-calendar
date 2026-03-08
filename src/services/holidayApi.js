@@ -13,6 +13,7 @@ function createApiUrl(path) {
 const holidayCache = new Map();
 const cacheExpiry = new Map();
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+const HOLIDAY_CACHE_STORAGE_PREFIX = 'holiday-cache';
 
 // Available countries (you can expand this list based on your worker's supported countries)
 const SUPPORTED_COUNTRIES = [
@@ -40,6 +41,66 @@ const COUNTRY_NAMES = {
   'TR': 'Turkey'
 };
 
+const SORTED_COUNTRIES = SUPPORTED_COUNTRIES.map(code => COUNTRY_NAMES[code] || code).sort();
+
+function getStorageKey(cacheKey) {
+  return `${HOLIDAY_CACHE_STORAGE_PREFIX}:${cacheKey}`;
+}
+
+function readPersistedCache(cacheKey) {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  try {
+    const rawValue = window.localStorage.getItem(getStorageKey(cacheKey));
+    if (!rawValue) {
+      return null;
+    }
+
+    const parsedValue = JSON.parse(rawValue);
+    if (!parsedValue?.expiry || !Array.isArray(parsedValue?.data)) {
+      return null;
+    }
+
+    return parsedValue;
+  } catch (error) {
+    console.warn('Error reading persisted holiday cache:', error);
+    return null;
+  }
+}
+
+function persistCache(cacheKey, data, expiry) {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(getStorageKey(cacheKey), JSON.stringify({ data, expiry }));
+  } catch (error) {
+    console.warn('Error persisting holiday cache:', error);
+  }
+}
+
+function setHolidayCacheEntry(cacheKey, data, expiry = Date.now() + CACHE_DURATION) {
+  holidayCache.set(cacheKey, data);
+  cacheExpiry.set(cacheKey, expiry);
+  persistCache(cacheKey, data, expiry);
+}
+
+function normalizeCountryCode(country) {
+  const code = Object.entries(COUNTRY_NAMES).find(([, name]) => name === country)?.[0];
+  return code || country;
+}
+
+function normalizeHolidayName(name) {
+  return name.toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+function isDuplicateHoliday(existingName, nextName) {
+  return existingName === nextName || existingName.includes(nextName) || nextName.includes(existingName);
+}
+
 /**
  * Check if cached data is still valid
  */
@@ -57,6 +118,13 @@ export async function fetchHolidaysFromWorker(year, countryCode, includeDescript
   // Check cache first
   if (isCacheValid(cacheKey) && holidayCache.has(cacheKey)) {
     return holidayCache.get(cacheKey);
+  }
+
+  const persistedCache = readPersistedCache(cacheKey);
+  if (persistedCache?.expiry && persistedCache.expiry > Date.now()) {
+    holidayCache.set(cacheKey, persistedCache.data);
+    cacheExpiry.set(cacheKey, persistedCache.expiry);
+    return persistedCache.data;
   }
 
   try {
@@ -88,12 +156,18 @@ export async function fetchHolidaysFromWorker(year, countryCode, includeDescript
     }));
 
     // Cache the result
-    holidayCache.set(cacheKey, transformedHolidays);
-    cacheExpiry.set(cacheKey, Date.now() + CACHE_DURATION);
+    setHolidayCacheEntry(cacheKey, transformedHolidays);
 
     return transformedHolidays;
   } catch (error) {
     console.error('Error fetching holidays from worker:', error);
+
+    if (persistedCache?.data?.length) {
+      holidayCache.set(cacheKey, persistedCache.data);
+      cacheExpiry.set(cacheKey, persistedCache.expiry);
+      return persistedCache.data;
+    }
+
     return [];
   }
 }
@@ -168,7 +242,7 @@ function getHolidayColor(name, type) {
  * Get list of supported countries
  */
 export function getCountries() {
-  return SUPPORTED_COUNTRIES.map(code => COUNTRY_NAMES[code] || code).sort();
+  return SORTED_COUNTRIES;
 }
 
 /**
@@ -183,39 +257,22 @@ export async function getHolidaysForDate(date, selectedCountries = []) {
     return [];
   }
   
-  const countriesToFetch = selectedCountries.map(country => {
-    // Convert country name back to code if needed
-    const code = Object.entries(COUNTRY_NAMES).find(([, name]) => name === country)?.[0];
-    return code || country;
-  });
-
+  const countriesToFetch = [...new Set(selectedCountries.map(normalizeCountryCode))];
   const allHolidays = [];
-  
-  // Fetch holidays for each country
-  for (const countryCode of countriesToFetch) {
-    try {
-      const holidays = await fetchHolidaysFromWorker(year, countryCode, true);
-      const dayHolidays = holidays.filter(holiday => holiday.date === dateStr);
-      
-      // Add holidays with deduplication
-      dayHolidays.forEach(holiday => {
-        const normalizedName = holiday.name.toLowerCase().replace(/\s+/g, ' ').trim();
-        const isDuplicate = allHolidays.some(existingHoliday => {
-          const existingNormalizedName = existingHoliday.name.toLowerCase().replace(/\s+/g, ' ').trim();
-          // Check for exact match or if one name contains the other (e.g., "Spring Equinox" vs "春分 (Spring Equinox)")
-          return existingNormalizedName === normalizedName || 
-                 existingNormalizedName.includes(normalizedName) || 
-                 normalizedName.includes(existingNormalizedName);
-        });
-        
-        if (!isDuplicate) {
-          allHolidays.push(holiday);
-        }
-      });
-    } catch (error) {
-      console.error(`Error fetching holidays for ${countryCode}:`, error);
-    }
-  }
+  const holidayResponses = await Promise.all(countriesToFetch.map(countryCode => fetchHolidaysFromWorker(year, countryCode, true)));
+
+  holidayResponses.forEach(holidays => {
+    const dayHolidays = holidays.filter(holiday => holiday.date === dateStr);
+
+    dayHolidays.forEach(holiday => {
+      const normalizedName = normalizeHolidayName(holiday.name);
+      const isDuplicate = allHolidays.some(existingHoliday => isDuplicateHoliday(normalizeHolidayName(existingHoliday.name), normalizedName));
+
+      if (!isDuplicate) {
+        allHolidays.push(holiday);
+      }
+    });
+  });
 
   return allHolidays;
 }
@@ -229,46 +286,30 @@ export async function getHolidaysForMonth(year, month, selectedCountries = []) {
     return {};
   }
   
-  const countriesToFetch = selectedCountries.map(country => {
-    // Convert country name back to code if needed
-    const code = Object.entries(COUNTRY_NAMES).find(([, name]) => name === country)?.[0];
-    return code || country;
-  });
+  const countriesToFetch = [...new Set(selectedCountries.map(normalizeCountryCode))];
 
   const monthHolidays = {};
-  
-  // Fetch holidays for each country
-  for (const countryCode of countriesToFetch) {
-    try {
-      const holidays = await fetchHolidaysFromWorker(year, countryCode, true);
-      
-      holidays.forEach(holiday => {
-        const holidayDate = new Date(holiday.date);
-        if (holidayDate.getFullYear() === year && holidayDate.getMonth() === month) {
-          const dateStr = holiday.date;
-          if (!monthHolidays[dateStr]) {
-            monthHolidays[dateStr] = [];
-          }
-          
-          // Check for duplicates based on normalized name and date
-          const normalizedName = holiday.name.toLowerCase().replace(/\s+/g, ' ').trim();
-          const isDuplicate = monthHolidays[dateStr].some(existingHoliday => {
-            const existingNormalizedName = existingHoliday.name.toLowerCase().replace(/\s+/g, ' ').trim();
-            // Check for exact match or if one name contains the other (e.g., "Spring Equinox" vs "春分 (Spring Equinox)")
-            return existingNormalizedName === normalizedName || 
-                   existingNormalizedName.includes(normalizedName) || 
-                   normalizedName.includes(existingNormalizedName);
-          });
-          
-          if (!isDuplicate) {
-            monthHolidays[dateStr].push(holiday);
-          }
+
+  const holidayResponses = await Promise.all(countriesToFetch.map(countryCode => fetchHolidaysFromWorker(year, countryCode, true)));
+
+  holidayResponses.forEach(holidays => {
+    holidays.forEach(holiday => {
+      const holidayDate = new Date(holiday.date);
+      if (holidayDate.getFullYear() === year && holidayDate.getMonth() === month) {
+        const dateStr = holiday.date;
+        if (!monthHolidays[dateStr]) {
+          monthHolidays[dateStr] = [];
         }
-      });
-    } catch (error) {
-      console.error(`Error fetching holidays for ${countryCode}:`, error);
-    }
-  }
+
+        const normalizedName = normalizeHolidayName(holiday.name);
+        const isDuplicate = monthHolidays[dateStr].some(existingHoliday => isDuplicateHoliday(normalizeHolidayName(existingHoliday.name), normalizedName));
+
+        if (!isDuplicate) {
+          monthHolidays[dateStr].push(holiday);
+        }
+      }
+    });
+  });
 
   return monthHolidays;
 }
@@ -279,4 +320,10 @@ export async function getHolidaysForMonth(year, month, selectedCountries = []) {
 export function clearCache() {
   holidayCache.clear();
   cacheExpiry.clear();
+
+  if (typeof window !== 'undefined') {
+    Object.keys(window.localStorage)
+      .filter(key => key.startsWith(`${HOLIDAY_CACHE_STORAGE_PREFIX}:`))
+      .forEach(key => window.localStorage.removeItem(key));
+  }
 }

@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { getHolidaysForMonth, getHolidaysForDate } from '../services/holidayApi';
+import { getHolidaysForMonth } from '../services/holidayApi';
 import HolidayModal from './HolidayModal';
 import { useTranslation } from '../hooks/useI18n';
+import { getLocaleFromLanguage } from '../services/i18nService';
 
 const Calendar = ({ selectedCountries, onDateClick }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -10,29 +11,58 @@ const Calendar = ({ selectedCountries, onDateClick }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [monthHolidays, setMonthHolidays] = useState({});
   const [loading, setLoading] = useState(false);
+  const [showLoadingState, setShowLoadingState] = useState(false);
   const { t, language } = useTranslation();
+  const touchStartRef = useRef({ x: 0, y: 0 });
 
-  const today = new Date();
+  const todayKey = useMemo(() => new Date().toDateString(), []);
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth();
 
   // Fetch holidays for the current month
   useEffect(() => {
+    let isActive = true;
+
     const fetchMonthHolidays = async () => {
       setLoading(true);
       try {
         const holidays = await getHolidaysForMonth(currentYear, currentMonth, selectedCountries);
-        setMonthHolidays(holidays);
+        if (isActive) {
+          setMonthHolidays(holidays);
+        }
       } catch (error) {
         console.error('Error fetching holidays:', error);
-        setMonthHolidays({});
+        if (isActive) {
+          setMonthHolidays({});
+        }
       } finally {
-        setLoading(false);
+        if (isActive) {
+          setLoading(false);
+        }
       }
     };
 
     fetchMonthHolidays();
+
+    return () => {
+      isActive = false;
+    };
   }, [currentYear, currentMonth, selectedCountries]);
+
+  useEffect(() => {
+    if (!loading) {
+      setShowLoadingState(false);
+      return undefined;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setShowLoadingState(true);
+    }, 180);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [loading]);
 
   // Generate calendar days
   const calendarDays = useMemo(() => {
@@ -66,7 +96,7 @@ const Calendar = ({ selectedCountries, onDateClick }) => {
     // Add current month's days
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(currentYear, currentMonth, day);
-      const isToday = date.toDateString() === today.toDateString();
+      const isToday = date.toDateString() === todayKey;
       days.push({
         date,
         day,
@@ -90,7 +120,7 @@ const Calendar = ({ selectedCountries, onDateClick }) => {
     }
 
     return days;
-  }, [currentYear, currentMonth, monthHolidays, today]);
+  }, [currentYear, currentMonth, monthHolidays, todayKey]);
 
   const navigateMonth = (direction) => {
     setCurrentDate(prev => {
@@ -102,6 +132,26 @@ const Calendar = ({ selectedCountries, onDateClick }) => {
 
   const navigateToToday = () => {
     setCurrentDate(new Date());
+  };
+
+  const handleTouchStart = (event) => {
+    const touch = event.changedTouches[0];
+    touchStartRef.current = {
+      x: touch.clientX,
+      y: touch.clientY
+    };
+  };
+
+  const handleTouchEnd = (event) => {
+    const touch = event.changedTouches[0];
+    const deltaX = touch.clientX - touchStartRef.current.x;
+    const deltaY = touch.clientY - touchStartRef.current.y;
+
+    if (Math.abs(deltaX) < 50 || Math.abs(deltaX) < Math.abs(deltaY)) {
+      return;
+    }
+
+    navigateMonth(deltaX < 0 ? 1 : -1);
   };
 
   const handleDateClick = async (dayInfo) => {
@@ -140,69 +190,115 @@ const Calendar = ({ selectedCountries, onDateClick }) => {
 
   const monthNames = t('calendar.months');
   const dayNames = t('calendar.weekdays');
+  const mobileDayNames = dayNames.map(day => day.slice(0, 2));
+  const hasMonthData = Object.keys(monthHolidays).length > 0;
+  const locale = getLocaleFromLanguage(language);
+
+  const formatCalendarLabel = (date) => {
+    const formattedDate = date.toLocaleDateString(locale, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    if (!monthHolidays[date.toISOString().split('T')[0]]?.length) {
+      return formattedDate;
+    }
+
+    const holidayCount = monthHolidays[date.toISOString().split('T')[0]].length;
+    return `${formattedDate}, ${t(holidayCount === 1 ? 'listView.holidayCount' : 'listView.holidayCountPlural', { count: holidayCount })}`;
+  };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+    <div
+      className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200/70 overflow-hidden animate-fade-in-up"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
       {/* Calendar Header */}
-      <div className="text-white p-4" style={{backgroundColor: '#ff8c00'}}>
-        <div className="flex items-center justify-between mb-4">
+      <div className="text-white p-3 sm:p-4" style={{backgroundColor: '#ff8c00'}}>
+        <div className="flex items-center justify-between gap-2 sm:gap-4 mb-3 sm:mb-4">
           <button
+            type="button"
             onClick={() => navigateMonth(-1)}
-            className="p-2 hover:bg-white/20 rounded-full transition-colors duration-200"
+            className="p-2.5 hover:bg-white/20 rounded-full transition-colors duration-200"
             aria-label={t('calendar.previousMonth')}
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
           
-          <div className="text-center">
-            <h2 className="text-2xl font-bold">
+          <div className="text-center min-w-0 flex-1 px-1">
+            <h2 className="text-lg sm:text-2xl font-bold truncate">
               {monthNames[currentMonth]} {currentYear}
             </h2>
             <button
+              type="button"
               onClick={navigateToToday}
-              className="text-sm opacity-80 hover:opacity-100 transition-opacity duration-200 mt-1"
+              className="inline-flex items-center justify-center rounded-full bg-white/15 px-3 py-1 text-xs sm:text-sm opacity-90 hover:opacity-100 transition-opacity duration-200 mt-1"
             >
               {t('calendar.today')}
             </button>
           </div>
           
           <button
+              type="button"
               onClick={() => navigateMonth(1)}
-              className="p-2 hover:bg-white/20 rounded-full transition-colors duration-200"
+              className="p-2.5 hover:bg-white/20 rounded-full transition-colors duration-200"
               aria-label={t('calendar.nextMonth')}
           >
             <ChevronRight className="w-5 h-5" />
           </button>
         </div>
+
+        <div className="flex items-center justify-center min-h-5">
+          <p className="sm:hidden text-[11px] text-white/85 animate-fade-in-up">
+            {t('calendar.swipeHint')}
+          </p>
+          {loading && showLoadingState && hasMonthData && (
+            <div className="hidden sm:inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs text-white/90">
+              <span className="h-2 w-2 rounded-full bg-white animate-pulse" aria-hidden="true" />
+              <span>{t('calendar.loading')}</span>
+            </div>
+          )}
+        </div>
         
         {/* Day headers */}
-        <div className="grid grid-cols-7 gap-1">
-          {dayNames.map(day => (
-            <div key={day} className="text-center text-sm font-medium py-2">
-              {day}
+        <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
+          {dayNames.map((day, index) => (
+            <div key={day} className="text-center text-[11px] sm:text-sm font-medium py-2 uppercase sm:normal-case tracking-wide sm:tracking-normal">
+              <span className="sm:hidden">{mobileDayNames[index]}</span>
+              <span className="hidden sm:inline">{day}</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* Calendar Grid */}
-      <div className="p-4">
-        {loading && (
-          <div className="flex justify-center items-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{borderBottomColor: '#ff8c00'}}></div>
-            <span className="ml-2 text-gray-600">{t('calendar.loading')}</span>
+      <div className="p-2 sm:p-4 relative">
+        {loading && showLoadingState && !hasMonthData ? (
+          <div className="grid grid-cols-7 gap-0.5 sm:gap-1 animate-fade-in-up" aria-hidden="true">
+            {Array.from({ length: 42 }).map((_, index) => (
+              <div key={index} className="aspect-[0.88] min-h-[4.25rem] sm:min-h-20 sm:aspect-auto rounded-xl border border-slate-200/80 bg-slate-100/70 p-1 sm:p-1.5">
+                <div className="skeleton-shimmer h-3 w-5 rounded-full mb-2" />
+                <div className="hidden sm:block skeleton-shimmer h-2.5 w-full rounded-full mb-1.5" />
+                <div className="hidden sm:block skeleton-shimmer h-2.5 w-2/3 rounded-full" />
+              </div>
+            ))}
           </div>
-        )}
-        <div className="grid grid-cols-7 gap-1">
+        ) : (
+        <div className={`grid grid-cols-7 gap-0.5 sm:gap-1 ${loading && showLoadingState ? 'opacity-70' : ''}`}>
           {calendarDays.map((dayInfo, index) => {
             const hasHolidays = dayInfo.holidays.length > 0;
+            const isInteractive = hasHolidays && dayInfo.isCurrentMonth;
             
             return (
-              <div
+              <button
+                type="button"
                 key={index}
                 onClick={() => handleDateClick(dayInfo)}
+                disabled={!isInteractive}
                 className={`
-                  relative flex flex-col p-1 border rounded-lg transition-all duration-200
+                  relative flex flex-col p-1 sm:p-1.5 border rounded-xl transition-all duration-200 text-left
                   ${
                     dayInfo.isToday
                       ? 'text-white shadow-md'
@@ -213,18 +309,18 @@ const Calendar = ({ selectedCountries, onDateClick }) => {
                       : 'bg-gray-50 border-gray-100'
                   }
                   ${
-                    hasHolidays
-                      ? 'cursor-pointer hover:shadow-md hover:scale-105 transform'
-                      : dayInfo.isCurrentMonth
-                      ? 'cursor-default'
+                    isInteractive
+                      ? 'cursor-pointer active:scale-[0.98] sm:hover:shadow-md sm:hover:scale-[1.02] transform'
                       : 'cursor-default'
                   }
-                  min-h-16 sm:min-h-20
+                  aspect-[0.88] min-h-[4.25rem] sm:min-h-20 sm:aspect-auto
                 `}
+                aria-label={formatCalendarLabel(dayInfo.date)}
+                aria-disabled={!isInteractive}
                 style={dayInfo.isToday ? {backgroundColor: '#ff8c00', borderColor: '#ff8c00'} : hasHolidays && dayInfo.isCurrentMonth ? {background: 'linear-gradient(to bottom right, #f0fdf4, #fff5e6)'} : {}}
               >
                 <div className="flex justify-between items-start w-full mb-1">
-                  <span className={`text-sm font-semibold ${
+                  <span className={`text-xs sm:text-sm font-semibold ${
                     dayInfo.isToday
                       ? 'text-white'
                       : dayInfo.isCurrentMonth 
@@ -236,7 +332,7 @@ const Calendar = ({ selectedCountries, onDateClick }) => {
                   
                   {/* Holiday indicators */}
                   {hasHolidays && (
-                    <div className="flex flex-wrap gap-1">
+                    <div className="hidden sm:flex flex-wrap gap-1">
                       {dayInfo.holidays.slice(0, 3).map((holiday, holidayIndex) => (
                         <div
                           key={holidayIndex}
@@ -256,11 +352,15 @@ const Calendar = ({ selectedCountries, onDateClick }) => {
                 
                 {/* Holiday names */}
                 {hasHolidays && dayInfo.isCurrentMonth && (
-                  <div className="flex-1 w-full">
+                  <div className="flex-1 w-full overflow-hidden">
+                    <div className="sm:hidden mt-auto inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium bg-black/5 text-gray-700 max-w-full">
+                      <span className="truncate">{dayInfo.holidays[0].name}</span>
+                      {dayInfo.holidays.length > 1 && <span className="ml-1">{t('common.moreCount', { count: dayInfo.holidays.length - 1 })}</span>}
+                    </div>
                     {dayInfo.holidays.slice(0, 2).map((holiday, holidayIndex) => (
                       <div
                         key={holidayIndex}
-                        className={`text-xs leading-tight mb-1 truncate ${
+                        className={`hidden sm:block text-xs leading-tight mb-1 truncate ${
                           dayInfo.isToday
                             ? ''
                             : 'text-gray-700'
@@ -272,21 +372,31 @@ const Calendar = ({ selectedCountries, onDateClick }) => {
                       </div>
                     ))}
                     {dayInfo.holidays.length > 2 && (
-                      <div className={`text-xs font-medium ${
+                      <div className={`hidden sm:block text-xs font-medium ${
                         dayInfo.isToday
                           ? ''
                           : 'text-gray-500'
                       }`}
                       style={dayInfo.isToday ? {color: '#ffe6cc'} : {}}>
-                        +{dayInfo.holidays.length - 2} more
+                        {t('common.moreCount', { count: dayInfo.holidays.length - 2 })}
                       </div>
                     )}
                   </div>
                 )}
-              </div>
+              </button>
             );
           })}
         </div>
+        )}
+
+        {loading && showLoadingState && hasMonthData && (
+          <div className="pointer-events-none absolute inset-x-0 top-2 flex justify-center sm:hidden">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/95 px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm ring-1 ring-slate-200/80">
+              <span className="h-2 w-2 rounded-full bg-orange-400 animate-pulse" aria-hidden="true" />
+              <span>{t('calendar.loading')}</span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Holiday Modal */}
