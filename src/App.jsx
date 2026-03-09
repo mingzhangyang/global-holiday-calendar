@@ -451,7 +451,7 @@ function App() {
             {/* Copyright Section */}
             <div className="border-t border-white/20 pt-6">
               <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-xs md:text-sm text-white/70">
-                <span>© 2025 Orangely</span>
+                <span>© {new Date().getFullYear()} Orangely</span>
                 <span className="hidden sm:inline text-white/50">•</span>
                 <span>{t('footer.culturalEducation')}</span>
               </div>
