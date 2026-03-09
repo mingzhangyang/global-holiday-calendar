@@ -3,6 +3,7 @@ import { Globe, Info, MapPin, Calendar as CalendarViewIcon, List, Menu, X } from
 import Calendar from './components/Calendar';
 import HolidayListView from './components/HolidayListView';
 import CountryFilter from './components/CountryFilter';
+import Legend from './components/Legend';
 import LanguageSelector from './components/LanguageSelector';
 import AboutModal from './components/AboutModal';
 import Logo from './components/Logo';
@@ -253,12 +254,6 @@ function App() {
             <div className="flex items-center justify-between gap-4">
               {/* Logo and Title Section */}
               <div className="flex min-w-0 items-center gap-3">
-                <div className="hidden sm:flex items-center gap-1.5" aria-hidden="true">
-                  <span className="h-2.5 w-2.5 rounded-full bg-teal-400" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-fuchsia-500" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-cyan-400" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-orange-400" />
-                </div>
                 <Logo 
                   size="medium"
                   showText={true}
@@ -366,39 +361,8 @@ function App() {
               isLoadingLocation={isLoadingLocation}
               locationDetected={locationDetected}
             />
-            
-            {/* Legend */}
-            <div className="surface-card rounded-[24px] p-4 sm:p-5">
-              <h3 className="mb-4 text-base font-semibold text-slate-900 sm:text-lg">{t('legend.title')}</h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center space-x-3 rounded-2xl bg-white/70 px-3 py-2">
-                  <div className="h-3 w-3 rounded-full" style={{backgroundColor: '#14b8a6'}} />
-                <span className="text-slate-700">{t('legend.nationalHoliday')}</span>
-                </div>
-                <div className="flex items-center space-x-3 rounded-2xl bg-white/70 px-3 py-2">
-                  <div className="h-3 w-3 rounded-full bg-cyan-500" />
-                  <span className="text-slate-700">{t('legend.culturalFestival')}</span>
-                </div>
-                <div className="flex items-center space-x-3 rounded-2xl bg-white/70 px-3 py-2">
-                  <div className="h-3 w-3 rounded-full" style={{backgroundColor: 'rgb(243, 74, 217)'}} />
-                <span className="text-slate-700">{t('legend.religiousObservance')}</span>
-                </div>
-                <div className="flex items-center space-x-3 rounded-2xl bg-white/70 px-3 py-2">
-                  <div className="h-3 w-3 rounded-full bg-orange-500" />
-                  <span className="text-slate-700">{t('legend.traditionalCelebration')}</span>
-                </div>
-                <div className="flex items-center space-x-3 rounded-2xl bg-white/70 px-3 py-2">
-                  <div className="h-3 w-3 rounded-full bg-fuchsia-500" />
-                  <span className="text-slate-700">{t('legend.internationalDay')}</span>
-                </div>
-              </div>
-              
-              <div className="soft-divider mt-4 border-t pt-3">
-                <p className="text-xs leading-6 text-slate-500">
-                  {t('legend.note')}
-                </p>
-              </div>
-            </div>
+
+            <Legend />
           </aside>
 
           {/* Main View Area */}

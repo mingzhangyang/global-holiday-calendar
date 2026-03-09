@@ -80,7 +80,7 @@ const CountryFilter = ({ selectedCountries, onCountriesChange, isLoadingLocation
   return (
     <div className="surface-card overflow-hidden rounded-[24px]">
       {/* Filter Header */}
-      <div className="bg-gradient-to-br from-slate-950 via-teal-950 to-cyan-600 p-4 text-white">
+      <div className="bg-cyan-600 p-4 text-white">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Filter size={20} />

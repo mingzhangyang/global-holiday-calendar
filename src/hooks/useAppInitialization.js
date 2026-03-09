@@ -113,9 +113,6 @@ export function useAppInitialization() {
         }
 
         defaultCountry = await getUserDefaultCountry();
-        if (!isActive) {
-          return;
-        }
 
         if (defaultCountry) {
           applyDetectedCountry(defaultCountry);
@@ -125,9 +122,7 @@ export function useAppInitialization() {
       } catch (error) {
         console.error('Error initializing defaults:', error);
       } finally {
-        if (isActive) {
-          setIsLoadingLocation(false);
-        }
+        setIsLoadingLocation(false);
       }
 
       if (!initialLanguageFromUrl) {

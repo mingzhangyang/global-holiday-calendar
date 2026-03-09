@@ -171,17 +171,17 @@ const HolidayListView = ({ currentDate, onCurrentDateChange, selectedCountries }
       onTouchEnd={handleTouchEnd}
     >
       {/* Header */}
-      <div className="bg-gradient-to-br from-slate-950 via-teal-950 to-cyan-600 p-3 text-white sm:p-4">
+      <div className="bg-teal-600 p-3 text-white sm:p-4">
         <div className="flex items-center justify-between gap-2 sm:gap-4">
           <button
             type="button"
             onClick={() => navigateMonth(-1)}
-            className="focus-ring rounded-full border border-white/10 bg-white/10 p-2.5 hover:bg-white/15"
+            className="focus-ring rounded-full border border-teal-500 bg-teal-700/50 p-2.5 hover:bg-orange-500 hover:border-orange-500 transition-colors"
             aria-label={t('calendar.previousMonth')}
           >
             <ChevronDown className="w-5 h-5 transform rotate-90" />
           </button>
-          
+
           <div className="text-center min-w-0 flex-1 px-1">
             <h2 className="text-lg sm:text-2xl font-bold truncate">
               {monthNames[currentMonth]} {currentYear}
@@ -189,16 +189,16 @@ const HolidayListView = ({ currentDate, onCurrentDateChange, selectedCountries }
             <button
               type="button"
               onClick={navigateToToday}
-              className="mt-1 inline-flex items-center justify-center rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs sm:text-sm opacity-90 hover:bg-white/15"
+              className="mt-1 inline-flex items-center justify-center rounded-full border border-teal-500 bg-teal-700/50 px-3 py-1 text-xs sm:text-sm hover:bg-orange-500 hover:border-orange-500 transition-colors"
             >
               {t('calendar.today')}
             </button>
           </div>
-          
+
           <button
             type="button"
             onClick={() => navigateMonth(1)}
-            className="focus-ring rounded-full border border-white/10 bg-white/10 p-2.5 hover:bg-white/15"
+            className="focus-ring rounded-full border border-teal-500 bg-teal-700/50 p-2.5 hover:bg-orange-500 hover:border-orange-500 transition-colors"
             aria-label={t('calendar.nextMonth')}
           >
             <ChevronUp className="w-5 h-5 transform rotate-90" />
