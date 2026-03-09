@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Calendar, MapPin, Clock, Book, Info } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { fetchHolidayInfo } from '../services/holidayApi';
@@ -93,7 +94,7 @@ const HolidayModal = ({ date, holidays, onClose }) => {
     });
   };
 
-  return (
+  return createPortal(
     <div 
       className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/55 p-0 backdrop-blur-sm sm:items-center sm:p-4"
       onClick={onClose}
@@ -245,7 +246,8 @@ const HolidayModal = ({ date, holidays, onClose }) => {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
