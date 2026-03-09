@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Calendar, MapPin, Clock, Book, Info } from 'lucide-react';
+import { X, Calendar, MapPin, Clock, Book, Info, ChevronDown } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { fetchHolidayInfo } from '../services/holidayApi';
 import { useI18n, useTranslation } from '../hooks/useI18n';
@@ -9,6 +9,7 @@ import { getLocaleFromLanguage } from '../services/i18nService';
 const HolidayModal = ({ date, holidays, onClose }) => {
   const [detailedInfo, setDetailedInfo] = useState({});
   const [loadingInfo, setLoadingInfo] = useState({});
+  const [showScrollHint, setShowScrollHint] = useState(null);
   const { language } = useI18n();
   const { t } = useTranslation();
 
@@ -67,6 +68,7 @@ const HolidayModal = ({ date, holidays, onClose }) => {
     }
 
     setLoadingInfo(prev => ({ ...prev, [index]: true }));
+    setShowScrollHint(null);
     
     try {
       const info = await fetchHolidayInfo(holiday.name, holiday.country, language);
@@ -76,6 +78,11 @@ const HolidayModal = ({ date, holidays, onClose }) => {
         const languageCacheKey = `${cacheKey}-${language}`;
         localStorage.setItem(languageCacheKey, info);
         localStorage.setItem(`${languageCacheKey}-timestamp`, Date.now().toString());
+        
+        setShowScrollHint(index);
+        setTimeout(() => {
+          setShowScrollHint(null);
+        }, 5000); // Hide the hint after 5 seconds
       }
     } catch (error) {
       console.error('Error fetching holiday info:', error);
@@ -198,7 +205,15 @@ const HolidayModal = ({ date, holidays, onClose }) => {
 
                 {/* Detailed Information Display */}
                 {detailedInfo[index] && (
-                  <div className="surface-card-muted mt-4 rounded-2xl p-4">
+                  <div className="surface-card-muted mt-4 rounded-2xl p-4 relative">
+                    {showScrollHint === index && (
+                      <div className="absolute -top-4 right-4 flex animate-bounce items-center gap-1 rounded-full bg-teal-100 px-3 py-1 font-medium text-teal-700 shadow-md sm:right-auto sm:left-1/2 sm:-translate-x-1/2">
+                        <span className="text-xs">
+                          {language === 'zh' ? '往下滑动查看详细内容' : 'Scroll down to read'}
+                        </span>
+                        <ChevronDown size={14} />
+                      </div>
+                    )}
                     <h4 className="mb-2 font-semibold text-slate-900">{t('holidayModal.detailedBackground')}</h4>
                     <div className="prose prose-sm max-w-none text-sm text-slate-700">
                       <ReactMarkdown 
