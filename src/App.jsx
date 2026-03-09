@@ -244,60 +244,56 @@ function App() {
   return (
     <div className="app-shell min-h-screen text-slate-900">
       {/* Header */}
-      <header 
-        className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/92 px-3 py-3 text-slate-900 backdrop-blur-xl sm:px-6 md:px-8 md:py-4"
+      <header
+        className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/92 px-3 py-2 text-slate-900 backdrop-blur-xl sm:px-6 md:px-8"
         role="banner"
         aria-label="Site header"
       >
-        <div className="mx-auto max-w-7xl relative z-10">
-          <div className="flex flex-col gap-3 sm:gap-4">
-            <div className="flex items-center justify-between gap-4">
-              {/* Logo and Title Section */}
-              <div className="flex min-w-0 items-center gap-3">
-                <Logo 
-                  size="medium"
-                  showText={true}
-                  useImage={true}
-                  logoFormat="svg"
-                  titleAs="h1"
-                  variant="light"
-                  className="min-w-0 text-left"
-                />
-              </div>
+        <div className="mx-auto max-w-7xl relative z-10 flex items-center justify-between gap-4">
+          {/* Logo and Title Section */}
+          <div className="flex min-w-0 items-center gap-3 py-1">
+            <Logo
+              size="medium"
+              showText={true}
+              useImage={true}
+              logoFormat="svg"
+              titleAs="h1"
+              variant="light"
+              className="min-w-0 text-left"
+            />
+          </div>
 
+          <div className="hidden lg:flex lg:items-center lg:justify-end py-1">
+            {renderHeaderControls(false)}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsMobileMenuOpen(open => !open)}
+            className="lg:hidden inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white p-2.5 text-slate-700 shadow-sm transition-colors duration-200 hover:bg-slate-50"
+            aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-header-menu"
+          >
+            {isMobileMenuOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
+          </button>
+
+          {isMobileMenuOpen && (
+            <>
               <button
                 type="button"
-                onClick={() => setIsMobileMenuOpen(open => !open)}
-                className="sm:hidden inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white p-3 text-slate-700 shadow-sm transition-colors duration-200 hover:bg-slate-50"
-                aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-                aria-expanded={isMobileMenuOpen}
-                aria-controls="mobile-header-menu"
+                className="lg:hidden fixed inset-0 top-[60px] bg-slate-950/15 backdrop-blur-sm"
+                aria-label="Close navigation menu"
+                onClick={() => setIsMobileMenuOpen(false)}
+              />
+              <div
+                id="mobile-header-menu"
+                className="lg:hidden absolute left-0 right-0 top-full mt-2 rounded-[24px] border border-slate-200 bg-white p-4 shadow-xl"
               >
-                {isMobileMenuOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
-              </button>
-            </div>
-
-            <div className="hidden sm:flex sm:items-center sm:justify-end">
-              {renderHeaderControls(false)}
-            </div>
-
-            {isMobileMenuOpen && (
-              <>
-                <button
-                  type="button"
-                  className="sm:hidden fixed inset-0 top-[88px] bg-slate-950/15 backdrop-blur-sm"
-                  aria-label="Close navigation menu"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                />
-                <div
-                  id="mobile-header-menu"
-                  className="sm:hidden rounded-[24px] border border-slate-200 bg-white p-4 shadow-xl"
-                >
-                  {renderHeaderControls(true)}
-                </div>
-              </>
-            )}
-          </div>
+                {renderHeaderControls(true)}
+              </div>
+            </>
+          )}
         </div>
       </header>
 
@@ -309,47 +305,33 @@ function App() {
 
       {/* Main Content */}
       <main className="relative z-10 mx-auto max-w-7xl px-3 py-4 sm:px-6 sm:py-8 lg:px-8">
-        <section className="surface-card-strong mb-5 overflow-hidden rounded-[28px] p-5 sm:mb-8 sm:p-8 animate-fade-in-up" aria-label="Introduction">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-3xl space-y-4">
-              <div className="inline-flex items-center gap-2 rounded-full border border-orange-200/70 bg-orange-50/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-orange-700">
-                <span className="h-2 w-2 rounded-full bg-orange-500" aria-hidden="true" />
-                {monthLabel} {currentDate.getFullYear()}
-              </div>
-              <div>
-                <h2 className="text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl lg:text-4xl">
-                  {t('app.title')}
-                </h2>
-                <p className="mt-3 text-sm leading-7 text-slate-600 sm:text-base">
-                  {t('app.subtitle')}. {t('legend.note')}
-                </p>
-              </div>
-            </div>
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:min-w-[24rem]">
-              <div className="surface-card-muted rounded-2xl p-4">
-                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{t('listView.calendarView')}</div>
-                <div className="mt-2 text-lg font-semibold text-slate-900">{monthLabel} {currentDate.getFullYear()}</div>
-                <div className="mt-1 text-sm text-slate-500">{currentView === 'calendar' ? t('listView.calendarView') : t('listView.listView')}</div>
-              </div>
-              <div className="surface-card-muted rounded-2xl p-4">
-                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{locationDetected ? t('countryFilter.locationBased', { count: selectedCountries.length || 1 }) : t('countryFilter.title')}</div>
-                <div className="mt-2 truncate text-lg font-semibold text-slate-900">{selectionSummary}</div>
-                <div className="mt-1 text-sm text-slate-500">{selectedCountries.length || t('countryFilter.allCountries')}</div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <div className="mb-5 flex flex-wrap items-center gap-3 sm:mb-8">
+        <div className="mb-5 flex flex-wrap items-center gap-2 sm:gap-3 sm:mb-8">
           <div className="pill-chip max-w-full border-teal-200/70 bg-teal-50/65 text-teal-800 text-sm">
             {currentView === 'calendar' ? <CalendarViewIcon size={16} aria-hidden="true" /> : <List size={16} aria-hidden="true" />}
             <span>{currentView === 'calendar' ? t('listView.calendarView') : t('listView.listView')}</span>
           </div>
-          <div className="pill-chip max-w-full border-fuchsia-200/70 bg-fuchsia-50/65 text-fuchsia-800 text-sm">
-            {locationDetected ? <MapPin size={16} aria-hidden="true" /> : <Globe size={16} aria-hidden="true" />}
-            <span className="truncate max-w-[16rem]">{selectionSummary}</span>
-          </div>
+          
+          {selectedCountries.length === 0 ? (
+            <div className="pill-chip max-w-full border-fuchsia-200/70 bg-fuchsia-50/65 text-fuchsia-800 text-sm">
+              <Globe size={16} aria-hidden="true" />
+              <span>{t('countryFilter.allCountries')}</span>
+            </div>
+          ) : (
+            selectedCountries.map((country) => (
+              <button
+                key={country}
+                type="button"
+                onClick={() => updateSelectedCountries(selectedCountries.filter(c => c !== country))}
+                className="group flex items-center gap-1.5 rounded-full border border-fuchsia-200/70 bg-fuchsia-50/65 px-3 py-1.5 text-sm text-fuchsia-800 transition-colors hover:bg-fuchsia-100/80 focus:outline-none focus:ring-2 focus:ring-fuchsia-400 focus:ring-offset-1"
+                aria-label={`Remove ${country}`}
+              >
+                <MapPin size={14} className="text-fuchsia-600/80" aria-hidden="true" />
+                <span className="truncate max-w-[12rem]">{country}</span>
+                <X size={14} className="ml-0.5 text-fuchsia-400 opacity-60 transition-all group-hover:text-fuchsia-600 group-hover:opacity-100" aria-hidden="true" />
+              </button>
+            ))
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">

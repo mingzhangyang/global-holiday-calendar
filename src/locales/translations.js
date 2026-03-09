@@ -21,7 +21,7 @@ export const translations = {
     'countryFilter.clearSelection': 'Clear Selection',
     'countryFilter.smartRecommend': 'Smart Recommend',
     'countryFilter.smartRecommendTooltip': 'Re-detect your location',
-    'countryFilter.locationBased': 'Showing {count} countries based on your location',
+    'countryFilter.locationBased': 'Selected {count} countries or regions',
     'countryFilter.moreCountries': '+{count} more countries',
     
     // 日历
@@ -153,7 +153,7 @@ export const translations = {
     'countryFilter.clearSelection': 'Effacer la Sélection',
     'countryFilter.smartRecommend': 'Recommandation Intelligente',
     'countryFilter.smartRecommendTooltip': 'Re-détecter votre position',
-    'countryFilter.locationBased': 'Affichage de {count} pays basé sur votre position',
+    'countryFilter.locationBased': '{count} pays ou régions sélectionnés',
     'countryFilter.moreCountries': '+{count} pays supplémentaires',
     
     'calendar.today': 'Aujourd\'hui',
@@ -278,7 +278,7 @@ export const translations = {
     'countryFilter.clearSelection': 'Auswahl Löschen',
     'countryFilter.smartRecommend': 'Intelligente Empfehlung',
     'countryFilter.smartRecommendTooltip': 'Standort erneut erkennen',
-    'countryFilter.locationBased': '{count} Länder basierend auf Ihrem Standort anzeigen',
+    'countryFilter.locationBased': '{count} Länder oder Regionen ausgewählt',
     'countryFilter.moreCountries': '+{count} weitere Länder',
     
     'calendar.today': 'Heute',
@@ -401,7 +401,7 @@ export const translations = {
     'countryFilter.clearSelection': 'Limpiar Selección',
     'countryFilter.smartRecommend': 'Recomendación Inteligente',
     'countryFilter.smartRecommendTooltip': 'Re-detectar su ubicación',
-    'countryFilter.locationBased': 'Mostrando {count} países basado en su ubicación',
+    'countryFilter.locationBased': '{count} países o regiones seleccionados',
     'countryFilter.moreCountries': '+{count} países más',
     
     'calendar.today': 'Hoy',
@@ -524,7 +524,7 @@ export const translations = {
     'countryFilter.clearSelection': '清除选择',
     'countryFilter.smartRecommend': '智能推荐',
     'countryFilter.smartRecommendTooltip': '重新检测您的位置',
-    'countryFilter.locationBased': '基于您的位置显示 {count} 个国家',
+    'countryFilter.locationBased': '已选择 {count} 个国家或地区',
     'countryFilter.moreCountries': '+{count} 个国家',
     
     'calendar.today': '今天',
@@ -649,7 +649,7 @@ export const translations = {
     'countryFilter.clearSelection': '清除選擇',
     'countryFilter.smartRecommend': '智能推薦',
     'countryFilter.smartRecommendTooltip': '重新檢測您的位置',
-    'countryFilter.locationBased': '基於您的位置顯示 {count} 個國家',
+    'countryFilter.locationBased': '已選擇 {count} 個國家或地區',
     'countryFilter.moreCountries': '+{count} 個國家',
     
     'calendar.today': '今天',
@@ -772,7 +772,7 @@ export const translations = {
     'countryFilter.clearSelection': '選択をクリア',
     'countryFilter.smartRecommend': 'スマート推奨',
     'countryFilter.smartRecommendTooltip': '位置を再検出',
-    'countryFilter.locationBased': 'あなたの位置に基づいて{count}カ国を表示',
+    'countryFilter.locationBased': '{count}カ国・地域を選択中',
     'countryFilter.moreCountries': '+{count}カ国',
     
     'calendar.today': '今日',
@@ -895,7 +895,7 @@ export const translations = {
     'countryFilter.clearSelection': '선택 지우기',
     'countryFilter.smartRecommend': '스마트 추천',
     'countryFilter.smartRecommendTooltip': '위치 재감지',
-    'countryFilter.locationBased': '귀하의 위치를 기반으로 {count}개국 표시',
+    'countryFilter.locationBased': '{count}개 국가 또는 지역 선택됨',
     'countryFilter.moreCountries': '+{count}개 국가',
     
     'calendar.today': '오늘',
