@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Calendar, MapPin, Clock, Book, Info, ChevronDown } from 'lucide-react';
+import { X, Calendar, MapPin, Clock, Book, Info, ChevronDown, Loader2, AlertCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { fetchHolidayInfo, readCachedHolidayInfo, writeCachedHolidayInfo } from '../services/holidayApi';
 import { useI18n, useTranslation } from '../hooks/useI18n';
@@ -9,12 +9,11 @@ import { getLocaleFromLanguage } from '../services/i18nService';
 const HolidayModal = ({ date, holidays, onClose }) => {
   const [detailedInfo, setDetailedInfo] = useState({});
   const [loadingInfo, setLoadingInfo] = useState({});
+  const [errorInfo, setErrorInfo] = useState({});
   const [showScrollHint, setShowScrollHint] = useState(null);
+  const hintTimeoutRef = useRef(null);
   const { language } = useI18n();
   const { t } = useTranslation();
-
-
-
   // Auto-load detailed information from localStorage when modal opens
   useEffect(() => {
     holidays.forEach((holiday, index) => {
@@ -47,16 +46,20 @@ const HolidayModal = ({ date, holidays, onClose }) => {
 
   // Function to fetch detailed holiday information
   const fetchDetailedInfo = async (holiday, index) => {
-    if (detailedInfo[index] || loadingInfo[index]) return;
+    if (loadingInfo[index]) return;
+    const isRefresh = Boolean(detailedInfo[index]);
 
-    // Check localStorage first
-    const cachedData = readCachedHolidayInfo(holiday.name, holiday.country, language);
-    if (cachedData) {
-      setDetailedInfo(prev => ({ ...prev, [index]: cachedData }));
-      return;
+    // Check localStorage first (a refresh deliberately bypasses the cache)
+    if (!isRefresh) {
+      const cachedData = readCachedHolidayInfo(holiday.name, holiday.country, language);
+      if (cachedData) {
+        setDetailedInfo(prev => ({ ...prev, [index]: cachedData }));
+        return;
+      }
     }
 
     setLoadingInfo(prev => ({ ...prev, [index]: true }));
+    setErrorInfo(prev => ({ ...prev, [index]: false }));
     setShowScrollHint(null);
 
     try {
@@ -65,17 +68,27 @@ const HolidayModal = ({ date, holidays, onClose }) => {
         setDetailedInfo(prev => ({ ...prev, [index]: info }));
         writeCachedHolidayInfo(holiday.name, holiday.country, language, info);
 
-        setShowScrollHint(index);
-        setTimeout(() => {
-          setShowScrollHint(null);
-        }, 5000); // Hide the hint after 5 seconds
+        if (!isRefresh) {
+          setShowScrollHint(index);
+          clearTimeout(hintTimeoutRef.current);
+          hintTimeoutRef.current = setTimeout(() => {
+            setShowScrollHint(null);
+          }, 5000); // Hide the hint after 5 seconds
+        }
+      } else {
+        setErrorInfo(prev => ({ ...prev, [index]: true }));
       }
     } catch (error) {
       console.error('Error fetching holiday info:', error);
+      setErrorInfo(prev => ({ ...prev, [index]: true }));
     } finally {
       setLoadingInfo(prev => ({ ...prev, [index]: false }));
     }
   };
+
+  useEffect(() => {
+    return () => clearTimeout(hintTimeoutRef.current);
+  }, []);
 
   const formatDate = (date) => {
     const locale = getLocaleFromLanguage(language);
@@ -182,11 +195,21 @@ const HolidayModal = ({ date, holidays, onClose }) => {
                     disabled={loadingInfo[index]}
                     className="accent-button-soft focus-ring flex w-full cursor-pointer items-center justify-center space-x-2 rounded-2xl px-3 py-2.5 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                   >
-                    <Info size={16} />
+                    {loadingInfo[index] ? (
+                      <Loader2 size={16} className="animate-spin" aria-hidden="true" />
+                    ) : (
+                      <Info size={16} aria-hidden="true" />
+                    )}
                     <span className="text-sm font-medium">
                       {loadingInfo[index] ? t('holidayModal.loading') : detailedInfo[index] ? t('holidayModal.refresh') : t('holidayModal.getDetailed')}
                     </span>
                   </button>
+                  {errorInfo[index] && !loadingInfo[index] && (
+                    <div className="mt-2 flex items-center gap-1.5 text-sm text-red-600" role="alert">
+                      <AlertCircle size={14} aria-hidden="true" />
+                      <span>{t('holidayModal.loadError')}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Detailed Information Display */}
