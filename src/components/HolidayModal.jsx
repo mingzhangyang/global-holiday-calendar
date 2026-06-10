@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Calendar, MapPin, Clock, Book, Info, ChevronDown } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { fetchHolidayInfo } from '../services/holidayApi';
+import { fetchHolidayInfo, readCachedHolidayInfo, writeCachedHolidayInfo } from '../services/holidayApi';
 import { useI18n, useTranslation } from '../hooks/useI18n';
 import { getLocaleFromLanguage } from '../services/i18nService';
 
@@ -18,13 +18,8 @@ const HolidayModal = ({ date, holidays, onClose }) => {
   // Auto-load detailed information from localStorage when modal opens
   useEffect(() => {
     holidays.forEach((holiday, index) => {
-      const cacheKey = `holiday-info-${holiday.name}-${holiday.country}`;
-      const languageCacheKey = `${cacheKey}-${language}`;
-      const cachedData = localStorage.getItem(languageCacheKey);
-      const cachedTimestamp = localStorage.getItem(`${languageCacheKey}-timestamp`);
-      const isExpired = cachedTimestamp && (Date.now() - parseInt(cachedTimestamp)) > (7 * 24 * 60 * 60 * 1000); // 7 days
-      
-      if (cachedData && !isExpired) {
+      const cachedData = readCachedHolidayInfo(holiday.name, holiday.country, language);
+      if (cachedData) {
         setDetailedInfo(prev => ({ ...prev, [index]: cachedData }));
       }
     });
@@ -54,31 +49,22 @@ const HolidayModal = ({ date, holidays, onClose }) => {
   const fetchDetailedInfo = async (holiday, index) => {
     if (detailedInfo[index] || loadingInfo[index]) return;
 
-    const cacheKey = `holiday-info-${holiday.name}-${holiday.country}`;
-    const languageCacheKey = `${cacheKey}-${language}`;
-    
     // Check localStorage first
-    const cachedData = localStorage.getItem(languageCacheKey);
-    const cachedTimestamp = localStorage.getItem(`${languageCacheKey}-timestamp`);
-    const isExpired = cachedTimestamp && (Date.now() - parseInt(cachedTimestamp)) > (7 * 24 * 60 * 60 * 1000); // 7 days
-    
-    if (cachedData && !isExpired) {
+    const cachedData = readCachedHolidayInfo(holiday.name, holiday.country, language);
+    if (cachedData) {
       setDetailedInfo(prev => ({ ...prev, [index]: cachedData }));
       return;
     }
 
     setLoadingInfo(prev => ({ ...prev, [index]: true }));
     setShowScrollHint(null);
-    
+
     try {
       const info = await fetchHolidayInfo(holiday.name, holiday.country, language);
       if (info) {
         setDetailedInfo(prev => ({ ...prev, [index]: info }));
-        // Cache the data in localStorage with language key
-        const languageCacheKey = `${cacheKey}-${language}`;
-        localStorage.setItem(languageCacheKey, info);
-        localStorage.setItem(`${languageCacheKey}-timestamp`, Date.now().toString());
-        
+        writeCachedHolidayInfo(holiday.name, holiday.country, language, info);
+
         setShowScrollHint(index);
         setTimeout(() => {
           setShowScrollHint(null);
@@ -209,7 +195,7 @@ const HolidayModal = ({ date, holidays, onClose }) => {
                     {showScrollHint === index && (
                       <div className="absolute -top-4 right-4 flex animate-bounce items-center gap-1 rounded-full bg-teal-100 px-3 py-1 font-medium text-teal-700 shadow-md sm:right-auto sm:left-1/2 sm:-translate-x-1/2">
                         <span className="text-xs">
-                          {language === 'zh' ? '往下滑动查看详细内容' : 'Scroll down to read'}
+                          {t('holidayModal.scrollHint')}
                         </span>
                         <ChevronDown size={14} />
                       </div>

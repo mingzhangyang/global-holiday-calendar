@@ -4,6 +4,7 @@ import { getHolidaysForMonth } from '../services/holidayApi';
 import HolidayModal from './HolidayModal';
 import { useTranslation } from '../hooks/useI18n';
 import { getLocaleFromLanguage } from '../services/i18nService';
+import { toDateKey } from '../utils/dateUtils';
 
 const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateClick }) => {
   const [selectedDate, setSelectedDate] = useState(null);
@@ -74,8 +75,7 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
 
     // Helper function to get holidays for a date from monthHolidays
     const getHolidaysForDateFromCache = (date) => {
-      const dateStr = date.toISOString().split('T')[0];
-      return monthHolidays[dateStr] || [];
+      return monthHolidays[toDateKey(date)] || [];
     };
 
     // Add previous month's trailing days
@@ -153,34 +153,10 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
     navigateMonth(deltaX < 0 ? 1 : -1);
   };
 
-  const handleDateClick = async (dayInfo) => {
+  const handleDateClick = (dayInfo) => {
     if (dayInfo.holidays.length > 0) {
       setSelectedDate(dayInfo);
       setIsModalOpen(true);
-      
-      // Pre-fetch detailed information for all holidays on this date
-      dayInfo.holidays.forEach(async (holiday) => {
-        const cacheKey = `holiday-info-${holiday.name}-${holiday.country}`;
-        const languageCacheKey = `${cacheKey}-${language}`;
-        
-        // Check if data is already in localStorage
-        const cachedData = localStorage.getItem(languageCacheKey);
-        const cachedTimestamp = localStorage.getItem(`${languageCacheKey}-timestamp`);
-        const isExpired = cachedTimestamp && (Date.now() - parseInt(cachedTimestamp)) > (7 * 24 * 60 * 60 * 1000); // 7 days
-        
-        if (!cachedData || isExpired) {
-          try {
-            const { fetchHolidayInfo } = await import('../services/holidayApi');
-            const info = await fetchHolidayInfo(holiday.name, holiday.country, language);
-            if (info) {
-              localStorage.setItem(languageCacheKey, info);
-              localStorage.setItem(`${languageCacheKey}-timestamp`, Date.now().toString());
-            }
-          } catch (error) {
-            console.error('Error pre-fetching holiday info:', error);
-          }
-        }
-      });
     }
     if (onDateClick) {
       onDateClick(dayInfo);
@@ -200,11 +176,11 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
       day: 'numeric'
     });
 
-    if (!monthHolidays[date.toISOString().split('T')[0]]?.length) {
+    const holidayCount = monthHolidays[toDateKey(date)]?.length;
+    if (!holidayCount) {
       return formattedDate;
     }
 
-    const holidayCount = monthHolidays[date.toISOString().split('T')[0]].length;
     return `${formattedDate}, ${t(holidayCount === 1 ? 'listView.holidayCount' : 'listView.holidayCountPlural', { count: holidayCount })}`;
   };
 
@@ -289,8 +265,7 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
           {calendarDays.map((dayInfo, index) => {
             const hasHolidays = dayInfo.holidays.length > 0;
             const isInteractive = hasHolidays && dayInfo.isCurrentMonth;
-            const primaryHoliday = dayInfo.holidays[0];
-            
+
             return (
               <button
                 type="button"

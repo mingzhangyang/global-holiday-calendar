@@ -12,7 +12,18 @@ export default {
     }
 
     if (pathname === '/api/holiday-info') {
-      return handleHolidayInfo(request, env);
+      return handleHolidayInfo(request, env, ctx);
+    }
+
+    // Country detection from Cloudflare's request metadata — avoids asking
+    // visitors for browser geolocation permission just to pick a default filter.
+    if (pathname === '/api/geo') {
+      return new Response(JSON.stringify({ country: request.cf?.country ?? null }), {
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-store'
+        }
+      });
     }
 
     // Fall through to static assets (the React SPA).

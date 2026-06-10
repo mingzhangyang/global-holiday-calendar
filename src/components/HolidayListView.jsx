@@ -4,6 +4,7 @@ import { getHolidaysForMonth } from '../services/holidayApi';
 import HolidayModal from './HolidayModal';
 import { useTranslation } from '../hooks/useI18n';
 import { getLocaleFromLanguage } from '../services/i18nService';
+import { parseDateKey } from '../utils/dateUtils';
 
 const HolidayListView = ({ currentDate, onCurrentDateChange, selectedCountries }) => {
   const [monthHolidays, setMonthHolidays] = useState({});
@@ -68,7 +69,7 @@ const HolidayListView = ({ currentDate, onCurrentDateChange, selectedCountries }
     const holidays = [];
     
     Object.entries(monthHolidays).forEach(([dateStr, dayHolidays]) => {
-      const date = new Date(dateStr);
+      const date = parseDateKey(dateStr);
       holidays.push({
         date,
         dateStr,

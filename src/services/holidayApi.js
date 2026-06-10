@@ -1,5 +1,7 @@
 // Holiday API service to fetch data from Cloudflare Workers
 
+import { toDateKey, toMonthPrefix } from '../utils/dateUtils';
+
 // API routes served by the same Worker
 const HOLIDAYS_WORKER_URL = '/api/holidays';
 const HOLIDAY_INFO_WORKER_URL = '/api/holiday-info';
@@ -212,6 +214,49 @@ export async function fetchHolidayInfo(holidayName, country, language = 'en') {
   }
 }
 
+const INFO_CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+function getInfoCacheKey(holidayName, country, language) {
+  return `holiday-info-${holidayName}-${country}-${language}`;
+}
+
+/**
+ * Read cached AI-generated holiday info from localStorage, or null if absent/expired.
+ */
+export function readCachedHolidayInfo(holidayName, country, language) {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  try {
+    const cacheKey = getInfoCacheKey(holidayName, country, language);
+    const cachedData = window.localStorage.getItem(cacheKey);
+    const cachedTimestamp = window.localStorage.getItem(`${cacheKey}-timestamp`);
+    const isExpired = cachedTimestamp && (Date.now() - parseInt(cachedTimestamp)) > INFO_CACHE_DURATION;
+    return cachedData && !isExpired ? cachedData : null;
+  } catch (error) {
+    console.warn('Error reading cached holiday info:', error);
+    return null;
+  }
+}
+
+/**
+ * Persist AI-generated holiday info to localStorage.
+ */
+export function writeCachedHolidayInfo(holidayName, country, language, info) {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  try {
+    const cacheKey = getInfoCacheKey(holidayName, country, language);
+    window.localStorage.setItem(cacheKey, info);
+    window.localStorage.setItem(`${cacheKey}-timestamp`, Date.now().toString());
+  } catch (error) {
+    console.warn('Error caching holiday info:', error);
+  }
+}
+
 /**
  * Get a color for a holiday based on its name and type
  */
@@ -258,7 +303,7 @@ export function getCountries() {
  */
 export async function getHolidaysForDate(date, selectedCountries = []) {
   const year = date.getFullYear();
-  const dateStr = date.toISOString().split('T')[0];
+  const dateStr = toDateKey(date);
   
   // If no countries selected, return empty array (don't fetch all countries)
   if (selectedCountries.length === 0) {
@@ -297,13 +342,13 @@ export async function getHolidaysForMonth(year, month, selectedCountries = []) {
   const countriesToFetch = [...new Set(selectedCountries.map(normalizeCountryCode))];
 
   const monthHolidays = {};
+  const monthPrefix = toMonthPrefix(year, month);
 
   const holidayResponses = await Promise.all(countriesToFetch.map(countryCode => fetchHolidaysFromWorker(year, countryCode, true)));
 
   holidayResponses.forEach(holidays => {
     holidays.forEach(holiday => {
-      const holidayDate = new Date(holiday.date);
-      if (holidayDate.getFullYear() === year && holidayDate.getMonth() === month) {
+      if (holiday.date.startsWith(monthPrefix)) {
         const dateStr = holiday.date;
         if (!monthHolidays[dateStr]) {
           monthHolidays[dateStr] = [];
