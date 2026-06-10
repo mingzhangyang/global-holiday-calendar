@@ -1,0 +1,50 @@
+import { describe, it, expect } from 'vitest';
+import { toDateKey, parseDateKey, toMonthPrefix } from './dateUtils';
+
+// These tests run with TZ=Pacific/Kiritimati (UTC+14) and TZ=Pacific/Niue
+// (UTC-11) in CI via the test script, the two extremes where the old
+// toISOString()-based keys shifted dates by a day.
+
+describe('toDateKey', () => {
+  it('uses local date components, not the UTC day', () => {
+    const date = new Date(2026, 0, 1); // local midnight, Jan 1
+    expect(toDateKey(date)).toBe('2026-01-01');
+  });
+
+  it('pads single-digit months and days', () => {
+    expect(toDateKey(new Date(2026, 8, 5))).toBe('2026-09-05');
+  });
+
+  it('handles the last day of the year', () => {
+    expect(toDateKey(new Date(2025, 11, 31))).toBe('2025-12-31');
+  });
+});
+
+describe('parseDateKey', () => {
+  it('parses to local midnight of the same calendar day', () => {
+    const date = parseDateKey('2026-02-01');
+    expect(date.getFullYear()).toBe(2026);
+    expect(date.getMonth()).toBe(1);
+    expect(date.getDate()).toBe(1);
+    expect(date.getHours()).toBe(0);
+  });
+
+  it('round-trips with toDateKey', () => {
+    expect(toDateKey(parseDateKey('2026-07-14'))).toBe('2026-07-14');
+  });
+});
+
+describe('toMonthPrefix', () => {
+  it('builds a zero-padded prefix from a zero-based month', () => {
+    expect(toMonthPrefix(2026, 0)).toBe('2026-01-');
+    expect(toMonthPrefix(2026, 11)).toBe('2026-12-');
+  });
+
+  it('matches date keys within the month and nothing else', () => {
+    const prefix = toMonthPrefix(2026, 1);
+    expect('2026-02-01'.startsWith(prefix)).toBe(true);
+    expect('2026-02-28'.startsWith(prefix)).toBe(true);
+    expect('2026-12-02'.startsWith(prefix)).toBe(false);
+    expect('2025-02-01'.startsWith(prefix)).toBe(false);
+  });
+});

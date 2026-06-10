@@ -12,7 +12,7 @@ An interactive React.js application that showcases cultural celebrations and hol
 
 ### 🎉 Holiday Information
 - **Real-time holiday data** fetched from multiple APIs via Cloudflare Workers
-- **AI-powered detailed information** using Zhipu AI for comprehensive holiday backgrounds
+- **AI-powered detailed information** using Gemini (with Zhipu BigModel fallback) for comprehensive holiday backgrounds
 - Comprehensive holiday coverage including:
   - Holiday name and significance
   - Country/region of origin
@@ -159,7 +159,7 @@ global-holiday-calendar/
 ### Holiday Data Architecture
 - **Real-time API integration** via Cloudflare Workers
 - **Multiple data sources** (Nager.Date, Calendarific)
-- **AI-powered enrichment** using Zhipu AI
+- **AI-powered enrichment** using Gemini (with Zhipu BigModel fallback)
 - **Smart caching** for performance optimization
 - **Fallback mechanisms** for reliable data delivery
 
@@ -178,7 +178,7 @@ The application uses a modern serverless architecture with Cloudflare Workers:
 - **Data Normalization**: Standardizes holiday data from different sources
 
 #### Holiday Info Worker (`holiday-info.js`)
-- **AI Integration**: Uses Zhipu AI for detailed holiday background information
+- **AI Integration**: Uses Gemini (primary) with Zhipu BigModel as fallback for detailed holiday background information
 - **JWT Authentication**: Secure API authentication with token generation
 - **Cultural Context**: Provides rich cultural and historical information
 - **Async Processing**: Handles AI API calls with proper error handling

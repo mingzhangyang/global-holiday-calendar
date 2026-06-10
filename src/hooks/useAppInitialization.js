@@ -87,7 +87,6 @@ export function useAppInitialization() {
     }
 
     hasInitializedDefaults.current = true;
-    let isActive = true;
 
     const applyDetectedCountry = (country) => {
       if (!country || initialCountriesFromUrl) {
@@ -132,10 +131,6 @@ export function useAppInitialization() {
     };
 
     initializeDefaults();
-
-    return () => {
-      isActive = false;
-    };
   }, [changeLanguage, detectLanguage, initialCountriesFromUrl, initialLanguageFromUrl, updateSelectedCountries]);
 
   return {

@@ -94,7 +94,7 @@ function App() {
     : `${selectedCountries.slice(0, 2).join(', ')} +${selectedCountries.length - 2}`;
 
   const currentMonthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
-  const { canonicalUrl, buildLocalizedUrl } = useUrlStateSync({
+  const { buildLocalizedUrl } = useUrlStateSync({
     language,
     currentView,
     currentMonthKey,
@@ -113,7 +113,7 @@ function App() {
 
   const localizedLocale = getLocaleFromLanguage(language);
   const seoTitle = `${t('app.title')} | ${currentView === 'calendar' ? t('listView.calendarView') : t('listView.listView')}`;
-  const seoDescription = `${t('app.subtitle')}. ${monthLabel ? `${monthLabel} ${new Date().getFullYear()}. ` : ''}${selectionSummary}. ${t('legend.note')}`;
+  const seoDescription = `${t('app.subtitle')}. ${monthLabel ? `${monthLabel} ${currentDate.getFullYear()}. ` : ''}${selectionSummary}. ${t('legend.note')}`;
   const seoImage = `${typeof window !== 'undefined' ? window.location.origin : 'https://holidays.orangely.xyz'}/logo.png`;
   const alternateLinks = useMemo(() => ([
     ...SUPPORTED_LANGUAGE_CODES.map(code => ({
@@ -124,7 +124,7 @@ function App() {
       hreflang: 'x-default',
       href: buildLocalizedUrl('en')
     }
-  ]), [currentMonthKey, currentView, selectedCountries]);
+  ]), [buildLocalizedUrl]);
   const structuredData = useMemo(() => ({
     '@context': 'https://schema.org',
     '@graph': [
@@ -165,7 +165,7 @@ function App() {
         }))
       }
     ]
-  }), [faqItems, language, monthLabel, seoDescription, seoImage, seoTitle, t]);
+  }), [buildLocalizedUrl, currentMonthKey, faqItems, language, monthLabel, seoDescription, seoImage, seoTitle, t]);
 
   useSeo({
     title: seoTitle,

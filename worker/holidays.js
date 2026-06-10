@@ -269,7 +269,7 @@ async function getChineseSolarTerms(year) {
     ];
 
     const solarTerms = solarTermsData.map((term, index) => {
-      const accurateDate = calculateAccurateSolarTermDate(year, index, term.approxMonth, term.approxDay);
+      const accurateDate = calculateAccurateSolarTermDate(year, index);
       const dateStr = accurateDate.toISOString().split('T')[0];
 
       return {
@@ -299,7 +299,7 @@ async function getChineseSolarTerms(year) {
   }
 }
 
-function calculateAccurateSolarTermDate(year, termIndex, approxMonth, approxDay) {
+function calculateAccurateSolarTermDate(year, termIndex) {
   const baseYear = 2020;
   const baseYearSolarTerms = [
     { month: 2, day: 4.2 },

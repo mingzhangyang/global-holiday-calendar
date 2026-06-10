@@ -16,6 +16,12 @@ binding = "ASSETS"
 [vars]
 # Non-secret environment variables can go here
 
+# Rate limit for the AI-backed /api/holiday-info endpoint (per client IP)
+[[ratelimits]]
+name = "HOLIDAY_INFO_RATE_LIMITER"
+namespace_id = "1001"
+simple = { limit = 10, period = 60 }
+
 # Secrets (set via: wrangler secret put <KEY_NAME>)
 # GEMINI_API_KEY        - Gemini API key (primary AI provider)
 # ZHIPU_API_KEY         - BigModel API key (fallback AI provider)

@@ -126,7 +126,21 @@ function buildPrompt(holiday, country, language) {
   `;
 }
 
-export async function handleHolidayInfo(request, env) {
+const MAX_HOLIDAY_LENGTH = 150;
+const MAX_COUNTRY_LENGTH = 100;
+const INFO_CACHE_TTL_SECONDS = 7 * 24 * 60 * 60; // 7 days
+
+// Build a synthetic GET request used as the edge-cache key for an
+// AI response (the Cache API cannot key on POST bodies directly).
+function buildInfoCacheKey(requestUrl, holiday, country, language) {
+  const cacheUrl = new URL('/api/holiday-info/cache', requestUrl);
+  cacheUrl.searchParams.set('holiday', holiday);
+  cacheUrl.searchParams.set('country', country);
+  cacheUrl.searchParams.set('lang', language);
+  return new Request(cacheUrl.toString(), { method: 'GET' });
+}
+
+export async function handleHolidayInfo(request, env, ctx) {
   if (request.method === 'OPTIONS') {
     return new Response(null, { status: 200, headers: CORS_HEADERS });
   }
@@ -148,18 +162,43 @@ export async function handleHolidayInfo(request, env) {
   let holiday, country, language;
   try {
     const body = await request.json();
-    holiday = body.holiday;
-    country = body.country;
-    language = body.language || 'en';
+    holiday = typeof body.holiday === 'string' ? body.holiday.trim() : '';
+    country = typeof body.country === 'string' ? body.country.trim() : '';
+    language = LANGUAGE_INSTRUCTIONS[body.language] ? body.language : 'en';
 
     if (!holiday || !country) {
       throw new Error('Missing "holiday" or "country" in the request body.');
+    }
+    if (holiday.length > MAX_HOLIDAY_LENGTH || country.length > MAX_COUNTRY_LENGTH) {
+      throw new Error('"holiday" or "country" exceeds the maximum allowed length.');
     }
   } catch (e) {
     return new Response(`Invalid request: ${e.message}`, {
       status: 400,
       headers: { 'Access-Control-Allow-Origin': '*' }
     });
+  }
+
+  // Serve repeated questions from the edge cache instead of the AI providers
+  const cache = caches.default;
+  const cacheKey = buildInfoCacheKey(request.url, holiday, country, language);
+  const cachedResponse = await cache.match(cacheKey);
+  if (cachedResponse) {
+    const response = new Response(cachedResponse.body, cachedResponse);
+    response.headers.set('X-Cache-Hit', 'true');
+    return response;
+  }
+
+  // Optional rate limiting (configure a "ratelimits" binding in wrangler.toml)
+  if (env.HOLIDAY_INFO_RATE_LIMITER) {
+    const clientIp = request.headers.get('CF-Connecting-IP') || 'unknown';
+    const { success } = await env.HOLIDAY_INFO_RATE_LIMITER.limit({ key: clientIp });
+    if (!success) {
+      return new Response(JSON.stringify({ error: 'Too many requests. Please try again later.' }), {
+        status: 429,
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+      });
+    }
   }
 
   const prompt = buildPrompt(holiday, country, language);
@@ -196,8 +235,16 @@ export async function handleHolidayInfo(request, env) {
     });
   }
 
-  return new Response(JSON.stringify({ background: content }), {
+  const response = new Response(JSON.stringify({ background: content }), {
     status: 200,
-    headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    headers: {
+      ...CORS_HEADERS,
+      'Content-Type': 'application/json',
+      'Cache-Control': `public, max-age=${INFO_CACHE_TTL_SECONDS}`,
+    },
   });
+
+  ctx?.waitUntil(cache.put(cacheKey, response.clone()));
+
+  return response;
 }

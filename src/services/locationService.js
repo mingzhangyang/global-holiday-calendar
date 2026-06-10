@@ -59,55 +59,24 @@ const LANGUAGE_TO_DEFAULT_COUNTRY = {
 };
 
 /**
- * 使用浏览器API获取用户的地理位置
+ * 通过 Worker 的 /api/geo 端点获取用户所在国家
+ * （基于 Cloudflare 的请求元数据，无需浏览器定位权限）
  * @returns {Promise<string|null>} 国家代码或null
  */
 export async function getUserCountryFromLocation() {
-  return new Promise((resolve) => {
-    if (!navigator.geolocation) {
-      console.log('Geolocation is not supported by this browser.');
-      resolve(null);
-      return;
+  try {
+    const response = await fetch('/api/geo');
+    if (!response.ok) {
+      console.error('Failed to get country from /api/geo:', response.status);
+      return null;
     }
 
-    const options = {
-      enableHighAccuracy: false,
-      timeout: 10000,
-      maximumAge: 600000 // 10分钟缓存
-    };
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        try {
-          const { latitude, longitude } = position.coords;
-          
-          // 使用免费的地理编码API获取国家信息
-          // 这里使用BigDataCloud的免费API
-          const response = await fetch(
-            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
-          );
-          
-          if (response.ok) {
-            const data = await response.json();
-            const countryCode = data.countryCode;
-            console.log('Detected country from location:', countryCode);
-            resolve(countryCode);
-          } else {
-            console.error('Failed to get country from coordinates');
-            resolve(null);
-          }
-        } catch (error) {
-          console.error('Error getting country from location:', error);
-          resolve(null);
-        }
-      },
-      (error) => {
-        console.log('Geolocation error:', error.message);
-        resolve(null);
-      },
-      options
-    );
-  });
+    const data = await response.json();
+    return data.country || null;
+  } catch (error) {
+    console.error('Error getting country from /api/geo:', error);
+    return null;
+  }
 }
 
 /**
