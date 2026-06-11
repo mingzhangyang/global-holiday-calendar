@@ -32,6 +32,16 @@ describe('parseDateKey', () => {
   it('round-trips with toDateKey', () => {
     expect(toDateKey(parseDateKey('2026-07-14'))).toBe('2026-07-14');
   });
+
+  it('reads only the calendar date when the key carries a time/timezone', () => {
+    // Calendarific returns ISO datetimes like this for solstices/equinoxes.
+    const date = parseDateKey('2026-06-21T08:24:00+08:00');
+    expect(date.getFullYear()).toBe(2026);
+    expect(date.getMonth()).toBe(5);
+    expect(date.getDate()).toBe(21);
+    expect(Number.isNaN(date.getTime())).toBe(false);
+    expect(toDateKey(date)).toBe('2026-06-21');
+  });
 });
 
 describe('toMonthPrefix', () => {

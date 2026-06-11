@@ -14,9 +14,14 @@ export function toDateKey(date) {
 
 /**
  * Parse a YYYY-MM-DD key into a Date at local midnight.
+ *
+ * Tolerates date keys that carry a trailing time/timezone (e.g.
+ * "2026-06-21T08:24:00+08:00"), which some upstream APIs return for
+ * astronomical events, by reading only the leading calendar date.
  */
 export function parseDateKey(dateKey) {
-  const [year, month, day] = dateKey.split('-').map(Number);
+  const datePart = String(dateKey).split('T')[0];
+  const [year, month, day] = datePart.split('-').map(Number);
   return new Date(year, month - 1, day);
 }
 
