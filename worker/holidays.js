@@ -195,18 +195,28 @@ async function fetchFromCalendarific(year, countryCode, apiKey) {
     return [];
   }
 
-  return data.response.holidays.map(holiday => ({
-    id: `calendarific-${holiday.date.iso}-${holiday.name.replace(/\s+/g, '-').toLowerCase()}`,
-    name: holiday.name,
-    date: holiday.date.iso,
-    country: getCountryName(countryCode),
-    countryCode: countryCode,
-    type: Array.isArray(holiday.type) ? holiday.type.join(', ') : (holiday.type || 'unknown'),
-    source: 'calendarific',
-    description: holiday.description || `${holiday.name} is celebrated in ${getCountryName(countryCode)}.`,
-    primary_type: holiday.primary_type,
-    canonical_url: holiday.canonical_url
-  }));
+  return data.response.holidays.map(holiday => {
+    // Calendarific returns date.iso as a plain YYYY-MM-DD for most holidays,
+    // but for astronomical events (solstices, equinoxes) it includes a time
+    // and timezone, e.g. "2026-06-21T08:24:00+08:00". Keep only the calendar
+    // date so downstream YYYY-MM-DD parsing doesn't produce an Invalid Date.
+    const dateOnly = typeof holiday.date.iso === 'string'
+      ? holiday.date.iso.split('T')[0]
+      : holiday.date.iso;
+
+    return {
+      id: `calendarific-${dateOnly}-${holiday.name.replace(/\s+/g, '-').toLowerCase()}`,
+      name: holiday.name,
+      date: dateOnly,
+      country: getCountryName(countryCode),
+      countryCode: countryCode,
+      type: Array.isArray(holiday.type) ? holiday.type.join(', ') : (holiday.type || 'unknown'),
+      source: 'calendarific',
+      description: holiday.description || `${holiday.name} is celebrated in ${getCountryName(countryCode)}.`,
+      primary_type: holiday.primary_type,
+      canonical_url: holiday.canonical_url
+    };
+  });
 }
 
 async function getCulturalObservances(year, countryCode) {
