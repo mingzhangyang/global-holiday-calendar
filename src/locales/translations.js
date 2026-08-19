@@ -7,7 +7,7 @@ export const translations = {
     'app.title': 'Global Holiday Calendar',
     'app.subtitle': 'Discover cultural celebrations worldwide',
     'header.about': 'About',
-    
+
     // 国家筛选器
     'countryFilter.title': 'Country Filter',
     'countryFilter.expand': 'Expand country filter',
@@ -23,7 +23,7 @@ export const translations = {
     'countryFilter.smartRecommendTooltip': 'Re-detect your location',
     'countryFilter.locationBased': 'Selected {count} countries or regions',
     'countryFilter.moreCountries': '+{count} more countries',
-    
+
     // 日历
     'calendar.today': 'Today',
     'calendar.previousMonth': 'Previous month',
@@ -35,7 +35,7 @@ export const translations = {
     ],
     'calendar.loading': 'Loading holidays...',
     'calendar.swipeHint': 'Swipe across the calendar to change months',
-    
+
     // 图例
     'legend.title': 'Legend',
     'legend.nationalHoliday': 'National Holiday',
@@ -45,13 +45,13 @@ export const translations = {
     'legend.internationalDay': 'International Day',
     'legend.description': 'Multiple holidays on the same date are shown with multiple dots. Click any date to learn more.',
     'legend.note': 'Multiple holidays on the same date are shown with multiple dots. Click any date to learn more.',
-    
+
     // 统计信息
     'stats.globalHolidays': 'Global Holidays',
     'stats.countries': 'Countries',
     'stats.months': 'Months',
     'stats.monthsCoverage': 'Months',
-    
+
     // 关于页面
     'about.button': 'About',
     'about.title': 'About Global Holiday Calendar',
@@ -84,19 +84,19 @@ export const translations = {
         answer: 'Yes. You can compare holidays across selected countries and switch between calendar and list layouts at any time.'
       }
     ],
-    
+
     // 页脚
     'footer.title': 'Global Holiday Calendar',
      'footer.description': 'Celebrating cultural diversity through shared traditions and holidays',
      'footer.builtWith': 'Built with React & Tailwind CSS',
      'footer.mission': 'Foster cultural understanding',
      'footer.culturalEducation': 'Cultural education through technology',
-    
+
     // 语言选择器
     'language.selector': 'Language',
     'language.current': 'Current: {language}',
     'language.change': 'Change Language',
-    
+
     // 列表视图
     'listView.noCountriesSelected': 'No Countries Selected',
     'listView.selectCountriesPrompt': 'Please select one or more countries from the filter to view holidays.',
@@ -109,7 +109,7 @@ export const translations = {
     'listView.holidayCount': '{count} holiday',
     'listView.holidayCountPlural': '{count} holidays',
     'listView.showMoreHolidays': 'Show {count} more holidays',
-    
+
     // 节日模态框
     'holidayModal.significance': 'Significance',
     'holidayModal.customs': 'Customs & Traditions',
@@ -127,22 +127,71 @@ export const translations = {
     'holidayType.observance': 'Observance',
     'holidayType.national': 'National holiday',
     'holidayType.default': 'Holiday',
-    
+
     // 通用
     'common.loading': 'Loading...',
     'common.error': 'Error',
     'common.close': 'Close',
     'common.save': 'Save',
     'common.cancel': 'Cancel',
-    'common.moreCount': '+{count} more'
+    'common.moreCount': '+{count} more',
+
+    // 搜索
+    'search.placeholder': 'Search holidays, countries, or traditions...',
+    'search.noResults': 'No holidays found',
+    'search.shortcutHint': 'Press ESC to close, ↑↓ to navigate',
+    'search.button': 'Search',
+    'search.searchHolidays': 'Search Holidays',
+
+    // 类别筛选
+    'categoryFilter.all': 'All Observances',
+    'categoryFilter.public': 'Public Holidays',
+    'categoryFilter.cultural': 'Cultural Festivals',
+    'categoryFilter.astronomical': 'Solar & Astronomical',
+
+    // 主题
+    'theme.title': 'Theme',
+    'theme.light': 'Light',
+    'theme.dark': 'Dark',
+    'theme.system': 'System',
+
+    // 导出与分享
+    'calendar.addToGoogle': 'Google Calendar',
+    'calendar.downloadIcs': 'Download .ics',
+    'calendar.share': 'Share',
+    'calendar.copied': 'Link Copied!',
+
+    // 下一个节日倒计时 & 洞察卡片
+    'stats.nextHoliday': 'Next Upcoming Holiday',
+    'stats.daysAway': 'in {days} days',
+    'stats.today': 'Today!',
+    'stats.tomorrow': 'Tomorrow',
+    'stats.inDays': '{days}d',
+    'stats.noUpcoming': 'No upcoming holidays',
+    'stats.holidayDistribution': 'Holiday Breakdown',
+    'stats.totalInMonth': '{count} Holidays',
+    'stats.publicCount': '{count} Public',
+    'stats.culturalCount': '{count} Cultural',
+    'stats.solarCount': '{count} Seasonal',
+    'stats.culturalTrivia': 'Cultural Spotlight',
+    'stats.shuffleTrivia': 'Shuffle',
+    'stats.exploreHoliday': 'Learn more',
+    'stats.noDataThisMonth': 'No holidays for current filters',
+    'stats.didYouKnow': 'Did you know?',
+
+    // 移动端导航
+    'mobileNav.calendar': 'Calendar',
+    'mobileNav.list': 'List',
+    'mobileNav.search': 'Search',
+    'mobileNav.today': 'Today'
   },
-  
+
   // 法语
   'fr': {
     'app.title': 'Calendrier des Fêtes Mondiales',
     'app.subtitle': 'Découvrez les célébrations culturelles du monde entier',
     'header.about': 'À propos',
-    
+
     'countryFilter.title': 'Filtre par Pays',
     'countryFilter.expand': 'Développer le filtre pays',
     'countryFilter.collapse': 'Réduire le filtre pays',
@@ -157,7 +206,7 @@ export const translations = {
     'countryFilter.smartRecommendTooltip': 'Re-détecter votre position',
     'countryFilter.locationBased': '{count} pays ou régions sélectionnés',
     'countryFilter.moreCountries': '+{count} pays supplémentaires',
-    
+
     'calendar.today': 'Aujourd\'hui',
     'calendar.previousMonth': 'Mois précédent',
     'calendar.nextMonth': 'Mois suivant',
@@ -168,7 +217,7 @@ export const translations = {
     ],
     'calendar.loading': 'Chargement des fêtes...',
     'calendar.swipeHint': 'Balayez le calendrier pour changer de mois',
-    
+
     'legend.title': 'Légende',
     'legend.nationalHoliday': 'Fête Nationale',
     'legend.culturalFestival': 'Festival Culturel',
@@ -177,12 +226,12 @@ export const translations = {
     'legend.internationalDay': 'Journée Internationale',
     'legend.description': 'Plusieurs fêtes à la même date sont affichées avec plusieurs points. Cliquez sur n\'importe quelle date pour en savoir plus.',
     'legend.note': 'Plusieurs fêtes à la même date sont affichées avec plusieurs points. Cliquez sur n\'importe quelle date pour en savoir plus.',
-    
+
     'stats.globalHolidays': 'Fêtes Mondiales',
     'stats.countries': 'Pays',
     'stats.months': 'Mois',
     'stats.monthsCoverage': 'Mois',
-    
+
     'about.button': 'À propos',
     'about.title': 'À propos du Calendrier des Fêtes Mondiales',
     'about.description': 'Explorez et célébrez la diversité culturelle à travers les fêtes et traditions du monde entier. Notre calendrier interactif vous aide à découvrir la riche tapisserie des célébrations mondiales, favorisant la compréhension et l\'appréciation interculturelles.',
@@ -214,17 +263,17 @@ export const translations = {
         answer: 'Oui. Vous pouvez comparer les fêtes de plusieurs pays sélectionnés et passer librement entre les vues calendrier et liste.'
       }
     ],
-    
+
     'footer.title': 'Calendrier des Fêtes Mondiales',
     'footer.description': 'Célébrer la diversité culturelle à travers les traditions et fêtes partagées',
     'footer.builtWith': 'Construit avec React & Tailwind CSS',
     'footer.mission': 'Favoriser la compréhension culturelle',
     'footer.culturalEducation': 'Éducation culturelle par la technologie',
-    
+
     'language.selector': 'Langue',
     'language.current': 'Actuel : {language}',
     'language.change': 'Changer de Langue',
-    
+
     // Vue liste
     'listView.noCountriesSelected': 'Aucun Pays Sélectionné',
     'listView.selectCountriesPrompt': 'Veuillez sélectionner un ou plusieurs pays dans le filtre pour voir les fêtes.',
@@ -237,7 +286,7 @@ export const translations = {
     'listView.holidayCount': '{count} fête',
     'listView.holidayCountPlural': '{count} fêtes',
     'listView.showMoreHolidays': 'Afficher {count} fêtes supplémentaires',
-    
+
     // 节日模态框
     'holidayModal.significance': 'Signification',
     'holidayModal.customs': 'Coutumes et Traditions',
@@ -255,21 +304,70 @@ export const translations = {
     'holidayType.observance': 'Observance',
     'holidayType.national': 'Fête nationale',
     'holidayType.default': 'Fête',
-    
+
     'common.loading': 'Chargement...',
     'common.error': 'Erreur',
     'common.close': 'Fermer',
     'common.save': 'Sauvegarder',
     'common.cancel': 'Annuler',
-    'common.moreCount': '+{count} de plus'
+    'common.moreCount': '+{count} de plus',
+
+    // 搜索
+    'search.placeholder': 'Rechercher des fêtes, pays ou traditions...',
+    'search.noResults': 'Aucune fête trouvée',
+    'search.shortcutHint': 'Appuyez sur Échap pour fermer, ↑↓ pour naviguer',
+    'search.button': 'Rechercher',
+    'search.searchHolidays': 'Rechercher des Fêtes',
+
+    // 类别筛选
+    'categoryFilter.all': 'Toutes les célébrations',
+    'categoryFilter.public': 'Jours fériés',
+    'categoryFilter.cultural': 'Festivals culturels',
+    'categoryFilter.astronomical': 'Solaire & Astronomique',
+
+    // 主题
+    'theme.title': 'Thème',
+    'theme.light': 'Clair',
+    'theme.dark': 'Sombre',
+    'theme.system': 'Système',
+
+    // 导出与分享
+    'calendar.addToGoogle': 'Google Calendar',
+    'calendar.downloadIcs': 'Télécharger .ics',
+    'calendar.share': 'Partager',
+    'calendar.copied': 'Lien copié !',
+
+    // 下一个节日倒计时 & 洞察卡片
+    'stats.nextHoliday': 'Prochaine fête à venir',
+    'stats.daysAway': 'dans {days} jours',
+    'stats.today': 'Aujourd’hui !',
+    'stats.tomorrow': 'Demain',
+    'stats.inDays': '{days}j',
+    'stats.noUpcoming': 'Aucune fête à venir',
+    'stats.holidayDistribution': 'Répartition des fêtes',
+    'stats.totalInMonth': '{count} fêtes ce mois-ci',
+    'stats.publicCount': '{count} fériés',
+    'stats.culturalCount': '{count} culturels',
+    'stats.solarCount': '{count} saisonniers',
+    'stats.culturalTrivia': 'Lumière culturelle',
+    'stats.shuffleTrivia': 'Autre',
+    'stats.exploreHoliday': 'Découvrir',
+    'stats.noDataThisMonth': 'Aucune fête pour la sélection',
+    'stats.didYouKnow': 'Le saviez-vous ?',
+
+    // 移动端导航
+    'mobileNav.calendar': 'Calendrier',
+    'mobileNav.list': 'Liste',
+    'mobileNav.search': 'Rechercher',
+    'mobileNav.today': 'Aujourd’hui'
   },
-  
+
   // 德语
   'de': {
     'app.title': 'Globaler Feiertagskalender',
     'app.subtitle': 'Entdecken Sie kulturelle Feiern weltweit',
     'header.about': 'Über uns',
-    
+
     'countryFilter.title': 'Länderfilter',
     'countryFilter.expand': 'Länderfilter erweitern',
     'countryFilter.collapse': 'Länderfilter reduzieren',
@@ -284,7 +382,7 @@ export const translations = {
     'countryFilter.smartRecommendTooltip': 'Standort erneut erkennen',
     'countryFilter.locationBased': '{count} Länder oder Regionen ausgewählt',
     'countryFilter.moreCountries': '+{count} weitere Länder',
-    
+
     'calendar.today': 'Heute',
     'calendar.previousMonth': 'Vorheriger Monat',
     'calendar.nextMonth': 'Nächster Monat',
@@ -295,7 +393,7 @@ export const translations = {
     ],
     'calendar.loading': 'Feiertage werden geladen...',
     'calendar.swipeHint': 'Wischen Sie über den Kalender, um den Monat zu wechseln',
-    
+
     'legend.title': 'Legende',
     'legend.nationalHoliday': 'Nationaler Feiertag',
     'legend.culturalFestival': 'Kulturfestival',
@@ -304,12 +402,12 @@ export const translations = {
     'legend.internationalDay': 'Internationaler Tag',
     'legend.description': 'Mehrere Feiertage am selben Datum werden mit mehreren Punkten angezeigt. Klicken Sie auf ein beliebiges Datum, um mehr zu erfahren.',
     'legend.note': 'Mehrere Feiertage am selben Datum werden mit mehreren Punkten angezeigt. Klicken Sie auf ein beliebiges Datum, um mehr zu erfahren.',
-    
+
     'stats.globalHolidays': 'Globale Feiertage',
     'stats.countries': 'Länder',
     'stats.months': 'Monate',
     'stats.monthsCoverage': 'Monate',
-    
+
     'about.button': 'Über uns',
     'about.title': 'Über den Globalen Feiertagskalender',
     'about.description': 'Erkunden und feiern Sie kulturelle Vielfalt durch Feiertage und Traditionen aus aller Welt. Unser interaktiver Kalender hilft Ihnen, das reiche Geflecht globaler Feiern zu entdecken und fördert interkulturelles Verständnis und Wertschätzung.',
@@ -341,13 +439,13 @@ export const translations = {
         answer: 'Ja. Sie können Feiertage aus mehreren ausgewählten Ländern vergleichen und jederzeit zwischen Kalender- und Listenlayout wechseln.'
       }
     ],
-    
+
     'footer.title': 'Globaler Feiertagskalender',
     'footer.description': 'Kulturelle Vielfalt durch gemeinsame Traditionen und Feiertage feiern',
     'footer.builtWith': 'Erstellt mit React & Tailwind CSS',
     'footer.mission': 'Kulturelles Verständnis fördern',
     'footer.culturalEducation': 'Kulturelle Bildung durch Technologie',
-    
+
     'language.selector': 'Sprache',
     'language.current': 'Aktuell: {language}',
     'language.change': 'Sprache Ändern',
@@ -362,7 +460,7 @@ export const translations = {
     'listView.holidayCount': '{count} Feiertag',
     'listView.holidayCountPlural': '{count} Feiertage',
     'listView.showMoreHolidays': '{count} weitere Feiertage anzeigen',
-    
+
     // 节日模态框
     'holidayModal.significance': 'Bedeutung',
     'holidayModal.customs': 'Bräuche und Traditionen',
@@ -380,21 +478,70 @@ export const translations = {
     'holidayType.observance': 'Gedenktag',
     'holidayType.national': 'Nationalfeiertag',
     'holidayType.default': 'Feiertag',
-    
+
     'common.loading': 'Laden...',
     'common.error': 'Fehler',
     'common.close': 'Schließen',
     'common.save': 'Speichern',
     'common.cancel': 'Abbrechen',
-    'common.moreCount': '+{count} mehr'
+    'common.moreCount': '+{count} mehr',
+
+    // 搜索
+    'search.placeholder': 'Feiertage, Länder oder Bräuche suchen...',
+    'search.noResults': 'Keine Feiertage gefunden',
+    'search.shortcutHint': 'ESC zum Schließen, ↑↓ zum Navigieren',
+    'search.button': 'Suchen',
+    'search.searchHolidays': 'Feiertage suchen',
+
+    // 类别筛选
+    'categoryFilter.all': 'Alle Anlässe',
+    'categoryFilter.public': 'Gesetzliche Feiertage',
+    'categoryFilter.cultural': 'Kulturfeste',
+    'categoryFilter.astronomical': 'Solar & Astronomisch',
+
+    // 主题
+    'theme.title': 'Design',
+    'theme.light': 'Hell',
+    'theme.dark': 'Dunkel',
+    'theme.system': 'System',
+
+    // 导出与分享
+    'calendar.addToGoogle': 'Google Kalender',
+    'calendar.downloadIcs': '.ics herunterladen',
+    'calendar.share': 'Teilen',
+    'calendar.copied': 'Link kopiert!',
+
+    // 下一个节日倒计时 & 洞察卡片
+    'stats.nextHoliday': 'Nächster Feiertag',
+    'stats.daysAway': 'in {days} Tagen',
+    'stats.today': 'Heute!',
+    'stats.tomorrow': 'Morgen',
+    'stats.inDays': '{days}T',
+    'stats.noUpcoming': 'Keine anstehenden Feiertage',
+    'stats.holidayDistribution': 'Feiertagsverteilung',
+    'stats.totalInMonth': '{count} Feiertage diesen Monat',
+    'stats.publicCount': '{count} gesetzlich',
+    'stats.culturalCount': '{count} kulturell',
+    'stats.solarCount': '{count} saisonal',
+    'stats.culturalTrivia': 'Kultureller Einblick',
+    'stats.shuffleTrivia': 'Weiterer',
+    'stats.exploreHoliday': 'Entdecken',
+    'stats.noDataThisMonth': 'Keine Feiertage in der Auswahl',
+    'stats.didYouKnow': 'Wussten Sie schon?',
+
+    // 移动端导航
+    'mobileNav.calendar': 'Kalender',
+    'mobileNav.list': 'Liste',
+    'mobileNav.search': 'Suchen',
+    'mobileNav.today': 'Heute'
   },
-  
+
   // 西班牙语
   'es': {
     'app.title': 'Calendario de Fiestas Globales',
     'app.subtitle': 'Descubre celebraciones culturales en todo el mundo',
     'header.about': 'Acerca de',
-    
+
     'countryFilter.title': 'Filtro de País',
     'countryFilter.expand': 'Expandir filtro de países',
     'countryFilter.collapse': 'Contraer filtro de países',
@@ -409,7 +556,7 @@ export const translations = {
     'countryFilter.smartRecommendTooltip': 'Re-detectar su ubicación',
     'countryFilter.locationBased': '{count} países o regiones seleccionados',
     'countryFilter.moreCountries': '+{count} países más',
-    
+
     'calendar.today': 'Hoy',
     'calendar.previousMonth': 'Mes anterior',
     'calendar.nextMonth': 'Mes siguiente',
@@ -420,7 +567,7 @@ export const translations = {
     ],
     'calendar.loading': 'Cargando festividades...',
     'calendar.swipeHint': 'Desliza el calendario para cambiar de mes',
-    
+
     'legend.title': 'Leyenda',
     'legend.nationalHoliday': 'Fiesta Nacional',
     'legend.culturalFestival': 'Festival Cultural',
@@ -429,12 +576,12 @@ export const translations = {
     'legend.internationalDay': 'Día Internacional',
     'legend.description': 'Múltiples fiestas en la misma fecha se muestran con múltiples puntos. Haga clic en cualquier fecha para obtener más información.',
     'legend.note': 'Múltiples fiestas en la misma fecha se muestran con múltiples puntos. Haga clic en cualquier fecha para obtener más información.',
-    
+
     'stats.globalHolidays': 'Fiestas Globales',
     'stats.countries': 'Países',
     'stats.months': 'Meses',
     'stats.monthsCoverage': 'Meses',
-    
+
     'about.button': 'Acerca de',
     'about.title': 'Acerca del Calendario de Fiestas Globales',
     'about.description': 'Explore y celebre la diversidad cultural a través de fiestas y tradiciones de todo el mundo. Nuestro calendario interactivo le ayuda a descubrir el rico tapiz de celebraciones globales, fomentando la comprensión y apreciación intercultural.',
@@ -466,13 +613,13 @@ export const translations = {
         answer: 'Sí. Puede comparar festividades entre los países seleccionados y cambiar entre la vista de calendario y la vista de lista en cualquier momento.'
       }
     ],
-    
+
     'footer.title': 'Calendario de Fiestas Globales',
     'footer.description': 'Celebrando la diversidad cultural a través de tradiciones y fiestas compartidas',
     'footer.builtWith': 'Construido con React & Tailwind CSS',
     'footer.mission': 'Fomentar la comprensión cultural',
     'footer.culturalEducation': 'Educación cultural a través de la tecnología',
-    
+
     'language.selector': 'Idioma',
     'language.current': 'Actual: {language}',
     'language.change': 'Cambiar Idioma',
@@ -487,7 +634,7 @@ export const translations = {
     'listView.holidayCount': '{count} festividad',
     'listView.holidayCountPlural': '{count} festividades',
     'listView.showMoreHolidays': 'Mostrar {count} festividades más',
-    
+
     // 节日模态框
     'holidayModal.significance': 'Significado',
     'holidayModal.customs': 'Costumbres y Tradiciones',
@@ -505,21 +652,70 @@ export const translations = {
     'holidayType.observance': 'Observancia',
     'holidayType.national': 'Fiesta nacional',
     'holidayType.default': 'Festividad',
-    
+
     'common.loading': 'Cargando...',
     'common.error': 'Error',
     'common.close': 'Cerrar',
     'common.save': 'Guardar',
     'common.cancel': 'Cancelar',
-    'common.moreCount': '+{count} más'
+    'common.moreCount': '+{count} más',
+
+    // 搜索
+    'search.placeholder': 'Buscar fiestas, países o tradiciones...',
+    'search.noResults': 'No se encontraron festivos',
+    'search.shortcutHint': 'Pulsa ESC para cerrar, ↑↓ para navegar',
+    'search.button': 'Buscar',
+    'search.searchHolidays': 'Buscar Festivos',
+
+    // 类别筛选
+    'categoryFilter.all': 'Todas las celebraciones',
+    'categoryFilter.public': 'Días festivos',
+    'categoryFilter.cultural': 'Festivales culturales',
+    'categoryFilter.astronomical': 'Solar y Astronómico',
+
+    // 主题
+    'theme.title': 'Tema',
+    'theme.light': 'Claro',
+    'theme.dark': 'Oscuro',
+    'theme.system': 'Sistema',
+
+    // 导出与分享
+    'calendar.addToGoogle': 'Google Calendar',
+    'calendar.downloadIcs': 'Descargar .ics',
+    'calendar.share': 'Compartir',
+    'calendar.copied': '¡Enlace copiado!',
+
+    // 下一个节日倒计时 & 洞察卡片
+    'stats.nextHoliday': 'Próxima festividad',
+    'stats.daysAway': 'en {days} días',
+    'stats.today': '¡Hoy!',
+    'stats.tomorrow': 'Mañana',
+    'stats.inDays': '{days}d',
+    'stats.noUpcoming': 'No hay festividades próximas',
+    'stats.holidayDistribution': 'Distribución de festividades',
+    'stats.totalInMonth': '{count} festividades este mes',
+    'stats.publicCount': '{count} públicos',
+    'stats.culturalCount': '{count} culturales',
+    'stats.solarCount': '{count} estacionales',
+    'stats.culturalTrivia': 'Foco cultural',
+    'stats.shuffleTrivia': 'Otro',
+    'stats.exploreHoliday': 'Explorar',
+    'stats.noDataThisMonth': 'Sin festividades en la selección',
+    'stats.didYouKnow': '¿Sabías que...?',
+
+    // 移动端导航
+    'mobileNav.calendar': 'Calendario',
+    'mobileNav.list': 'Lista',
+    'mobileNav.search': 'Buscar',
+    'mobileNav.today': 'Hoy'
   },
-  
+
   // 简体中文
   'zh-CN': {
     'app.title': '全球节日日历',
     'app.subtitle': '探索世界各地的文化庆典',
     'header.about': '关于',
-    
+
     'countryFilter.title': '国家筛选',
     'countryFilter.expand': '展开国家筛选',
     'countryFilter.collapse': '收起国家筛选',
@@ -534,7 +730,7 @@ export const translations = {
     'countryFilter.smartRecommendTooltip': '重新检测您的位置',
     'countryFilter.locationBased': '已选择 {count} 个国家或地区',
     'countryFilter.moreCountries': '+{count} 个国家',
-    
+
     'calendar.today': '今天',
     'calendar.previousMonth': '上个月',
     'calendar.nextMonth': '下个月',
@@ -545,7 +741,7 @@ export const translations = {
     ],
     'calendar.loading': '正在加载节日...',
     'calendar.swipeHint': '左右滑动日历以切换月份',
-    
+
     'legend.title': '图例',
     'legend.nationalHoliday': '国家节日',
     'legend.culturalFestival': '文化节庆',
@@ -554,12 +750,12 @@ export const translations = {
     'legend.internationalDay': '国际日',
     'legend.description': '同一日期的多个节日会显示多个圆点。点击任意日期了解更多信息。',
     'legend.note': '同一日期的多个节日会显示多个圆点。点击任意日期了解更多信息。',
-    
+
     'stats.globalHolidays': '全球节日',
     'stats.countries': '国家地区',
     'stats.months': '月份',
     'stats.monthsCoverage': '月份覆盖',
-    
+
     'about.button': '关于',
     'about.title': '关于全球节日日历',
     'about.description': '通过世界各地的节日和传统探索和庆祝文化多样性。我们的交互式日历帮助您发现丰富多彩的全球庆典，促进跨文化理解和欣赏。',
@@ -591,17 +787,17 @@ export const translations = {
         answer: '支持。您可以比较多个已选国家的节日，并随时在日历视图和列表视图之间切换。'
       }
     ],
-    
+
     'footer.title': '全球节日日历',
     'footer.description': '通过共同的传统和节日庆祝文化多样性',
     'footer.builtWith': '使用 React 和 Tailwind CSS 构建',
     'footer.mission': '促进文化理解',
     'footer.culturalEducation': '通过技术促进文化教育',
-    
+
     'language.selector': '语言',
     'language.current': '当前：{language}',
     'language.change': '更改语言',
-    
+
     // 列表视图
     'listView.noCountriesSelected': '未选择国家',
     'listView.selectCountriesPrompt': '请从筛选器中选择一个或多个国家以查看节日。',
@@ -614,7 +810,7 @@ export const translations = {
     'listView.holidayCount': '{count} 个节日',
     'listView.holidayCountPlural': '{count} 个节日',
     'listView.showMoreHolidays': '显示另外 {count} 个节日',
-    
+
     // 节日模态框
     'holidayModal.significance': '意义',
     'holidayModal.customs': '习俗与传统',
@@ -632,21 +828,70 @@ export const translations = {
     'holidayType.observance': '纪念活动',
     'holidayType.national': '国家节日',
     'holidayType.default': '节日',
-    
+
     'common.loading': '加载中...',
     'common.error': '错误',
     'common.close': '关闭',
     'common.save': '保存',
     'common.cancel': '取消',
-    'common.moreCount': '还有 {count} 个'
+    'common.moreCount': '还有 {count} 个',
+
+    // 搜索
+    'search.placeholder': '搜索节日、国家或传统习俗...',
+    'search.noResults': '未找到相关节日',
+    'search.shortcutHint': '按 ESC 关闭，↑↓ 键导航，Enter 选择',
+    'search.button': '搜索',
+    'search.searchHolidays': '搜索节日',
+
+    // 类别筛选
+    'categoryFilter.all': '全部节庆',
+    'categoryFilter.public': '法定公休',
+    'categoryFilter.cultural': '民俗节庆',
+    'categoryFilter.astronomical': '节气与天文',
+
+    // 主题
+    'theme.title': '主题',
+    'theme.light': '浅色模式',
+    'theme.dark': '深色模式',
+    'theme.system': '跟随系统',
+
+    // 导出与分享
+    'calendar.addToGoogle': '谷歌日历',
+    'calendar.downloadIcs': '下载日历文件 (.ics)',
+    'calendar.share': '分享节日',
+    'calendar.copied': '链接已复制！',
+
+    // 下一个节日倒计时 & 洞察卡片
+    'stats.nextHoliday': '下一个即将到来的节日',
+    'stats.daysAway': '还有 {days} 天',
+    'stats.today': '就在今天！',
+    'stats.tomorrow': '明天',
+    'stats.inDays': '{days}天后',
+    'stats.noUpcoming': '所选地区暂无即将到来的节日',
+    'stats.holidayDistribution': '本月节日构成',
+    'stats.totalInMonth': '本月共 {count} 个节日',
+    'stats.publicCount': '{count} 法定公休',
+    'stats.culturalCount': '{count} 文化节庆',
+    'stats.solarCount': '{count} 节气与天文',
+    'stats.culturalTrivia': '文化探索与冷知识',
+    'stats.shuffleTrivia': '换一个',
+    'stats.exploreHoliday': '探索详情',
+    'stats.noDataThisMonth': '当前筛选下暂无节日',
+    'stats.didYouKnow': '你知道吗？',
+
+    // 移动端导航
+    'mobileNav.calendar': '日历',
+    'mobileNav.list': '列表',
+    'mobileNav.search': '搜索',
+    'mobileNav.today': '今天'
   },
-  
+
   // 繁体中文
   'zh-TW': {
     'app.title': '全球節日日曆',
     'app.subtitle': '探索世界各地的文化慶典',
     'header.about': '關於',
-    
+
     'countryFilter.title': '國家篩選',
     'countryFilter.expand': '展開國家篩選',
     'countryFilter.collapse': '收起國家篩選',
@@ -661,7 +906,7 @@ export const translations = {
     'countryFilter.smartRecommendTooltip': '重新檢測您的位置',
     'countryFilter.locationBased': '已選擇 {count} 個國家或地區',
     'countryFilter.moreCountries': '+{count} 個國家',
-    
+
     'calendar.today': '今天',
     'calendar.previousMonth': '上個月',
     'calendar.nextMonth': '下個月',
@@ -672,7 +917,7 @@ export const translations = {
     ],
     'calendar.loading': '正在載入節日...',
     'calendar.swipeHint': '左右滑動日曆以切換月份',
-    
+
     'legend.title': '圖例',
     'legend.nationalHoliday': '國家節日',
     'legend.culturalFestival': '文化節慶',
@@ -681,12 +926,12 @@ export const translations = {
     'legend.internationalDay': '國際日',
     'legend.description': '同一日期的多個節日會顯示多個圓點。點擊任意日期了解更多資訊。',
     'legend.note': '同一日期的多個節日會顯示多個圓點。點擊任意日期了解更多資訊。',
-    
+
     'stats.globalHolidays': '全球節日',
     'stats.countries': '國家地區',
     'stats.months': '月份',
     'stats.monthsCoverage': '月份覆蓋',
-    
+
     'about.button': '關於',
     'about.title': '關於全球節日日曆',
     'about.description': '通過世界各地的節日和傳統探索和慶祝文化多樣性。我們的互動式日曆幫助您發現豐富多彩的全球慶典，促進跨文化理解和欣賞。',
@@ -718,13 +963,13 @@ export const translations = {
         answer: '支援。您可以比較多個已選國家的節日，並隨時在日曆視圖與列表視圖之間切換。'
       }
     ],
-    
+
     'footer.title': '全球節日日曆',
     'footer.description': '通過共同的傳統和節日慶祝文化多樣性',
     'footer.builtWith': '使用 React 和 Tailwind CSS 構建',
     'footer.mission': '促進文化理解',
     'footer.culturalEducation': '通過技術促進文化教育',
-    
+
     'language.selector': '語言',
     'language.current': '當前：{language}',
     'language.change': '更改語言',
@@ -739,7 +984,7 @@ export const translations = {
     'listView.holidayCount': '{count} 個節日',
     'listView.holidayCountPlural': '{count} 個節日',
     'listView.showMoreHolidays': '顯示另外 {count} 個節日',
-    
+
     // 节日模态框
     'holidayModal.significance': '意義',
     'holidayModal.customs': '習俗與傳統',
@@ -757,21 +1002,70 @@ export const translations = {
     'holidayType.observance': '紀念活動',
     'holidayType.national': '國家節日',
     'holidayType.default': '節日',
-    
+
     'common.loading': '載入中...',
     'common.error': '錯誤',
     'common.close': '關閉',
     'common.save': '保存',
     'common.cancel': '取消',
-    'common.moreCount': '還有 {count} 個'
+    'common.moreCount': '還有 {count} 個',
+
+    // 搜索
+    'search.placeholder': '搜尋節日、國家或傳統習俗...',
+    'search.noResults': '未找到相關節日',
+    'search.shortcutHint': '按 ESC 關閉，↑↓ 鍵導覽，Enter 選擇',
+    'search.button': '搜尋',
+    'search.searchHolidays': '搜尋節日',
+
+    // 类别筛选
+    'categoryFilter.all': '全部節慶',
+    'categoryFilter.public': '法定公休',
+    'categoryFilter.cultural': '民俗節慶',
+    'categoryFilter.astronomical': '節氣與天文',
+
+    // 主题
+    'theme.title': '主題',
+    'theme.light': '淺色模式',
+    'theme.dark': '深色模式',
+    'theme.system': '跟隨系統',
+
+    // 导出与分享
+    'calendar.addToGoogle': 'Google 日曆',
+    'calendar.downloadIcs': '下載日曆檔案 (.ics)',
+    'calendar.share': '分享節日',
+    'calendar.copied': '連結已複製！',
+
+    // 下一个节日倒计时 & 洞察卡片
+    'stats.nextHoliday': '下一個即將到來的節日',
+    'stats.daysAway': '還有 {days} 天',
+    'stats.today': '就在今天！',
+    'stats.tomorrow': '明天',
+    'stats.inDays': '{days}天後',
+    'stats.noUpcoming': '所選地區暫無即將到來的節日',
+    'stats.holidayDistribution': '本月節日構成',
+    'stats.totalInMonth': '本月共 {count} 個節日',
+    'stats.publicCount': '{count} 法定公休',
+    'stats.culturalCount': '{count} 文化節慶',
+    'stats.solarCount': '{count} 節氣與天文',
+    'stats.culturalTrivia': '文化探索與冷知識',
+    'stats.shuffleTrivia': '換一個',
+    'stats.exploreHoliday': '探索詳情',
+    'stats.noDataThisMonth': '當前篩選下暫無節日',
+    'stats.didYouKnow': '你知道嗎？',
+
+    // 移动端导航
+    'mobileNav.calendar': '日曆',
+    'mobileNav.list': '列表',
+    'mobileNav.search': '搜尋',
+    'mobileNav.today': '今天'
   },
-  
+
   // 日语
   'ja': {
     'app.title': 'グローバル祝日カレンダー',
     'app.subtitle': '世界中の文化的祝祭を発見',
     'header.about': 'について',
-    
+
     'countryFilter.title': '国フィルター',
     'countryFilter.expand': '国フィルターを展開',
     'countryFilter.collapse': '国フィルターを折りたたむ',
@@ -786,7 +1080,7 @@ export const translations = {
     'countryFilter.smartRecommendTooltip': '位置を再検出',
     'countryFilter.locationBased': '{count}カ国・地域を選択中',
     'countryFilter.moreCountries': '+{count}カ国',
-    
+
     'calendar.today': '今日',
     'calendar.previousMonth': '前月',
     'calendar.nextMonth': '翌月',
@@ -797,7 +1091,7 @@ export const translations = {
     ],
     'calendar.loading': '祝日を読み込み中...',
     'calendar.swipeHint': 'カレンダーをスワイプして月を切り替え',
-    
+
     'legend.title': '凡例',
     'legend.nationalHoliday': '国民の祝日',
     'legend.culturalFestival': '文化祭',
@@ -806,12 +1100,12 @@ export const translations = {
     'legend.internationalDay': '国際デー',
     'legend.description': '同じ日付の複数の祝日は複数のドットで表示されます。詳細を知るには任意の日付をクリックしてください。',
     'legend.note': '同じ日付の複数の祝日は複数のドットで表示されます。詳細を知るには任意の日付をクリックしてください。',
-    
+
     'stats.globalHolidays': 'グローバル祝日',
     'stats.countries': '国',
     'stats.months': '月',
     'stats.monthsCoverage': '月',
-    
+
     'about.button': 'について',
     'about.title': 'グローバル祝日カレンダーについて',
     'about.description': '世界中の祝日や伝統を通じて文化の多様性を探求し、祝いましょう。私たちのインタラクティブなカレンダーは、グローバルな祝祭の豊かなタペストリーを発見し、異文化理解と感謝を促進します。',
@@ -843,13 +1137,13 @@ export const translations = {
         answer: 'はい。選択した複数の国の祝日を比較しながら、カレンダー表示とリスト表示を自由に切り替えられます。'
       }
     ],
-    
+
     'footer.title': 'グローバル祝日カレンダー',
     'footer.description': '共有された伝統と祝日を通じて文化の多様性を祝う',
     'footer.builtWith': 'React & Tailwind CSSで構築',
     'footer.mission': '文化的理解を促進',
     'footer.culturalEducation': 'テクノロジーを通じた文化教育',
-    
+
     'language.selector': '言語',
     'language.current': '現在：{language}',
     'language.change': '言語を変更',
@@ -864,7 +1158,7 @@ export const translations = {
     'listView.holidayCount': '{count}件の祝日',
     'listView.holidayCountPlural': '{count}件の祝日',
     'listView.showMoreHolidays': 'さらに{count}件の祝日を表示',
-    
+
     // 节日模态框
     'holidayModal.significance': '意義',
     'holidayModal.customs': '習慣と伝統',
@@ -882,21 +1176,70 @@ export const translations = {
     'holidayType.observance': '記念行事',
     'holidayType.national': '国民の祝日',
     'holidayType.default': '祝日',
-    
+
     'common.loading': '読み込み中...',
     'common.error': 'エラー',
     'common.close': '閉じる',
     'common.save': '保存',
     'common.cancel': 'キャンセル',
-    'common.moreCount': 'あと{count}件'
+    'common.moreCount': 'あと{count}件',
+
+    // 搜索
+    'search.placeholder': '祝日、国、伝統行事を検索...',
+    'search.noResults': '祝日が見つかりませんでした',
+    'search.shortcutHint': 'ESCキーで閉じる、↑↓で移動',
+    'search.button': '検索',
+    'search.searchHolidays': '祝日を検索',
+
+    // 类别筛选
+    'categoryFilter.all': 'すべての行事',
+    'categoryFilter.public': '国民の祝日',
+    'categoryFilter.cultural': '伝統行事・祭',
+    'categoryFilter.astronomical': '節気・天文',
+
+    // 主题
+    'theme.title': 'テーマ',
+    'theme.light': 'ライト',
+    'theme.dark': 'ダーク',
+    'theme.system': 'システム設定',
+
+    // 导出与分享
+    'calendar.addToGoogle': 'Googleカレンダー',
+    'calendar.downloadIcs': 'iCal (.ics) をダウンロード',
+    'calendar.share': '共有',
+    'calendar.copied': 'リンクをコピーしました！',
+
+    // 下一个节日倒计时 & 洞察卡片
+    'stats.nextHoliday': '次の祝日・行事',
+    'stats.daysAway': 'あと {days} 日',
+    'stats.today': '今日！',
+    'stats.tomorrow': '明日',
+    'stats.inDays': 'あと{days}日',
+    'stats.noUpcoming': '直近の祝日はありません',
+    'stats.holidayDistribution': '今月の祝日構成',
+    'stats.totalInMonth': '今月計 {count} 件',
+    'stats.publicCount': '{count} 祝日',
+    'stats.culturalCount': '{count} 文化的行事',
+    'stats.solarCount': '{count} 季節・節気',
+    'stats.culturalTrivia': '文化スポットライト',
+    'stats.shuffleTrivia': '次を見る',
+    'stats.exploreHoliday': '詳細を見る',
+    'stats.noDataThisMonth': '選択中の条件に祝日はありません',
+    'stats.didYouKnow': '知っていましたか？',
+
+    // 移动端导航
+    'mobileNav.calendar': 'カレンダー',
+    'mobileNav.list': 'リスト',
+    'mobileNav.search': '検索',
+    'mobileNav.today': '今日'
   },
-  
+
   // 韩语
   'ko': {
     'app.title': '글로벌 휴일 달력',
     'app.subtitle': '전 세계 문화 축제를 발견하세요',
     'header.about': '정보',
-    
+
     'countryFilter.title': '국가 필터',
     'countryFilter.expand': '국가 필터 펼치기',
     'countryFilter.collapse': '국가 필터 접기',
@@ -911,7 +1254,7 @@ export const translations = {
     'countryFilter.smartRecommendTooltip': '위치 재감지',
     'countryFilter.locationBased': '{count}개 국가 또는 지역 선택됨',
     'countryFilter.moreCountries': '+{count}개 국가',
-    
+
     'calendar.today': '오늘',
     'calendar.previousMonth': '이전 달',
     'calendar.nextMonth': '다음 달',
@@ -922,7 +1265,7 @@ export const translations = {
     ],
     'calendar.loading': '휴일을 불러오는 중...',
     'calendar.swipeHint': '달력을 스와이프하여 월을 전환하세요',
-    
+
     'legend.title': '범례',
     'legend.nationalHoliday': '국경일',
     'legend.culturalFestival': '문화 축제',
@@ -931,12 +1274,12 @@ export const translations = {
     'legend.internationalDay': '국제의 날',
     'legend.description': '같은 날짜의 여러 휴일은 여러 점으로 표시됩니다. 자세한 내용을 보려면 아무 날짜나 클릭하세요.',
     'legend.note': '같은 날짜의 여러 휴일은 여러 점으로 표시됩니다. 자세한 내용을 보려면 아무 날짜나 클릭하세요.',
-    
+
     'stats.globalHolidays': '글로벌 휴일',
     'stats.countries': '국가',
     'stats.months': '월',
     'stats.monthsCoverage': '월',
-    
+
     'about.button': '정보',
     'about.title': '글로벌 휴일 달력 정보',
     'about.description': '전 세계의 휴일과 전통을 통해 문화적 다양성을 탐구하고 축하하세요. 우리의 대화형 달력은 글로벌 축제의 풍부한 태피스트리를 발견하고 문화 간 이해와 감사를 촉진합니다.',
@@ -968,13 +1311,13 @@ export const translations = {
         answer: '네. 선택한 여러 국가의 휴일을 비교하면서 달력 보기와 목록 보기를 자유롭게 전환할 수 있습니다.'
       }
     ],
-    
+
     'footer.title': '글로벌 휴일 달력',
     'footer.description': '공유된 전통과 휴일을 통해 문화적 다양성 축하',
     'footer.builtWith': 'React & Tailwind CSS로 구축',
     'footer.mission': '문화적 이해 증진',
     'footer.culturalEducation': '기술을 통한 문화 교육',
-    
+
     'language.selector': '언어',
     'language.current': '현재: {language}',
     'language.change': '언어 변경',
@@ -989,7 +1332,7 @@ export const translations = {
     'listView.holidayCount': '{count}개의 휴일',
     'listView.holidayCountPlural': '{count}개의 휴일',
     'listView.showMoreHolidays': '휴일 {count}개 더 보기',
-    
+
     // 节日模态框
     'holidayModal.significance': '의미',
     'holidayModal.customs': '관습과 전통',
@@ -1007,30 +1350,79 @@ export const translations = {
     'holidayType.observance': '기념일',
     'holidayType.national': '국경일',
     'holidayType.default': '휴일',
-    
+
     'common.loading': '로딩 중...',
     'common.error': '오류',
     'common.close': '닫기',
     'common.save': '저장',
     'common.cancel': '취소',
-    'common.moreCount': '추가 {count}개'
+    'common.moreCount': '추가 {count}개',
+
+    // 搜索
+    'search.placeholder': '공휴일, 국가, 전통 명절 검색...',
+    'search.noResults': '기념일을 찾을 수 없습니다',
+    'search.shortcutHint': 'ESC로 닫기, ↑↓로 이동',
+    'search.button': '검색',
+    'search.searchHolidays': '공휴일 검색',
+
+    // 类别筛选
+    'categoryFilter.all': '모든 기념일',
+    'categoryFilter.public': '법정 공휴일',
+    'categoryFilter.cultural': '전통 축제',
+    'categoryFilter.astronomical': '절기 및 천문',
+
+    // 主题
+    'theme.title': '테마',
+    'theme.light': '라이트 모드',
+    'theme.dark': '다크 모드',
+    'theme.system': '시스템 기본값',
+
+    // 导出与分享
+    'calendar.addToGoogle': '구글 캘린더',
+    'calendar.downloadIcs': 'iCal (.ics) 다운로드',
+    'calendar.share': '공유하기',
+    'calendar.copied': '링크가 복사되었습니다!',
+
+    // 下一个节日倒计时 & 洞察卡片
+    'stats.nextHoliday': '다가오는 다음 공휴일',
+    'stats.daysAway': '{days}일 후',
+    'stats.today': '오늘!',
+    'stats.tomorrow': '내일',
+    'stats.inDays': '{days}일 후',
+    'stats.noUpcoming': '다가오는 공휴일이 없습니다',
+    'stats.holidayDistribution': '이달의 공휴일 구성',
+    'stats.totalInMonth': '이번 달 총 {count}개',
+    'stats.publicCount': '{count} 법정공휴일',
+    'stats.culturalCount': '{count} 문화축제',
+    'stats.solarCount': '{count} 절기·천문',
+    'stats.culturalTrivia': '문화 돋보기 & 상식',
+    'stats.shuffleTrivia': '다른 이야기',
+    'stats.exploreHoliday': '자세히 보기',
+    'stats.noDataThisMonth': '선택된 조건에 공휴일이 없습니다',
+    'stats.didYouKnow': '알고 계셨나요?',
+
+    // 移动端导航
+    'mobileNav.calendar': '캘린더',
+    'mobileNav.list': '목록',
+    'mobileNav.search': '검색',
+    'mobileNav.today': '오늘'
   }
 };
 
 // 翻译函数
 export function t(key, params = {}, language = 'en') {
   const translation = translations[language]?.[key] || translations['en'][key] || key;
-  
+
   // 如果翻译是数组，直接返回
   if (Array.isArray(translation)) {
     return translation;
   }
-  
+
   // 如果翻译不是字符串，返回原值
   if (typeof translation !== 'string') {
     return translation;
   }
-  
+
   // 替换参数
   return translation.replace(/\{(\w+)\}/g, (match, paramKey) => {
     return params[paramKey] !== undefined ? params[paramKey] : match;

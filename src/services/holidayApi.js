@@ -162,6 +162,9 @@ export async function fetchHolidaysFromWorker(year, countryCode, includeDescript
       history: holiday.culturalInfo?.origin || 'Historical significance varies by region',
       date: holiday.date,
       type: holiday.type,
+      subtype: holiday.subtype,
+      localName: holiday.localName,
+      countryCode: holiday.countryCode,
       source: holiday.source
     }));
 

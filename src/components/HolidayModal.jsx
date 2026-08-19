@@ -1,19 +1,32 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Calendar, MapPin, Clock, Book, Info, ChevronDown, Loader2, AlertCircle } from 'lucide-react';
+import { X, Calendar, MapPin, Clock, Book, Info, ChevronDown, Loader2, AlertCircle, Share2, Download, ExternalLink, Check } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { fetchHolidayInfo, readCachedHolidayInfo, writeCachedHolidayInfo } from '../services/holidayApi';
 import { useI18n, useTranslation } from '../hooks/useI18n';
 import { getLocaleFromLanguage } from '../services/i18nService';
+import { generateGoogleCalendarUrl, downloadIcsFile, shareHoliday } from '../utils/calendarExport';
 
 const HolidayModal = ({ date, holidays, onClose }) => {
   const [detailedInfo, setDetailedInfo] = useState({});
   const [loadingInfo, setLoadingInfo] = useState({});
   const [errorInfo, setErrorInfo] = useState({});
   const [showScrollHint, setShowScrollHint] = useState(null);
+  const [shareStatus, setShareStatus] = useState({});
   const hintTimeoutRef = useRef(null);
   const { language } = useI18n();
   const { t } = useTranslation();
+
+  const handleShare = async (holiday, index) => {
+    const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+    const result = await shareHoliday(holiday, shareUrl);
+    if (result === 'copied' || result === 'shared') {
+      setShareStatus(prev => ({ ...prev, [index]: true }));
+      setTimeout(() => {
+        setShareStatus(prev => ({ ...prev, [index]: false }));
+      }, 2500);
+    }
+  };
   // Auto-load detailed information from localStorage when modal opens
   useEffect(() => {
     holidays.forEach((holiday, index) => {
@@ -110,33 +123,33 @@ const HolidayModal = ({ date, holidays, onClose }) => {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="sticky top-0 flex items-start justify-between gap-3 border-b border-slate-200/80 bg-white/85 px-4 py-3 backdrop-blur-xl sm:items-center sm:p-4">
+        <div className="sticky top-0 flex items-start justify-between gap-3 border-b border-slate-200/80 dark:border-slate-800 bg-white/85 dark:bg-slate-900/90 px-4 py-3 backdrop-blur-xl sm:items-center sm:p-4">
           <div className="flex items-start sm:items-center space-x-2 min-w-0">
-            <Calendar className="text-teal-500" size={20} />
-            <h2 className="text-base sm:text-lg font-semibold text-slate-900 leading-tight">
+            <Calendar className="text-teal-500 shrink-0" size={20} />
+            <h2 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white leading-tight">
               {formatDate(date)}
             </h2>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="focus-ring rounded-full p-2 hover:bg-slate-100"
+            className="focus-ring rounded-full p-2 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400"
             aria-label={t('common.close')}
           >
-            <X size={20} className="text-slate-500" />
+            <X size={20} />
           </button>
         </div>
 
         {/* Modal Content */}
         <div className="p-4 sm:p-5 space-y-5 sm:space-y-6">
           {holidays.map((holiday, index) => (
-            <div key={index} className="rounded-[24px] border border-slate-200/80 bg-white/70 p-4 shadow-sm sm:p-5">
+            <div key={index} className="rounded-[24px] border border-slate-200/80 dark:border-slate-800 bg-white/70 dark:bg-slate-900/60 p-4 shadow-sm sm:p-5">
               {/* Holiday Header */}
               <div className="mb-4 border-l-4 pl-4" style={{ borderColor: holiday.color }}>
-                <h3 className="mb-1 text-lg font-bold leading-snug text-slate-900 sm:text-xl">
+                <h3 className="mb-1 text-lg font-bold leading-snug text-slate-900 dark:text-white sm:text-xl">
                   {holiday.name}
                 </h3>
-                <div className="flex flex-wrap items-center space-x-2 text-sm text-slate-600">
+                <div className="flex flex-wrap items-center space-x-2 text-sm text-slate-600 dark:text-slate-400">
                   <MapPin size={16} />
                   <span className="font-medium">{holiday.country}</span>
                 </div>
@@ -144,7 +157,7 @@ const HolidayModal = ({ date, holidays, onClose }) => {
 
               {/* Holiday Description */}
               <div className="mb-4">
-                <p className="leading-relaxed text-slate-700">
+                <p className="leading-relaxed text-slate-700 dark:text-slate-300">
                   {holiday.description}
                 </p>
               </div>
@@ -158,9 +171,9 @@ const HolidayModal = ({ date, holidays, onClose }) => {
                       className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: holiday.color }}
                     />
-                    <h4 className="font-semibold text-slate-900">{t('holidayModal.significance')}</h4>
+                    <h4 className="font-semibold text-slate-900 dark:text-white">{t('holidayModal.significance')}</h4>
                   </div>
-                  <p className="ml-5 text-sm leading-relaxed text-slate-700">
+                  <p className="ml-5 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
                     {holiday.significance}
                   </p>
                 </div>
@@ -168,10 +181,10 @@ const HolidayModal = ({ date, holidays, onClose }) => {
                 {/* Customs */}
                 <div>
                   <div className="flex items-center space-x-2 mb-2">
-                    <Clock size={16} className="text-slate-500" />
-                    <h4 className="font-semibold text-slate-900">{t('holidayModal.customs')}</h4>
+                    <Clock size={16} className="text-slate-500 dark:text-slate-400" />
+                    <h4 className="font-semibold text-slate-900 dark:text-white">{t('holidayModal.customs')}</h4>
                   </div>
-                  <p className="ml-5 text-sm leading-relaxed text-slate-700">
+                  <p className="ml-5 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
                     {holiday.customs}
                   </p>
                 </div>
@@ -179,21 +192,21 @@ const HolidayModal = ({ date, holidays, onClose }) => {
                 {/* History */}
                 <div>
                   <div className="flex items-center space-x-2 mb-2">
-                    <Book size={16} className="text-slate-500" />
-                    <h4 className="font-semibold text-slate-900">{t('holidayModal.historical')}</h4>
+                    <Book size={16} className="text-slate-500 dark:text-slate-400" />
+                    <h4 className="font-semibold text-slate-900 dark:text-white">{t('holidayModal.historical')}</h4>
                   </div>
-                  <p className="ml-5 text-sm leading-relaxed text-slate-700">
+                  <p className="ml-5 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
                     {holiday.history}
                   </p>
                 </div>
 
-                {/* Detailed Information Button */}
-                <div className="mt-4">
+                {/* Action Buttons Toolbar */}
+                <div className="mt-4 flex flex-wrap items-center gap-2">
                   <button
                     type="button"
                     onClick={() => fetchDetailedInfo(holiday, index)}
                     disabled={loadingInfo[index]}
-                    className="accent-button-soft focus-ring flex w-full cursor-pointer items-center justify-center space-x-2 rounded-2xl px-3 py-2.5 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                    className="accent-button-soft focus-ring flex flex-1 sm:flex-initial cursor-pointer items-center justify-center space-x-2 rounded-2xl px-3 py-2.5 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {loadingInfo[index] ? (
                       <Loader2 size={16} className="animate-spin" aria-hidden="true" />
@@ -204,39 +217,79 @@ const HolidayModal = ({ date, holidays, onClose }) => {
                       {loadingInfo[index] ? t('holidayModal.loading') : detailedInfo[index] ? t('holidayModal.refresh') : t('holidayModal.getDetailed')}
                     </span>
                   </button>
-                  {errorInfo[index] && !loadingInfo[index] && (
-                    <div className="mt-2 flex items-center gap-1.5 text-sm text-red-600" role="alert">
-                      <AlertCircle size={14} aria-hidden="true" />
-                      <span>{t('holidayModal.loadError')}</span>
-                    </div>
-                  )}
+
+                  <a
+                    href={generateGoogleCalendarUrl(holiday)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="focus-ring flex items-center justify-center space-x-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 px-3 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60"
+                    title={t('calendar.addToGoogle')}
+                  >
+                    <ExternalLink size={14} aria-hidden="true" />
+                    <span>{t('calendar.addToGoogle')}</span>
+                  </a>
+
+                  <button
+                    type="button"
+                    onClick={() => downloadIcsFile(holiday)}
+                    className="focus-ring flex items-center justify-center space-x-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 px-3 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60"
+                    title={t('calendar.downloadIcs')}
+                  >
+                    <Download size={14} aria-hidden="true" />
+                    <span>{t('calendar.downloadIcs')}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleShare(holiday, index)}
+                    className="focus-ring flex items-center justify-center space-x-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 px-3 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60"
+                    title={t('calendar.share')}
+                  >
+                    {shareStatus[index] ? (
+                      <>
+                        <Check size={14} className="text-teal-600 dark:text-teal-400" aria-hidden="true" />
+                        <span className="text-teal-600 dark:text-teal-400 font-semibold">{t('calendar.copied')}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Share2 size={14} aria-hidden="true" />
+                        <span>{t('calendar.share')}</span>
+                      </>
+                    )}
+                  </button>
                 </div>
+                {errorInfo[index] && !loadingInfo[index] && (
+                  <div className="mt-2 flex items-center gap-1.5 text-sm text-red-600 dark:text-red-400" role="alert">
+                    <AlertCircle size={14} aria-hidden="true" />
+                    <span>{t('holidayModal.loadError')}</span>
+                  </div>
+                )}
 
                 {/* Detailed Information Display */}
                 {detailedInfo[index] && (
                   <div className="surface-card-muted mt-4 rounded-2xl p-4 relative">
                     {showScrollHint === index && (
-                      <div className="absolute -top-4 right-4 flex animate-bounce items-center gap-1 rounded-full bg-teal-100 px-3 py-1 font-medium text-teal-700 shadow-md sm:right-auto sm:left-1/2 sm:-translate-x-1/2">
+                      <div className="absolute -top-4 right-4 flex animate-bounce items-center gap-1 rounded-full bg-teal-100 dark:bg-teal-950 px-3 py-1 font-medium text-teal-700 dark:text-teal-300 shadow-md sm:right-auto sm:left-1/2 sm:-translate-x-1/2">
                         <span className="text-xs">
                           {t('holidayModal.scrollHint')}
                         </span>
                         <ChevronDown size={14} />
                       </div>
                     )}
-                    <h4 className="mb-2 font-semibold text-slate-900">{t('holidayModal.detailedBackground')}</h4>
-                    <div className="prose prose-sm max-w-none text-sm text-slate-700">
+                    <h4 className="mb-2 font-semibold text-slate-900 dark:text-white">{t('holidayModal.detailedBackground')}</h4>
+                    <div className="prose prose-sm max-w-none text-sm text-slate-700 dark:text-slate-300">
                       <ReactMarkdown 
                         components={{
-                          h1: ({children}) => <h1 className="mb-2 mt-4 text-lg font-bold text-slate-900">{children}</h1>,
-                          h2: ({children}) => <h2 className="mb-2 mt-4 text-base font-semibold text-slate-900">{children}</h2>,
-                          h3: ({children}) => <h3 className="mb-1 mt-3 text-sm font-medium text-slate-900">{children}</h3>,
+                          h1: ({children}) => <h1 className="mb-2 mt-4 text-lg font-bold text-slate-900 dark:text-white">{children}</h1>,
+                          h2: ({children}) => <h2 className="mb-2 mt-4 text-base font-semibold text-slate-900 dark:text-white">{children}</h2>,
+                          h3: ({children}) => <h3 className="mb-1 mt-3 text-sm font-medium text-slate-900 dark:text-white">{children}</h3>,
                           p: ({children}) => <p className="mb-2">{children}</p>,
                           ul: ({children}) => <ul className="list-disc list-inside mb-2">{children}</ul>,
                           ol: ({children}) => <ol className="list-decimal list-inside mb-2">{children}</ol>,
-                          li: ({children}) => <li className="text-slate-700">{children}</li>,
-                          strong: ({children}) => <strong className="font-semibold text-slate-900">{children}</strong>,
+                          li: ({children}) => <li className="text-slate-700 dark:text-slate-300">{children}</li>,
+                          strong: ({children}) => <strong className="font-semibold text-slate-900 dark:text-white">{children}</strong>,
                           em: ({children}) => <em className="italic">{children}</em>,
-                          blockquote: ({children}) => <blockquote className="mb-2 border-l-4 border-slate-300 pl-4 italic text-slate-600">{children}</blockquote>
+                          blockquote: ({children}) => <blockquote className="mb-2 border-l-4 border-slate-300 dark:border-slate-700 pl-4 italic text-slate-600 dark:text-slate-400">{children}</blockquote>
                         }}
                       >
                         {detailedInfo[index]}
@@ -255,9 +308,9 @@ const HolidayModal = ({ date, holidays, onClose }) => {
         </div>
 
         {/* Modal Footer */}
-        <div className="sticky bottom-0 border-t border-slate-200/80 bg-slate-50/85 p-4 backdrop-blur-xl">
+        <div className="sticky bottom-0 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/85 dark:bg-slate-900/90 p-4 backdrop-blur-xl">
           <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
-            <div className="text-center text-sm text-slate-500 sm:text-left">
+            <div className="text-center text-sm text-slate-500 dark:text-slate-400 sm:text-left">
               {t(holidays.length === 1 ? 'holidayModal.holidayCount' : 'holidayModal.holidayCountPlural', { count: holidays.length })}
             </div>
             <button

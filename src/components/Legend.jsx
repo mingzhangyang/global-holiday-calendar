@@ -37,12 +37,12 @@ const Legend = () => {
         aria-expanded={isExpanded}
       >
         <div className="flex items-center space-x-2">
-          <Info size={20} className="text-slate-600" />
-          <h3 className="text-base font-semibold text-slate-900 sm:text-lg">
+          <Info size={20} className="text-slate-600 dark:text-slate-400" />
+          <h3 className="text-base font-semibold text-slate-900 dark:text-white sm:text-lg">
             {t('legend.title')}
           </h3>
         </div>
-        <div className="flex items-center justify-center rounded-full bg-slate-100 p-1.5 text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-colors">
+        <div className="flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 p-1.5 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
           {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
         </div>
       </button>
@@ -50,30 +50,30 @@ const Legend = () => {
       {isExpanded && (
         <div className="px-4 pb-4 sm:px-5 sm:pb-5">
           <div className="space-y-2 text-sm">
-            <div className="flex items-center space-x-3 rounded-2xl bg-slate-50 px-3 py-2">
-              <div className="h-3 w-3 rounded-full" style={{backgroundColor: '#14b8a6'}} />
-              <span className="text-slate-700">{t('legend.nationalHoliday')}</span>
+            <div className="flex items-center space-x-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 px-3 py-2">
+              <div className="h-3 w-3 rounded-full shrink-0" style={{backgroundColor: '#14b8a6'}} />
+              <span className="text-slate-700 dark:text-slate-200">{t('legend.nationalHoliday')}</span>
             </div>
-            <div className="flex items-center space-x-3 rounded-2xl bg-slate-50 px-3 py-2">
-              <div className="h-3 w-3 rounded-full bg-cyan-500" />
-              <span className="text-slate-700">{t('legend.culturalFestival')}</span>
+            <div className="flex items-center space-x-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 px-3 py-2">
+              <div className="h-3 w-3 rounded-full bg-cyan-500 shrink-0" />
+              <span className="text-slate-700 dark:text-slate-200">{t('legend.culturalFestival')}</span>
             </div>
-            <div className="flex items-center space-x-3 rounded-2xl bg-slate-50 px-3 py-2">
-              <div className="h-3 w-3 rounded-full" style={{backgroundColor: 'rgb(243, 74, 217)'}} />
-              <span className="text-slate-700">{t('legend.religiousObservance')}</span>
+            <div className="flex items-center space-x-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 px-3 py-2">
+              <div className="h-3 w-3 rounded-full shrink-0" style={{backgroundColor: 'rgb(243, 74, 217)'}} />
+              <span className="text-slate-700 dark:text-slate-200">{t('legend.religiousObservance')}</span>
             </div>
-            <div className="flex items-center space-x-3 rounded-2xl bg-slate-50 px-3 py-2">
-              <div className="h-3 w-3 rounded-full bg-orange-500" />
-              <span className="text-slate-700">{t('legend.traditionalCelebration')}</span>
+            <div className="flex items-center space-x-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 px-3 py-2">
+              <div className="h-3 w-3 rounded-full bg-orange-500 shrink-0" />
+              <span className="text-slate-700 dark:text-slate-200">{t('legend.traditionalCelebration')}</span>
             </div>
-            <div className="flex items-center space-x-3 rounded-2xl bg-slate-50 px-3 py-2">
-              <div className="h-3 w-3 rounded-full bg-fuchsia-500" />
-              <span className="text-slate-700">{t('legend.internationalDay')}</span>
+            <div className="flex items-center space-x-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 px-3 py-2">
+              <div className="h-3 w-3 rounded-full bg-fuchsia-500 shrink-0" />
+              <span className="text-slate-700 dark:text-slate-200">{t('legend.internationalDay')}</span>
             </div>
           </div>
 
           <div className="soft-divider mt-4 border-t pt-3">
-            <p className="text-xs leading-6 text-slate-500">
+            <p className="text-xs leading-6 text-slate-500 dark:text-slate-400">
               {t('legend.note')}
             </p>
           </div>

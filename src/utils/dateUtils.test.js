@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { toDateKey, parseDateKey, toMonthPrefix } from './dateUtils';
+import { getDateOnlyDayNumber, toDateKey, parseDateKey, toMonthPrefix } from './dateUtils';
 
 // These tests run with TZ=Pacific/Kiritimati (UTC+14) and TZ=Pacific/Niue
 // (UTC-11) in CI via the test script, the two extremes where the old
@@ -56,5 +56,19 @@ describe('toMonthPrefix', () => {
     expect('2026-02-28'.startsWith(prefix)).toBe(true);
     expect('2026-12-02'.startsWith(prefix)).toBe(false);
     expect('2025-02-01'.startsWith(prefix)).toBe(false);
+  });
+});
+
+describe('getDateOnlyDayNumber', () => {
+  it('calculates calendar-day differences without local-time or DST effects', () => {
+    const before = getDateOnlyDayNumber('2026-03-08');
+    const after = getDateOnlyDayNumber('2026-03-09');
+
+    expect(after - before).toBe(1);
+  });
+
+  it('ignores any time component after the calendar date', () => {
+    expect(getDateOnlyDayNumber('2026-06-21T08:24:00+08:00'))
+      .toBe(getDateOnlyDayNumber('2026-06-21'));
   });
 });

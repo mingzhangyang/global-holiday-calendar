@@ -34,14 +34,21 @@ Object.entries(LANGUAGE_TO_REGION).forEach(([lang, regions]) => {
 
 // 获取用户的首选语言
 export function getUserLanguage() {
-  // 首先检查localStorage中保存的语言设置
-  const savedLanguage = localStorage.getItem('preferred-language');
-  if (savedLanguage && SUPPORTED_LANGUAGES[savedLanguage]) {
-    return savedLanguage;
+  if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+    try {
+      const savedLanguage = localStorage.getItem('preferred-language');
+      if (savedLanguage && SUPPORTED_LANGUAGES[savedLanguage]) {
+        return savedLanguage;
+      }
+    } catch (e) {
+      console.warn('Error reading preferred-language from localStorage:', e);
+    }
   }
 
   // 获取浏览器语言
-  const browserLanguage = navigator.language || navigator.languages?.[0] || 'en';
+  const browserLanguage = typeof navigator !== 'undefined'
+    ? (navigator.language || navigator.languages?.[0] || 'en')
+    : 'en';
   
   // 尝试精确匹配
   if (SUPPORTED_LANGUAGES[browserLanguage]) {
@@ -72,11 +79,18 @@ export function getLanguageFromRegion(countryCode) {
 
 // 设置用户语言
 export function setUserLanguage(language) {
-  if (SUPPORTED_LANGUAGES[language]) {
-    localStorage.setItem('preferred-language', language);
-    return true;
+  if (!SUPPORTED_LANGUAGES[language]) {
+    return false;
   }
-  return false;
+
+  if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+    try {
+      localStorage.setItem('preferred-language', language);
+    } catch (e) {
+      console.warn('Error saving preferred-language to localStorage:', e);
+    }
+  }
+  return true;
 }
 
 // 获取当前语言

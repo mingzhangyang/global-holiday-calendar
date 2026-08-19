@@ -1,17 +1,23 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, lazy, Suspense } from 'react';
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { getHolidaysForMonth } from '../services/holidayApi';
-import HolidayModal from './HolidayModal';
 import { useTranslation } from '../hooks/useI18n';
 import { getLocaleFromLanguage } from '../services/i18nService';
 import { toDateKey } from '../utils/dateUtils';
+import { matchesCategory } from '../utils/categoryUtils';
+import MonthYearPicker from './MonthYearPicker';
+import DayHoverPopover from './DayHoverPopover';
 
-const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateClick }) => {
+const HolidayModal = lazy(() => import('./HolidayModal'));
+
+const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, selectedCategory = 'all', onDateClick }) => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [monthHolidays, setMonthHolidays] = useState({});
   const [loading, setLoading] = useState(false);
   const [showLoadingState, setShowLoadingState] = useState(false);
+  const [hoveredDay, setHoveredDay] = useState(null);
+  const [hoverRect, setHoverRect] = useState(null);
   const { t, language } = useTranslation();
   const touchStartRef = useRef({ x: 0, y: 0 });
 
@@ -75,7 +81,8 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
 
     // Helper function to get holidays for a date from monthHolidays
     const getHolidaysForDateFromCache = (date) => {
-      return monthHolidays[toDateKey(date)] || [];
+      const allForDay = monthHolidays[toDateKey(date)] || [];
+      return allForDay.filter(h => matchesCategory(h, selectedCategory));
     };
 
     // Add previous month's trailing days
@@ -119,7 +126,7 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
     }
 
     return days;
-  }, [currentYear, currentMonth, monthHolidays, todayKey]);
+  }, [currentYear, currentMonth, monthHolidays, selectedCategory, todayKey]);
 
   const navigateMonth = (direction) => {
     onCurrentDateChange(prev => {
@@ -163,7 +170,6 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
     }
   };
 
-  const monthNames = t('calendar.months');
   const dayNames = t('calendar.weekdays');
   const mobileDayNames = dayNames.map(day => day.slice(0, 2));
   const hasMonthData = Object.keys(monthHolidays).length > 0;
@@ -203,16 +209,20 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
           </button>
 
           <div className="text-center min-w-0 flex-1 px-1">
-            <h2 className="text-lg sm:text-2xl font-bold truncate">
-              {monthNames[currentMonth]} {currentYear}
-            </h2>
-            <button
-              type="button"
-              onClick={navigateToToday}
-              className="mt-1 inline-flex items-center justify-center rounded-full border border-teal-500 bg-teal-700/50 px-3 py-1 text-xs sm:text-sm hover:bg-orange-500 hover:border-orange-500 transition-colors"
-            >
-              {t('calendar.today')}
-            </button>
+            <MonthYearPicker
+              currentDate={currentDate}
+              onDateChange={onCurrentDateChange}
+              align="center"
+            />
+            <div>
+              <button
+                type="button"
+                onClick={navigateToToday}
+                className="mt-0.5 inline-flex items-center justify-center rounded-full border border-teal-500 bg-teal-700/50 px-3 py-0.5 text-xs sm:text-sm hover:bg-orange-500 hover:border-orange-500 transition-colors"
+              >
+                {t('calendar.today')}
+              </button>
+            </div>
           </div>
 
           <button
@@ -236,7 +246,7 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
             </div>
           )}
         </div>
-        
+
         {/* Day headers */}
         <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
           {dayNames.map((day, index) => (
@@ -249,11 +259,11 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
       </div>
 
       {/* Calendar Grid */}
-      <div className="relative bg-white/40 p-1.5 sm:p-3">
+      <div className="relative bg-white/40 dark:bg-slate-900/40 p-1.5 sm:p-3">
         {loading && showLoadingState && !hasMonthData ? (
           <div className="grid grid-cols-7 gap-1 sm:gap-1.5 animate-fade-in-up" aria-hidden="true">
             {Array.from({ length: 42 }).map((_, index) => (
-              <div key={index} className="min-h-[3.85rem] sm:min-h-[5.5rem] lg:min-h-[6.5rem] rounded-lg sm:rounded-xl border border-slate-200/80 bg-white/70 p-1.5 sm:p-2">
+              <div key={index} className="min-h-[3.85rem] sm:min-h-[5.5rem] lg:min-h-[6.5rem] rounded-lg sm:rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 p-1.5 sm:p-2">
                 <div className="skeleton-shimmer h-3 w-5 rounded-full mb-2" />
                 <div className="hidden sm:block skeleton-shimmer h-2.5 w-full rounded-full mb-1.5" />
                 <div className="hidden sm:block skeleton-shimmer h-2.5 w-2/3 rounded-full" />
@@ -271,17 +281,27 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
                 type="button"
                 key={index}
                 onClick={() => handleDateClick(dayInfo)}
+                onMouseEnter={(e) => {
+                  if (hasHolidays && dayInfo.isCurrentMonth && window.innerWidth >= 640) {
+                    setHoveredDay(dayInfo);
+                    setHoverRect(e.currentTarget.getBoundingClientRect());
+                  }
+                }}
+                onMouseLeave={() => {
+                  setHoveredDay(null);
+                  setHoverRect(null);
+                }}
                 disabled={!isInteractive}
                 className={`
                   relative flex min-h-[3.85rem] sm:min-h-[5.5rem] lg:min-h-[6.5rem] flex-col overflow-hidden rounded-lg sm:rounded-xl border px-1 py-1.5 sm:p-2 transition-all duration-200 text-left
                   ${
                     dayInfo.isToday
-                      ? 'bg-teal-500 border-teal-500 text-white shadow-md'
+                      ? 'bg-teal-600 border-teal-600 text-white shadow-md ring-2 ring-teal-400/40'
                       : hasHolidays && dayInfo.isCurrentMonth
-                      ? 'bg-cyan-50 border-cyan-200 shadow-sm'
+                      ? 'bg-cyan-50/80 dark:bg-cyan-950/40 border-cyan-200/90 dark:border-cyan-800/60 shadow-sm'
                       : dayInfo.isCurrentMonth
-                      ? 'bg-white border-slate-200 hover:bg-slate-50'
-                      : 'bg-slate-100/80 border-slate-200/70'
+                      ? 'bg-white/90 dark:bg-slate-900/60 border-slate-200/80 dark:border-slate-800/80 hover:bg-slate-50/90 dark:hover:bg-slate-800/60'
+                      : 'bg-slate-50/40 dark:bg-slate-950/30 border-slate-200/40 dark:border-slate-800/40 opacity-40'
                   }
                   ${
                     isInteractive
@@ -295,14 +315,14 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
                 <div className="mb-1 flex w-full items-start justify-between gap-1 sm:mb-1.5">
                   <span className={`inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-xs sm:text-sm font-semibold ${
                     dayInfo.isToday
-                      ? 'bg-white/15 text-white'
-                      : dayInfo.isCurrentMonth 
-                      ? 'text-slate-900' 
-                      : 'text-slate-400'
+                      ? 'bg-white/20 text-white font-bold'
+                      : dayInfo.isCurrentMonth
+                      ? 'text-slate-900 dark:text-slate-100'
+                      : 'text-slate-400 dark:text-slate-600'
                   }`}>
                     {dayInfo.day}
                   </span>
-                  
+
                   {/* Holiday indicators */}
                   {hasHolidays && (
                     <div className="flex items-center gap-1 self-start">
@@ -316,7 +336,7 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
                           />
                         ))}
                         {dayInfo.holidays.length > 3 && (
-                          <div className="text-[11px] font-semibold text-slate-600">
+                          <div className="text-[11px] font-semibold text-slate-600 dark:text-slate-300">
                             +{dayInfo.holidays.length - 3}
                           </div>
                         )}
@@ -324,7 +344,7 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
                     </div>
                   )}
                 </div>
-                
+
                 {/* Holiday names */}
                 {hasHolidays && dayInfo.isCurrentMonth && (
                   <div className="flex flex-1 flex-col justify-end overflow-hidden">
@@ -340,12 +360,11 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
                     {dayInfo.holidays.slice(0, 2).map((holiday, holidayIndex) => (
                       <div
                         key={holidayIndex}
-                        className={`hidden truncate text-[11px] leading-4 sm:block ${
+                        className={`hidden truncate text-[11px] leading-4 sm:block font-medium ${
                           dayInfo.isToday
-                            ? ''
-                            : 'text-slate-700'
+                            ? 'text-teal-100'
+                            : 'text-slate-700 dark:text-slate-200'
                         }`}
-                        style={dayInfo.isToday ? {color: '#ccfbf1'} : {}}
                         title={holiday.name}
                       >
                         {holiday.name}
@@ -354,10 +373,9 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
                     {dayInfo.holidays.length > 2 && (
                       <div className={`hidden pt-0.5 text-[11px] font-semibold sm:block ${
                         dayInfo.isToday
-                          ? ''
-                          : 'text-slate-500'
-                      }`}
-                      style={dayInfo.isToday ? {color: '#99f6e4'} : {}}>
+                          ? 'text-teal-200'
+                          : 'text-slate-500 dark:text-slate-400'
+                      }`}>
                         {t('common.moreCount', { count: dayInfo.holidays.length - 2 })}
                       </div>
                     )}
@@ -371,7 +389,7 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
 
         {loading && showLoadingState && hasMonthData && (
           <div className="pointer-events-none absolute inset-x-0 top-2 flex justify-center sm:hidden">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/95 px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm ring-1 ring-slate-200/80">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/95 dark:bg-slate-800/95 px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-200 shadow-sm ring-1 ring-slate-200/80 dark:ring-slate-700">
               <span className="h-2 w-2 rounded-full bg-teal-400 animate-pulse" aria-hidden="true" />
               <span>{t('calendar.loading')}</span>
             </div>
@@ -379,13 +397,24 @@ const Calendar = ({ currentDate, onCurrentDateChange, selectedCountries, onDateC
         )}
       </div>
 
+      {/* Desktop Hover Tooltip */}
+      {hoveredDay && hoverRect && (
+        <DayHoverPopover
+          dayInfo={hoveredDay}
+          targetRect={hoverRect}
+          locale={locale}
+        />
+      )}
+
       {/* Holiday Modal */}
       {isModalOpen && selectedDate && (
-        <HolidayModal
-          date={selectedDate.date}
-          holidays={selectedDate.holidays}
-          onClose={() => setIsModalOpen(false)}
-        />
+        <Suspense fallback={null}>
+          <HolidayModal
+            date={selectedDate.date}
+            holidays={selectedDate.holidays}
+            onClose={() => setIsModalOpen(false)}
+          />
+        </Suspense>
       )}
     </div>
   );

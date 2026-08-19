@@ -75,7 +75,8 @@ const CountryFilter = ({ selectedCountries, onCountriesChange, isLoadingLocation
 
   const selectedCount = selectedCountries.length;
   const totalCount = allCountries.length;
-  const isAllSelected = selectedCount === 0; // Empty array means all countries
+  const isAllSelected = selectedCount === totalCount;
+  const hasNoSelection = selectedCount === 0;
 
   return (
     <div className="surface-card overflow-hidden rounded-[24px]">
@@ -102,7 +103,7 @@ const CountryFilter = ({ selectedCountries, onCountriesChange, isLoadingLocation
               <div className="animate-spin rounded-full h-3 w-3 border border-white border-t-transparent" />
               <span>{t('countryFilter.detectingLocation')}</span>
             </span>
-          ) : locationDetected && selectedCount > 0 ? (
+          ) : locationDetected && selectedCount > 0 && !isAllSelected ? (
             <span className="flex items-center space-x-1">
               <MapPin size={16} />
               <span>{t('countryFilter.locationBased', { count: selectedCount })}</span>
@@ -136,7 +137,7 @@ const CountryFilter = ({ selectedCountries, onCountriesChange, isLoadingLocation
               <button
                 type="button"
                 onClick={handleClearAll}
-                className="focus-ring rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                className="focus-ring rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700"
               >
                 {t('countryFilter.clearSelection')}
               </button>
@@ -145,7 +146,7 @@ const CountryFilter = ({ selectedCountries, onCountriesChange, isLoadingLocation
               <button
                 type="button"
                 onClick={() => window.location.reload()}
-                className="focus-ring flex items-center justify-center space-x-1 rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-100"
+                className="focus-ring flex items-center justify-center space-x-1 rounded-2xl border border-emerald-200 dark:border-emerald-800/70 bg-emerald-50 dark:bg-emerald-950/40 px-3 py-2 text-sm font-medium text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/50"
                 title={t('countryFilter.smartRecommendTooltip')}
               >
                 <MapPin size={12} />
@@ -157,7 +158,7 @@ const CountryFilter = ({ selectedCountries, onCountriesChange, isLoadingLocation
           {/* Country List */}
           <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
             {allCountries.map(country => {
-              const isSelected = selectedCountries.includes(country) || isAllSelected;
+              const isSelected = selectedCountries.includes(country);
               
               return (
                 <button
@@ -167,15 +168,15 @@ const CountryFilter = ({ selectedCountries, onCountriesChange, isLoadingLocation
                   className={`
                     focus-ring w-full flex items-center space-x-3 rounded-2xl border p-3 text-left transition-all duration-200
                     ${
-                      isSelected && !isAllSelected
-                        ? 'border-teal-200 bg-teal-50/80 text-teal-900 shadow-sm'
-              : 'border-transparent bg-white/65 text-slate-700 hover:border-slate-200 hover:bg-white'
+                      isSelected
+                        ? 'border-teal-200 dark:border-teal-800/70 bg-teal-50/80 dark:bg-teal-950/50 text-teal-900 dark:text-teal-200 shadow-sm'
+                        : 'border-transparent bg-white/65 dark:bg-slate-800/50 text-slate-700 dark:text-slate-200 hover:border-slate-200 dark:hover:border-slate-700 hover:bg-white dark:hover:bg-slate-800'
                     }
                   `}
                 >
                   <span className="text-lg">{getCountryFlag(country)}</span>
                   <span className="font-medium flex-1">{country}</span>
-                  {isSelected && !isAllSelected && (
+                  {isSelected && (
                     <div className="h-2.5 w-2.5 rounded-full bg-teal-500 shadow-[0_0_0_4px_rgba(20,184,166,0.15)]" />
                   )}
                 </button>
@@ -194,6 +195,10 @@ const CountryFilter = ({ selectedCountries, onCountriesChange, isLoadingLocation
                 <Globe size={14} />
                 <span>{t('countryFilter.allCountries')}</span>
               </div>
+            ) : hasNoSelection ? (
+              <div className="rounded-full border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 px-3 py-1.5 text-sm text-slate-500 dark:text-slate-400">
+                <span>{t('countryFilter.selectedCount', { count: 0, total: totalCount })}</span>
+              </div>
             ) : (
               selectedCountries.slice(0, 3).map(country => (
                 <div
@@ -206,7 +211,7 @@ const CountryFilter = ({ selectedCountries, onCountriesChange, isLoadingLocation
               ))
             )}
             {selectedCount > 3 && (
-              <div className="rounded-full bg-slate-100 px-2.5 py-1.5 text-sm text-slate-600">
+              <div className="rounded-full bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 text-sm text-slate-600 dark:text-slate-300">
                 {t('countryFilter.moreCountries', { count: selectedCount - 3 })}
               </div>
             )}

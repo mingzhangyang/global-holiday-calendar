@@ -1,16 +1,28 @@
 // Holiday info (AI) handler
-// Provider priority: Gemini (gemini-2.5-flash) → BigModel (glm-4-flash)
+// Provider priority: Gemini (gemini-3.5-flash-lite) → BigModel (glm-4.7-flash).
+// Override either model with the corresponding Worker environment variable
+// when a provider changes its model catalog.
+
+const DEFAULT_GEMINI_MODEL = 'gemini-3.5-flash-lite';
+const DEFAULT_ZHIPU_MODEL = 'glm-4.7-flash';
 
 // ── Gemini ────────────────────────────────────────────────────────────────────
 
-async function callGemini(apiKey, prompt) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+async function callGemini(apiKey, prompt, model = DEFAULT_GEMINI_MODEL) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${apiKey}`;
+  const normalizedModel = model.toLowerCase();
+  const generationConfig = normalizedModel.startsWith('gemini-3.7')
+    ? { thinkingConfig: { thinkingLevel: 'low' } }
+    : normalizedModel.startsWith('gemini-3.')
+    ? { thinkingConfig: { thinkingLevel: 'minimal' } }
+    : { thinkingConfig: { thinkingBudget: 0 } };
 
   const response = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       contents: [{ parts: [{ text: prompt }] }],
+      generationConfig,
     }),
   });
 
@@ -29,10 +41,18 @@ async function callGemini(apiKey, prompt) {
 
 function base64url(source) {
   let encodedSource = btoa(source);
+  return normalizeBase64Url(encodedSource);
+}
+
+function normalizeBase64Url(encodedSource) {
   encodedSource = encodedSource.replace(/=+$/, '');
   encodedSource = encodedSource.replace(/\+/g, '-');
   encodedSource = encodedSource.replace(/\//g, '_');
   return encodedSource;
+}
+
+function base64urlBytes(source) {
+  return normalizeBase64Url(btoa(String.fromCharCode(...source)));
 }
 
 async function generateZhipuToken(apiKey, expMilliseconds = 300000) {
@@ -58,13 +78,23 @@ async function generateZhipuToken(apiKey, expMilliseconds = 300000) {
   );
 
   const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(signatureData));
-  const encodedSignature = btoa(String.fromCharCode(...new Uint8Array(signature)));
+  const encodedSignature = base64urlBytes(new Uint8Array(signature));
 
   return `${encodedHeader}.${encodedPayload}.${encodedSignature}`;
 }
 
-async function callZhipu(apiKey, prompt) {
+async function callZhipu(apiKey, prompt, model = DEFAULT_ZHIPU_MODEL) {
   const authToken = await generateZhipuToken(apiKey);
+
+  const requestBody = {
+    model,
+    messages: [{ role: 'user', content: prompt }],
+    stream: false,
+  };
+
+  if (/^glm-(?:4\.7|4\.6|4\.5|5(?:\.|-))/.test(model)) {
+    requestBody.thinking = { type: 'disabled' };
+  }
 
   const response = await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
     method: 'POST',
@@ -72,11 +102,7 @@ async function callZhipu(apiKey, prompt) {
       'Authorization': `Bearer ${authToken}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      model: 'glm-4-flash',
-      messages: [{ role: 'user', content: prompt }],
-      stream: false,
-    }),
+    body: JSON.stringify(requestBody),
   });
 
   if (!response.ok) {
@@ -115,14 +141,20 @@ function buildPrompt(holiday, country, language) {
   return `
     ${languageInstruction}
 
-    Please provide a comprehensive background on the holiday "${holiday}" as it is understood and celebrated in "${country}".
-    Structure your response clearly, covering the following aspects:
-    1.  **Historical Background**: Explain the origins of the holiday. What key events or figures are associated with it?
-    2.  **Cultural Significance**: What does this holiday represent to the people of ${country}? What are its core values and themes?
-    3.  **Social Practices**: Describe common traditions, rituals, foods, and activities associated with the celebration.
-    4.  **Political/Societal Context**: Are there any political or broader societal implications or discussions related to this holiday in ${country}? (If not significant, you can state that).
+    You are an authoritative cultural anthropologist and historian. Provide a strictly factual, culturally authentic, and well-researched background on the holiday "${holiday}" as understood and celebrated in "${country}".
 
-    Provide a well-written, informative, and neutral analysis.
+    Academic & Factuality Guidelines:
+    - Base your response on verified historical records, statutory legislation, and authentic anthropological traditions.
+    - Clearly distinguish between documented historical facts, religious theology, and popular folklore/legends.
+    - If there are regional variations within ${country}, highlight them accurately.
+    - Maintain cultural neutrality and academic objectivity.
+    - Do NOT fabricate or hallucinate customs, dates, or historical figures.
+
+    Structure your response clearly using Markdown:
+    1. **Historical Origin & Statutory Status**: Documented origins, historical milestones, relevant statutory laws, or religious roots.
+    2. **Cultural & Spiritual Significance**: Core values, symbolism, and cultural meaning for the people of ${country}.
+    3. **Authentic Customs & Traditional Observances**: Genuine rituals, communal activities, traditional foods, and festivities.
+    4. **Modern Observance**: How modern society observes this day (e.g., whether public offices/schools close, public parades, family gatherings).
   `;
 }
 
@@ -208,7 +240,11 @@ export async function handleHolidayInfo(request, env, ctx) {
   // 1. Try Gemini first
   if (env.GEMINI_API_KEY) {
     try {
-      content = await callGemini(env.GEMINI_API_KEY, prompt);
+      content = await callGemini(
+        env.GEMINI_API_KEY,
+        prompt,
+        env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL
+      );
       console.log('Gemini succeeded.');
     } catch (err) {
       lastError = err;
@@ -219,7 +255,11 @@ export async function handleHolidayInfo(request, env, ctx) {
   // 2. Fall back to Zhipu BigModel
   if (!content && env.ZHIPU_API_KEY) {
     try {
-      content = await callZhipu(env.ZHIPU_API_KEY, prompt);
+      content = await callZhipu(
+        env.ZHIPU_API_KEY,
+        prompt,
+        env.ZHIPU_MODEL || DEFAULT_ZHIPU_MODEL
+      );
       console.log('Zhipu fallback succeeded.');
     } catch (err) {
       lastError = err;

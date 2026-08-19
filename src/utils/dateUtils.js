@@ -26,6 +26,18 @@ export function parseDateKey(dateKey) {
 }
 
 /**
+ * Convert a date-only key into a UTC day number.
+ *
+ * Using UTC here keeps date differences at exactly one day across local DST
+ * transitions; the value represents a calendar day, not an instant in time.
+ */
+export function getDateOnlyDayNumber(dateKey) {
+  const datePart = String(dateKey).split('T')[0];
+  const [year, month, day] = datePart.split('-').map(Number);
+  return Date.UTC(year, month - 1, day) / (24 * 60 * 60 * 1000);
+}
+
+/**
  * Build the YYYY-MM- prefix for a given year and zero-based month,
  * for matching date keys against a month without parsing them.
  */

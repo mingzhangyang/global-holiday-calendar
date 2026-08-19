@@ -14,7 +14,7 @@ const LanguageSelector = ({ fullWidth = false }) => {
     toggleSelector,
     closeSelector
   } = useLanguageSelector();
-  
+
   const { t } = useTranslation();
   const dropdownRef = useRef(null);
 
@@ -66,11 +66,11 @@ const LanguageSelector = ({ fullWidth = false }) => {
         <span className={`${fullWidth ? 'inline text-sm flex-1 text-left' : 'hidden sm:inline text-sm'}`}>
           {getLanguageDisplayName(currentLanguage)}
         </span>
-        <ChevronDown 
-          size={16} 
+        <ChevronDown
+          size={16}
           className={`transition-transform duration-200 ${
             isOpen ? 'rotate-180' : ''
-          }`} 
+          }`}
         />
         {isLoading && (
           <div className="animate-spin rounded-full h-4 w-4 border border-white border-t-transparent" />
@@ -79,11 +79,11 @@ const LanguageSelector = ({ fullWidth = false }) => {
 
       {/* 下拉菜单 */}
       {isOpen && (
-        <div className={`surface-card-strong absolute top-full mt-2 overflow-hidden rounded-2xl py-2 z-[9999] ${fullWidth ? 'left-0 right-0 w-full' : 'right-0 w-56'}`}>
-          <div className="border-b border-slate-200/80 px-3 py-2 text-xs font-medium uppercase tracking-[0.16em] text-slate-500">
+        <div className={`surface-card-strong absolute top-full mt-2 overflow-hidden rounded-2xl py-2 z-[9999] shadow-2xl ${fullWidth ? 'left-0 right-0 w-full' : 'right-0 w-56'}`}>
+          <div className="border-b border-slate-200/80 dark:border-slate-800 px-3 py-2 text-xs font-medium uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
             {t('language.change')}
           </div>
-          
+
           <div className="max-h-64 overflow-y-auto" role="listbox">
             {supportedLanguages.map(({ code, name }) => (
               <button
@@ -91,8 +91,9 @@ const LanguageSelector = ({ fullWidth = false }) => {
                 key={code}
                 onClick={() => handleLanguageSelect(code)}
                 className={`w-full flex items-center justify-between px-3 py-2.5 text-sm transition-colors duration-150 ${
-                  currentLanguage === code 
-                    ? 'bg-teal-50/80 text-teal-700' : 'text-slate-700 hover:bg-slate-50'
+                  currentLanguage === code
+                    ? 'bg-teal-50/90 text-teal-800 dark:bg-teal-950/60 dark:text-teal-200 font-semibold'
+                    : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/80'
                 }`}
                 role="option"
                 aria-selected={currentLanguage === code}
@@ -100,20 +101,20 @@ const LanguageSelector = ({ fullWidth = false }) => {
                 <span className="flex items-center space-x-2">
                   <span>{name}</span>
                   {code.includes('-') && (
-                    <span className="text-xs text-gray-400 uppercase">
+                    <span className="text-xs text-slate-400 dark:text-slate-500 uppercase">
                       {code.split('-')[1]}
                     </span>
                   )}
                 </span>
-                
+
                 {currentLanguage === code && (
-                  <Check size={16} className="text-teal-600" />
+                  <Check size={16} className="text-teal-600 dark:text-teal-400" />
                 )}
               </button>
             ))}
           </div>
-          
-          <div className="mt-2 border-t border-slate-200/80 px-3 py-2 text-xs text-slate-400">
+
+          <div className="mt-2 border-t border-slate-200/80 dark:border-slate-800 px-3 py-2 text-xs text-slate-400 dark:text-slate-500">
             {t('language.current', { language: getLanguageDisplayName(currentLanguage) })}
           </div>
         </div>

@@ -54,85 +54,113 @@ An interactive React.js application that showcases cultural celebrations and hol
    npm install
    ```
 
-3. **Configure API Workers**
+3. **Configure Worker Secrets & API Keys (Optional)**
    
-   This application uses Cloudflare Workers to fetch real holiday data. You need to deploy the workers and configure the URLs:
-   
-   a. **Deploy the Cloudflare Workers:**
-   - Deploy `src/workers/holidays.js` as a Cloudflare Worker
-   - Deploy `src/workers/holiday-info.js` as a Cloudflare Worker
-   - Make sure both workers are publicly accessible
-   
-   b. **Configure environment variables:**
+   The application uses a unified Cloudflare Worker architecture (`worker/index.js`) serving both the static frontend and `/api/*` endpoints.
+
+   Configure any desired upstream AI or data API keys as Worker secrets:
    ```bash
-   # Copy the example environment file
-   cp .env.example .env
-   
-   # Edit .env and replace with your actual worker URLs
-   REACT_APP_HOLIDAYS_WORKER_URL=https://your-holidays-worker.your-subdomain.workers.dev
-   REACT_APP_HOLIDAY_INFO_WORKER_URL=https://your-holiday-info-worker.your-subdomain.workers.dev
+   # Set primary AI provider secret (Google Gemini 3.5 Flash-Lite)
+   npx wrangler secret put GEMINI_API_KEY
+
+   # Set fallback AI provider secret (Zhipu BigModel GLM-4.7-Flash, format: id.secret)
+   npx wrangler secret put ZHIPU_API_KEY
+
+   # (Optional) Set Calendarific API key for extended holiday data
+   npx wrangler secret put CALENDARIFIC_API_KEY
    ```
 
 4. **Start the development server**
    ```bash
    npm run dev
    ```
+   To run both Vite and the local Cloudflare Worker backend concurrently:
+   ```bash
+   npm run dev:worker
+   ```
 
-4. **Open your browser**
-   Navigate to `http://localhost:5173` to view the application
+5. **Open your browser**
+   Navigate to `http://localhost:5173` to view the application.
 
-### Build for Production
+### Build & Deploy
 
 ```bash
+# Build static assets for production
 npm run build
+
+# Deploy full-stack application (frontend assets + worker) to Cloudflare
+npm run deploy
 ```
 
-The built files will be in the `dist` directory.
+The built files will be in the `dist` directory and deployed alongside the worker.
 
 ## 🛠️ Technology Stack
 
 ### Frontend Framework
 - **React 19.1.0** - Modern React with hooks for state management
-- **Vite** - Fast build tool and development server
-- **JavaScript (ES6+)** - Modern JavaScript features
+- **Vite 7** - Fast build tool, dev server, and asset pipeline
+- **JavaScript (ES6+)** - Modern ES Modules
 
 ### Styling & UI
-- **Tailwind CSS 4.1.11** - Utility-first CSS framework
-- **Lucide React** - Beautiful, customizable icons
-- **Custom CSS animations** - Smooth transitions and interactions
-- **Responsive design** - Mobile-first approach
+- **Tailwind CSS 4.1.11** - Utility-first modern CSS framework
+- **Lucide React** - Modern, customizable icons
+- **Custom CSS animations** - Glassmorphism, shimmers, and micro-interactions
+- **Responsive design** - Mobile-first approach with touch swipe support
+
+### Edge & Serverless Backend
+- **Cloudflare Workers** - Serverless runtime hosting both static assets and API routes
+- **Gemini 3.5 Flash-Lite & Zhipu GLM-4.7-Flash** - Dual-AI pipeline for detailed holiday backgrounds
+- **Cloudflare Cache API** - Edge caching for upstream holiday and AI queries
 
 ### Development Tools
+- **Vitest** - Unit and timezone regression testing
 - **ESLint** - Code linting and quality assurance
-- **PostCSS** - CSS processing and optimization
-- **Autoprefixer** - Automatic vendor prefixing
+- **Wrangler** - Cloudflare developer platform CLI
 
 ## 📁 Project Structure
 
 ```
 global-holiday-calendar/
-├── public/
-│   └── vite.svg
+├── public/                       # Static public assets, icons, manifest, sitemap
+│   ├── logo.svg
+│   ├── logo.png
+│   ├── site.webmanifest
+│   └── sitemap.xml
 ├── src/
 │   ├── components/
-│   │   ├── Calendar.jsx          # Main calendar component
-│   │   ├── CountryFilter.jsx     # Country filtering system
-│   │   └── HolidayModal.jsx      # Holiday detail modal
+│   │   ├── AboutModal.jsx        # About and FAQ modal dialog
+│   │   ├── Calendar.jsx          # Main 6-week interactive calendar grid
+│   │   ├── CountryFilter.jsx     # Country selection & filter sidebar
+│   │   ├── HolidayListView.jsx   # Chronological list view
+│   │   ├── HolidayModal.jsx      # Detailed holiday modal with AI background
+│   │   ├── LanguageSelector.jsx  # Multi-language selector dropdown
+│   │   ├── Legend.jsx            # Color legend for holiday categories
+│   │   └── Logo.jsx              # Responsive brand logo component
+│   ├── hooks/
+│   │   ├── useAppInitialization.js # Geolocation & language auto-detection
+│   │   ├── useI18n.js            # Internationalization hook & state
+│   │   ├── useSeo.js             # Dynamic SEO metadata & JSON-LD injection
+│   │   ├── useUrlStateSync.js    # Bidirectional URL search param synchronization
+│   │   └── useViewState.js       # View mode & month state management
+│   ├── locales/
+│   │   └── translations.js       # Dictionaries for 8 supported languages
 │   ├── services/
-│   │   └── holidayApi.js         # API service for Cloudflare Workers
-│   ├── workers/
-│   │   ├── holidays.js           # Cloudflare Worker for holiday data
-│   │   └── holiday-info.js       # Cloudflare Worker for AI-powered details
-│   ├── data/
-│   │   └── holidays.js           # Legacy holiday database (deprecated)
-│   ├── App.jsx                   # Main application component
+│   │   ├── holidayApi.js         # API client & client-side localStorage caching
+│   │   ├── i18nService.js        # Locale detection & language mapping
+│   │   └── locationService.js    # IP geolocation & browser language resolver
+│   ├── utils/
+│   │   ├── dateUtils.js          # Timezone-safe calendar date formatting & parsing
+│   │   └── dateUtils.test.js     # Vitest suite for extreme timezones
+│   ├── App.jsx                   # Main application root
 │   ├── main.jsx                  # Application entry point
-│   └── index.css                 # Global styles and Tailwind
-├── index.html                    # HTML template
+│   └── index.css                 # Global Tailwind styles & design tokens
+├── worker/
+│   ├── holiday-info.js           # Cloudflare Worker for AI cultural background
+│   ├── holidays.js               # Cloudflare Worker for holiday data & observances
+│   └── index.js                  # Worker entry point routing /api/* & static assets
+├── index.html                    # HTML template with SEO meta & schema tags
 ├── package.json                  # Dependencies and scripts
-├── tailwind.config.js           # Tailwind configuration
-├── postcss.config.js            # PostCSS configuration
-├── vite.config.js               # Vite configuration
+├── wrangler.toml                 # Cloudflare Worker & Assets configuration
 └── README.md                     # Project documentation
 ```
 
@@ -212,22 +240,9 @@ The application provides comprehensive global holiday coverage:
 
 ## 🔧 Customization
 
-### Adding New Holidays
-To add new holidays, edit `src/data/holidays.js`:
-
-```javascript
-'2024-MM-DD': [
-  {
-    name: 'Holiday Name',
-    country: 'Country Name',
-    color: '#HEX_COLOR',
-    description: 'Brief description',
-    significance: 'Cultural significance',
-    customs: 'Traditional customs',
-    history: 'Historical context'
-  }
-]
-```
+### Adding Supported Countries & Observances
+- **Supported Country Codes:** Update `SUPPORTED_COUNTRIES` and `COUNTRY_NAMES` in [`src/services/holidayApi.js`](file:///home/mingzhang/github/global-holiday-calendar/src/services/holidayApi.js) and [`src/services/locationService.js`](file:///home/mingzhang/github/global-holiday-calendar/src/services/locationService.js).
+- **Custom Cultural Observances:** Add or adjust algorithmic holiday rules in [`worker/holidays.js`](file:///home/mingzhang/github/global-holiday-calendar/worker/holidays.js) (under `getCulturalObservances`).
 
 ### Styling Customization
 Modify `tailwind.config.js` to customize:

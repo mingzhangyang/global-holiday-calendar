@@ -44,7 +44,7 @@ const Logo = ({
     <div className={`flex items-center ${currentSize.container} ${className}`}>
       <div className={`flex shrink-0 items-center justify-center rounded-2xl p-2 backdrop-blur-md ${
         isLightVariant
-          ? 'border border-slate-200/80 bg-white shadow-sm'
+          ? 'border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm'
           : 'border border-white/15 bg-white/12 shadow-lg'
       }`}>
         {useImage ? (
@@ -83,13 +83,13 @@ const Logo = ({
       {showText && (
         <div className="text-center sm:text-left">
           <TitleTag 
-            className={`${currentSize.text} font-bold tracking-tight ${isLightVariant ? 'text-slate-950' : 'text-white'}`}
+            className={`${currentSize.text} font-bold tracking-tight ${isLightVariant ? 'text-slate-950 dark:text-white' : 'text-white'}`}
           >
             {t('app.title')}
           </TitleTag>
           {size === 'medium' || size === 'large' ? (
             <p 
-              className={`mt-1 text-xs md:text-sm ${isLightVariant ? 'text-slate-500' : 'text-white/70'}`}
+              className={`mt-1 text-xs md:text-sm ${isLightVariant ? 'text-slate-500 dark:text-slate-400' : 'text-white/70'}`}
             >
               {t('app.subtitle')}
             </p>
