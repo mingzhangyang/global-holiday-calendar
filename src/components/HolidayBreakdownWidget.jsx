@@ -2,50 +2,33 @@ import React, { useMemo } from 'react';
 import { PieChart, Landmark, Palette, Compass } from 'lucide-react';
 import { useTranslation } from '../hooks/useI18n';
 import { matchesCategory } from '../utils/categoryUtils';
+import { HOLIDAY_TYPE_COLORS } from '../utils/holidayColors';
 
-const HolidayBreakdownWidget = ({
-  monthHolidays = {},
-  selectedCategory = 'all',
-  onSelectCategory
-}) => {
+const SEGMENTS = [
+  { id: 'public', color: HOLIDAY_TYPE_COLORS.public, icon: Landmark, countKey: 'stats.publicCount', labelKey: 'categoryFilter.public' },
+  { id: 'cultural', color: HOLIDAY_TYPE_COLORS.cultural, icon: Palette, countKey: 'stats.culturalCount', labelKey: 'categoryFilter.cultural' },
+  { id: 'astronomical', color: HOLIDAY_TYPE_COLORS.seasonal, icon: Compass, countKey: 'stats.solarCount', labelKey: 'categoryFilter.astronomical' }
+];
+
+/**
+ * A proportion meter for the month. Segments carry the same colours as the
+ * category chips below them, and every value is also written out — colour is
+ * never the only carrier of meaning.
+ */
+const HolidayBreakdownWidget = ({ monthHolidays = {}, selectedCategory = 'all', onSelectCategory }) => {
   const { t } = useTranslation();
 
-  const { total, publicCount, culturalCount, astronomicalCount } = useMemo(() => {
-    const all = [];
-    const seen = new Set();
+  const { total, counts } = useMemo(() => {
+    const holidays = Object.values(monthHolidays).flat();
+    const tally = { public: 0, cultural: 0, astronomical: 0 };
 
-    Object.values(monthHolidays).forEach(list => {
-      (list || []).forEach(h => {
-        const key = `${h.date}-${h.name.toLowerCase().trim()}`;
-        if (!seen.has(key)) {
-          seen.add(key);
-          all.push(h);
-        }
-      });
+    holidays.forEach(holiday => {
+      const segment = SEGMENTS.find(candidate => matchesCategory(holiday, candidate.id));
+      tally[segment ? segment.id : 'public'] += 1;
     });
 
-    let pub = 0;
-    let cult = 0;
-    let astro = 0;
-
-    all.forEach(h => {
-      if (matchesCategory(h, 'public')) pub++;
-      else if (matchesCategory(h, 'astronomical')) astro++;
-      else if (matchesCategory(h, 'cultural')) cult++;
-      else pub++; // default to public if uncategorized
-    });
-
-    return {
-      total: all.length,
-      publicCount: pub,
-      culturalCount: cult,
-      astronomicalCount: astro
-    };
+    return { total: holidays.length, counts: tally };
   }, [monthHolidays]);
-
-  const publicPercent = total > 0 ? Math.round((publicCount / total) * 100) : 0;
-  const culturalPercent = total > 0 ? Math.round((culturalCount / total) * 100) : 0;
-  const astroPercent = total > 0 ? 100 - publicPercent - culturalPercent : 0;
 
   if (total === 0) {
     return (
@@ -57,16 +40,12 @@ const HolidayBreakdownWidget = ({
         <div className="text-sm font-semibold text-slate-800 dark:text-slate-100">
           {t('stats.noDataThisMonth')}
         </div>
-        <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-          {t('countryFilter.showingAll')}
-        </div>
       </div>
     );
   }
 
   return (
     <div className="surface-card rounded-2xl p-4 flex flex-col justify-between transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 border border-fuchsia-200/60 dark:border-fuchsia-900/60">
-      {/* Header */}
       <div className="flex items-center justify-between gap-2 mb-1.5">
         <span className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-[0.16em] text-fuchsia-600 dark:text-fuchsia-400">
           <PieChart size={13} aria-hidden="true" />
@@ -77,78 +56,54 @@ const HolidayBreakdownWidget = ({
         </span>
       </div>
 
-      {/* Visual Proportional Distribution Bar */}
-      <div className="my-2">
-        <div className="h-2 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden flex" role="progressbar" aria-valuenow={100} aria-valuemin={0} aria-valuemax={100}>
-          {publicCount > 0 && (
+      {/* Proportion meter: 2px surface gaps keep adjacent segments readable. */}
+      <div className="my-2 flex h-2 w-full gap-0.5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+        {SEGMENTS.map(segment => {
+          const count = counts[segment.id];
+          if (count === 0) return null;
+
+          return (
             <div
-              style={{ width: `${publicPercent}%` }}
-              className="bg-teal-500 transition-all duration-500"
-              title={`${t('stats.publicCount', { count: publicCount })} (${publicPercent}%)`}
+              key={segment.id}
+              style={{ width: `${(count / total) * 100}%`, backgroundColor: segment.color }}
+              className="rounded-full transition-all duration-500"
+              title={`${t(segment.countKey, { count })} (${Math.round((count / total) * 100)}%)`}
             />
-          )}
-          {culturalCount > 0 && (
-            <div
-              style={{ width: `${culturalPercent}%` }}
-              className="bg-fuchsia-500 transition-all duration-500"
-              title={`${t('stats.culturalCount', { count: culturalCount })} (${culturalPercent}%)`}
-            />
-          )}
-          {astronomicalCount > 0 && (
-            <div
-              style={{ width: `${Math.max(0, astroPercent)}%` }}
-              className="bg-cyan-500 transition-all duration-500"
-              title={`${t('stats.solarCount', { count: astronomicalCount })} (${astroPercent}%)`}
-            />
-          )}
-        </div>
+          );
+        })}
       </div>
 
-      {/* Category Pills Breakdown */}
       <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-        <button
-          type="button"
-          onClick={() => onSelectCategory && onSelectCategory(selectedCategory === 'public' ? 'all' : 'public')}
-          className={`inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[11px] font-medium transition-all ${
-            selectedCategory === 'public'
-              ? 'bg-teal-600 text-white font-semibold shadow-sm'
-              : 'bg-teal-50/80 dark:bg-teal-950/40 text-teal-800 dark:text-teal-300 hover:bg-teal-100/80 dark:hover:bg-teal-900/50'
-          }`}
-          title={t('categoryFilter.public')}
-        >
-          <Landmark size={11} aria-hidden="true" />
-          <span>{t('stats.publicCount', { count: publicCount })}</span>
-        </button>
+        {SEGMENTS.map(segment => {
+          const count = counts[segment.id];
+          if (count === 0 && segment.id === 'astronomical') return null;
 
-        <button
-          type="button"
-          onClick={() => onSelectCategory && onSelectCategory(selectedCategory === 'cultural' ? 'all' : 'cultural')}
-          className={`inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[11px] font-medium transition-all ${
-            selectedCategory === 'cultural'
-              ? 'bg-fuchsia-600 text-white font-semibold shadow-sm'
-              : 'bg-fuchsia-50/80 dark:bg-fuchsia-950/40 text-fuchsia-800 dark:text-fuchsia-300 hover:bg-fuchsia-100/80 dark:hover:bg-fuchsia-900/50'
-          }`}
-          title={t('categoryFilter.cultural')}
-        >
-          <Palette size={11} aria-hidden="true" />
-          <span>{t('stats.culturalCount', { count: culturalCount })}</span>
-        </button>
+          const Icon = segment.icon;
+          const isSelected = selectedCategory === segment.id;
 
-        {astronomicalCount > 0 && (
-          <button
-            type="button"
-            onClick={() => onSelectCategory && onSelectCategory(selectedCategory === 'astronomical' ? 'all' : 'astronomical')}
-            className={`inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[11px] font-medium transition-all ${
-              selectedCategory === 'astronomical'
-                ? 'bg-cyan-600 text-white font-semibold shadow-sm'
-                : 'bg-cyan-50/80 dark:bg-cyan-950/40 text-cyan-800 dark:text-cyan-300 hover:bg-cyan-100/80 dark:hover:bg-cyan-900/50'
-            }`}
-            title={t('categoryFilter.astronomical')}
-          >
-            <Compass size={11} aria-hidden="true" />
-            <span>{t('stats.solarCount', { count: astronomicalCount })}</span>
-          </button>
-        )}
+          return (
+            <button
+              key={segment.id}
+              type="button"
+              onClick={() => onSelectCategory?.(isSelected ? 'all' : segment.id)}
+              aria-pressed={isSelected}
+              className={`inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[11px] font-medium transition-all ${
+                isSelected
+                  ? 'text-white font-semibold shadow-sm'
+                  : 'bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
+              style={isSelected ? { backgroundColor: segment.color } : undefined}
+              title={t(segment.labelKey)}
+            >
+              <Icon
+                size={11}
+                aria-hidden="true"
+                style={isSelected ? undefined : { color: segment.color }}
+              />
+              <span>{t(segment.countKey, { count })}</span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

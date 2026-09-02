@@ -1,5 +1,9 @@
 import { handleHolidays } from './holidays.js';
 import { handleHolidayInfo } from './holiday-info.js';
+import { handleCountries } from './country-list.js';
+import { handleHolidaySearch } from './search.js';
+import { handleIcsFeed } from './ics.js';
+import { handleCountryMonthPage, handleSitemap, matchCountryMonthPath } from './pages.js';
 
 export default {
   async fetch(request, env, ctx) {
@@ -9,6 +13,18 @@ export default {
     // Route API requests to the appropriate handlers
     if (pathname === '/api/holidays') {
       return handleHolidays(request, env, ctx);
+    }
+
+    if (pathname === '/api/holidays/search') {
+      return handleHolidaySearch(request, env, ctx);
+    }
+
+    if (pathname === '/api/holidays.ics') {
+      return handleIcsFeed(request, env, ctx);
+    }
+
+    if (pathname === '/api/countries') {
+      return handleCountries(request, env, ctx);
     }
 
     if (pathname === '/api/holiday-info') {
@@ -24,6 +40,17 @@ export default {
           'Cache-Control': 'no-store'
         }
       });
+    }
+
+    // Indexable, edge-rendered country/month pages (/us/2026-01) and the
+    // sitemap that advertises them. Both shadow static assets deliberately.
+    if (pathname === '/sitemap.xml') {
+      return handleSitemap(request);
+    }
+
+    const countryMonth = matchCountryMonthPath(pathname);
+    if (countryMonth) {
+      return handleCountryMonthPage(countryMonth, request, env, ctx);
     }
 
     // Fall through to static assets (the React SPA).

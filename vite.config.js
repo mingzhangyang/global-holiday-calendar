@@ -9,4 +9,8 @@ export default defineConfig({
       '/api': 'http://localhost:8787',
     },
   },
+  test: {
+    // e2e/ belongs to Playwright; Vitest only runs the unit suites.
+    exclude: ['**/node_modules/**', '**/dist/**', 'e2e/**'],
+  },
 })
