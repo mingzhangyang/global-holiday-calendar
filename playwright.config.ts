@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const PORT = 4173;
+const PREVIEW = `npx vite preview --host 127.0.0.1 --port ${PORT} --strictPort`;
 
 export default defineConfig({
   testDir: './e2e',
@@ -19,10 +20,16 @@ export default defineConfig({
   ],
   // The suite stubs every /api call, so the preview server alone is enough —
   // no Worker, no upstream holiday providers, no flake from either.
+  // `--host 127.0.0.1` pins the socket to the loopback address the tests poll;
+  // left to its default the server binds whatever `localhost` resolves to, which
+  // is not always the same family. CI builds in its own step, so the timeout
+  // below covers only the preview server coming up.
   webServer: {
-    command: `npm run build && npx vite preview --port ${PORT} --strictPort`,
+    command: process.env.CI ? PREVIEW : `npm run build && ${PREVIEW}`,
     url: `http://127.0.0.1:${PORT}`,
     reuseExistingServer: !process.env.CI,
-    timeout: 120_000
+    timeout: 120_000,
+    stdout: 'pipe',
+    stderr: 'pipe'
   }
 });
