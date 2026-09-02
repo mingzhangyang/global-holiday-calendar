@@ -6,7 +6,10 @@ const MobileBottomNav = ({ viewMode, onViewModeChange, onOpenSearch, onJumpToday
   const { t } = useTranslation();
 
   return (
-    <div className="fixed bottom-0 inset-x-0 z-[9990] p-2.5 sm:hidden pointer-events-none">
+    <nav
+      className="fixed bottom-0 inset-x-0 z-[9990] p-2.5 pb-[calc(0.625rem+env(safe-area-inset-bottom))] sm:hidden pointer-events-none"
+      aria-label={t('mobileNav.calendar')}
+    >
       <div className="surface-card-strong pointer-events-auto mx-auto max-w-sm rounded-full px-3 py-1.5 shadow-2xl border border-slate-200/90 dark:border-slate-800 flex items-center justify-around">
         {/* Calendar View Button */}
         <button
@@ -60,7 +63,7 @@ const MobileBottomNav = ({ viewMode, onViewModeChange, onOpenSearch, onJumpToday
           <span>{t('mobileNav.today')}</span>
         </button>
       </div>
-    </div>
+    </nav>
   );
 };
 

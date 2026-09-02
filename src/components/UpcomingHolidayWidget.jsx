@@ -3,40 +3,29 @@ import { Sparkles, Calendar, ArrowRight } from 'lucide-react';
 import { useTranslation } from '../hooks/useI18n';
 import { getDateOnlyDayNumber, parseDateKey, toDateKey } from '../utils/dateUtils';
 import { getLocaleFromLanguage } from '../services/i18nService';
+import { getHolidayCountryLabel, getHolidayDisplayName } from '../utils/holidayDisplay';
 
-const UpcomingHolidayWidget = ({ monthHolidays = {}, onSelectDate }) => {
+/**
+ * The countdown reads a forward-looking list rather than the month on screen,
+ * so it keeps counting when the visitor browses back — and finds January's
+ * holidays from December.
+ */
+const UpcomingHolidayWidget = ({ upcomingHolidays = [], onSelectHoliday }) => {
   const { t, language } = useTranslation();
   const locale = getLocaleFromLanguage(language);
 
   const upcomingHoliday = useMemo(() => {
-    const todayKey = toDateKey(new Date());
-    const todayDayNumber = getDateOnlyDayNumber(todayKey);
+    const nearest = upcomingHolidays[0];
+    if (!nearest) return null;
 
-    const allHolidays = [];
-    Object.entries(monthHolidays).forEach(([dateStr, list]) => {
-      const dateObj = parseDateKey(dateStr);
-      const dayNumber = getDateOnlyDayNumber(dateStr);
-      if (dayNumber >= todayDayNumber) {
-        list.forEach(h => {
-          allHolidays.push({ ...h, dateObj, dateStr, dayNumber });
-        });
-      }
-    });
-
-    if (allHolidays.length === 0) return null;
-
-    // Sort by ascending date
-    allHolidays.sort((a, b) => a.dayNumber - b.dayNumber);
-    const nearest = allHolidays[0];
-
-    // Compute the difference between calendar dates, independent of DST.
-    const diffDays = nearest.dayNumber - todayDayNumber;
+    const todayDayNumber = getDateOnlyDayNumber(toDateKey(new Date()));
 
     return {
       ...nearest,
-      diffDays
+      dateObj: parseDateKey(nearest.date),
+      diffDays: getDateOnlyDayNumber(nearest.date) - todayDayNumber
     };
-  }, [monthHolidays]);
+  }, [upcomingHolidays]);
 
   if (!upcomingHoliday) {
     return (
@@ -66,7 +55,7 @@ const UpcomingHolidayWidget = ({ monthHolidays = {}, onSelectDate }) => {
   return (
     <button
       type="button"
-      onClick={() => onSelectDate && onSelectDate(upcomingHoliday)}
+      onClick={() => onSelectHoliday?.(upcomingHoliday)}
       className="group surface-card w-full text-left rounded-2xl p-4 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 border border-teal-200/60 dark:border-teal-900/60 focus:outline-none focus:ring-2 focus:ring-teal-400"
     >
       <div className="flex items-center justify-between gap-2 mb-1.5">
@@ -86,10 +75,10 @@ const UpcomingHolidayWidget = ({ monthHolidays = {}, onSelectDate }) => {
       <div className="flex items-center justify-between gap-2">
         <div className="min-w-0">
           <h4 className="text-base font-bold text-slate-900 dark:text-white truncate group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
-            {upcomingHoliday.name}
+            {getHolidayDisplayName(upcomingHoliday, language)}
           </h4>
           <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-0.5">
-            <span>{upcomingHoliday.country}</span>
+            <span className="truncate">{getHolidayCountryLabel(upcomingHoliday, language)}</span>
             <span>•</span>
             <span className="inline-flex items-center gap-1">
               <Calendar size={11} />

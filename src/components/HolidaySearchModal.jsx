@@ -1,130 +1,152 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Search, X, Calendar, MapPin, ArrowRight, Sparkles } from 'lucide-react';
+import { Search, X, Calendar, MapPin, ArrowRight, Sparkles, Globe, Loader2 } from 'lucide-react';
 import { useTranslation } from '../hooks/useI18n';
-import { fetchHolidaysFromWorker, getCountries, getCountryCodeByName } from '../services/holidayApi';
+import { fetchHolidays, searchHolidays } from '../services/holidayApi';
 import { parseDateKey } from '../utils/dateUtils';
 import { getLocaleFromLanguage } from '../services/i18nService';
+import { getHolidayColor } from '../utils/holidayColors';
+import { getHolidayCountryLabel, getHolidayDisplayName } from '../utils/holidayDisplay';
+import { useFocusTrap } from '../hooks/useFocusTrap';
+import { useStableCountries } from '../hooks/useStableCountries';
 
-const HolidaySearchModal = ({ isOpen, onClose, onSelectHoliday, currentYear }) => {
+const DEBOUNCE_MS = 250;
+
+// A stable empty array: `selectedCountries || []` would hand a new value to
+// the memo below on every render.
+const EMPTY_COUNTRIES = [];
+const MAX_LOCAL_RESULTS = 15;
+
+/**
+ * Search over the countries the visitor actually selected — data already in
+ * cache — and reach for the rest of the world only when they ask for it.
+ */
+const HolidaySearchModal = ({ isOpen, onClose, onSelectHoliday, currentYear, selectedCountries, scope }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedTerm, setDebouncedTerm] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [yearHolidays, setYearHolidays] = useState([]);
+  const [localHolidays, setLocalHolidays] = useState([]);
+  const [globalResults, setGlobalResults] = useState(null);
+  const [isSearchingGlobally, setIsSearchingGlobally] = useState(false);
   const [loading, setLoading] = useState(false);
   const inputRef = useRef(null);
   const resultsRef = useRef(null);
+  const containerRef = useFocusTrap(isOpen, onClose);
   const { t, language } = useTranslation();
   const locale = getLocaleFromLanguage(language);
 
-  // Focus input when opened
-  useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 50);
-      setSearchTerm('');
-      setSelectedIndex(0);
-    }
-  }, [isOpen]);
+  const countries = useStableCountries(selectedCountries || EMPTY_COUNTRIES);
 
-  // Load search index for the year from all supported countries
   useEffect(() => {
-    let isActive = true;
     if (!isOpen) return;
 
-    const loadSearchIndex = async () => {
-      setLoading(true);
-      try {
-        const countries = getCountries();
-        const promises = countries.map(countryName => {
-          const code = getCountryCodeByName(countryName);
-          return fetchHolidaysFromWorker(currentYear, code, false).catch(() => []);
-        });
-        const results = await Promise.all(promises);
-        if (isActive) {
-          const all = results.flat();
-          // Deduplicate by date + name
-          const seen = new Set();
-          const deduped = all.filter(h => {
-            const key = `${h.date}-${h.country}-${h.name.toLowerCase()}`;
-            return seen.has(key) ? false : seen.add(key);
-          });
-          setYearHolidays(deduped);
-        }
-      } catch (e) {
-        console.warn('Error loading search index:', e);
-      } finally {
-        if (isActive) setLoading(false);
-      }
-    };
+    setSearchTerm('');
+    setDebouncedTerm('');
+    setSelectedIndex(0);
+    setGlobalResults(null);
+    const timeoutId = window.setTimeout(() => inputRef.current?.focus(), 50);
+    return () => window.clearTimeout(timeoutId);
+  }, [isOpen]);
 
-    loadSearchIndex();
+  // Debounce so typing does not re-filter (or re-request) on every keystroke.
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => setDebouncedTerm(searchTerm.trim().toLowerCase()), DEBOUNCE_MS);
+    return () => window.clearTimeout(timeoutId);
+  }, [searchTerm]);
+
+  // The selected countries' year is already cached by the month views, so
+  // opening search normally costs no requests at all.
+  useEffect(() => {
+    if (!isOpen) return undefined;
+
+    if (countries.length === 0) {
+      setLocalHolidays([]);
+      return undefined;
+    }
+
+    let isActive = true;
+    setLoading(true);
+
+    fetchHolidays({ year: currentYear, countries, scope })
+      .then(({ byCountry }) => {
+        if (isActive) setLocalHolidays(Object.values(byCountry).flat());
+      })
+      .catch(error => console.warn('Error loading search index:', error))
+      .finally(() => {
+        if (isActive) setLoading(false);
+      });
+
     return () => {
       isActive = false;
     };
-  }, [isOpen, currentYear]);
+  }, [isOpen, currentYear, countries, scope]);
 
-  // Filter holidays matching search term
   const filteredHolidays = useMemo(() => {
-    const term = searchTerm.trim().toLowerCase();
-    if (!term) {
-      // Show upcoming holidays or top 8 holidays
-      return yearHolidays.slice(0, 8);
+    if (!debouncedTerm) return localHolidays.slice(0, 8);
+
+    return localHolidays
+      .filter(holiday =>
+        holiday.name?.toLowerCase().includes(debouncedTerm) ||
+        holiday.localName?.toLowerCase().includes(debouncedTerm) ||
+        holiday.description?.toLowerCase().includes(debouncedTerm)
+      )
+      .slice(0, MAX_LOCAL_RESULTS);
+  }, [debouncedTerm, localHolidays]);
+
+  const results = globalResults ?? filteredHolidays;
+
+  useEffect(() => {
+    setSelectedIndex(0);
+    setGlobalResults(null);
+  }, [debouncedTerm]);
+
+  const handleGlobalSearch = useCallback(async () => {
+    if (debouncedTerm.length < 2) return;
+
+    setIsSearchingGlobally(true);
+    try {
+      const found = await searchHolidays(debouncedTerm, { year: currentYear, scope });
+      setGlobalResults(found);
+    } catch (error) {
+      console.warn('Global holiday search failed:', error);
+      setGlobalResults([]);
+    } finally {
+      setIsSearchingGlobally(false);
     }
+  }, [currentYear, debouncedTerm, scope]);
 
-    return yearHolidays
-      .filter(h => {
-        return (
-          h.name.toLowerCase().includes(term) ||
-          (h.country && h.country.toLowerCase().includes(term)) ||
-          (h.localName && h.localName.toLowerCase().includes(term)) ||
-          (h.description && h.description.toLowerCase().includes(term))
-        );
-      })
-      .slice(0, 15);
-  }, [searchTerm, yearHolidays]);
-
-  const handleItemClick = React.useCallback((holiday) => {
-    const dateObj = parseDateKey(holiday.date);
-    onSelectHoliday({
-      holiday,
-      date: dateObj
-    });
+  const handleItemClick = useCallback((holiday) => {
+    onSelectHoliday({ holiday, date: parseDateKey(holiday.date) });
     onClose();
   }, [onSelectHoliday, onClose]);
 
-  // Keyboard navigation inside search results
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (!isOpen) return;
+    if (!isOpen) return undefined;
 
-      if (e.key === 'Escape') {
-        onClose();
-      } else if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        setSelectedIndex(prev => (prev + 1) % (filteredHolidays.length || 1));
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        setSelectedIndex(prev => (prev - 1 + filteredHolidays.length) % (filteredHolidays.length || 1));
-      } else if (e.key === 'Enter' && filteredHolidays[selectedIndex]) {
-        e.preventDefault();
-        handleItemClick(filteredHolidays[selectedIndex]);
+    const handleKeyDown = (event) => {
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        setSelectedIndex(previous => (previous + 1) % (results.length || 1));
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        setSelectedIndex(previous => (previous - 1 + results.length) % (results.length || 1));
+      } else if (event.key === 'Enter' && results[selectedIndex]) {
+        event.preventDefault();
+        handleItemClick(results[selectedIndex]);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, filteredHolidays, selectedIndex, onClose, handleItemClick]);
+  }, [isOpen, results, selectedIndex, handleItemClick]);
 
-  // Auto-scroll selected item into view
   useEffect(() => {
-    if (resultsRef.current) {
-      const activeElement = resultsRef.current.children[selectedIndex];
-      if (activeElement) {
-        activeElement.scrollIntoView({ block: 'nearest' });
-      }
-    }
-  }, [selectedIndex]);
+    resultsRef.current?.children[selectedIndex]?.scrollIntoView({ block: 'nearest' });
+  }, [selectedIndex, results]);
 
   if (!isOpen) return null;
+
+  const canSearchGlobally = debouncedTerm.length >= 2 && globalResults === null;
 
   return createPortal(
     <div
@@ -132,20 +154,21 @@ const HolidaySearchModal = ({ isOpen, onClose, onSelectHoliday, currentYear }) =
       onClick={onClose}
     >
       <div
+        ref={containerRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={t('search.searchHolidays')}
         className="surface-card-strong mt-10 sm:mt-16 w-full max-w-xl overflow-hidden rounded-3xl shadow-2xl border border-slate-200/90 dark:border-slate-700/90"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(event) => event.stopPropagation()}
       >
         {/* Search Header Input */}
         <div className="flex items-center gap-3 border-b border-slate-200/80 dark:border-slate-800 p-4">
-          <Search size={20} className="text-teal-600 dark:text-teal-400 shrink-0" />
+          <Search size={20} className="text-teal-600 dark:text-teal-400 shrink-0" aria-hidden="true" />
           <input
             ref={inputRef}
             type="text"
             value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setSelectedIndex(0);
-            }}
+            onChange={(event) => setSearchTerm(event.target.value)}
             placeholder={t('search.placeholder')}
             className="w-full bg-transparent text-base sm:text-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none"
             aria-label={t('search.placeholder')}
@@ -155,6 +178,7 @@ const HolidaySearchModal = ({ isOpen, onClose, onSelectHoliday, currentYear }) =
               type="button"
               onClick={() => setSearchTerm('')}
               className="rounded-full p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              aria-label={t('common.close')}
             >
               <X size={16} />
             </button>
@@ -169,31 +193,30 @@ const HolidaySearchModal = ({ isOpen, onClose, onSelectHoliday, currentYear }) =
           ref={resultsRef}
           className="max-h-80 overflow-y-auto p-2 divide-y divide-slate-100 dark:divide-slate-800/60"
         >
-          {loading && yearHolidays.length === 0 ? (
+          {loading && localHolidays.length === 0 ? (
             <div className="p-8 text-center text-slate-400 text-sm">
               <div className="animate-spin rounded-full h-6 w-6 border border-teal-500 border-t-transparent mx-auto mb-2" />
               <span>{t('calendar.loading')}</span>
             </div>
-          ) : filteredHolidays.length === 0 ? (
+          ) : results.length === 0 ? (
             <div className="p-8 text-center text-slate-500 dark:text-slate-400 text-sm">
-              <Sparkles size={24} className="mx-auto mb-2 opacity-50 text-teal-500" />
+              <Sparkles size={24} className="mx-auto mb-2 opacity-50 text-teal-500" aria-hidden="true" />
               <p>{t('search.noResults')}</p>
             </div>
           ) : (
-            filteredHolidays.map((holiday, idx) => {
-              const isSelected = idx === selectedIndex;
-              const holidayDate = parseDateKey(holiday.date);
-              const formatted = holidayDate.toLocaleDateString(locale, {
+            results.map((holiday, index) => {
+              const isSelected = index === selectedIndex;
+              const formatted = parseDateKey(holiday.date).toLocaleDateString(locale, {
                 month: 'short',
                 day: 'numeric'
               });
 
               return (
                 <button
-                  key={`${holiday.date}-${holiday.name}-${idx}`}
+                  key={`${holiday.date}-${holiday.countryCode}-${holiday.name}`}
                   type="button"
                   onClick={() => handleItemClick(holiday)}
-                  onMouseEnter={() => setSelectedIndex(idx)}
+                  onMouseEnter={() => setSelectedIndex(index)}
                   className={`w-full flex items-center justify-between gap-3 p-3 rounded-2xl text-left transition-all ${
                     isSelected
                       ? 'bg-teal-50/90 dark:bg-teal-950/60 text-teal-950 dark:text-teal-100 ring-1 ring-teal-200 dark:ring-teal-800'
@@ -203,20 +226,21 @@ const HolidaySearchModal = ({ isOpen, onClose, onSelectHoliday, currentYear }) =
                   <div className="flex items-center gap-3 min-w-0">
                     <span
                       className="h-2.5 w-2.5 rounded-full shrink-0"
-                      style={{ backgroundColor: holiday.color || '#0d9488' }}
+                      style={{ backgroundColor: getHolidayColor(holiday) }}
+                      aria-hidden="true"
                     />
                     <div className="min-w-0">
                       <div className="text-sm font-semibold truncate">
-                        {holiday.name}
+                        {getHolidayDisplayName(holiday, language)}
                       </div>
                       <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                         <span className="flex items-center gap-1">
-                          <MapPin size={12} />
-                          <span>{holiday.country}</span>
+                          <MapPin size={12} aria-hidden="true" />
+                          <span>{getHolidayCountryLabel(holiday, language)}</span>
                         </span>
                         <span>•</span>
                         <span className="flex items-center gap-1">
-                          <Calendar size={12} />
+                          <Calendar size={12} aria-hidden="true" />
                           <span>{formatted}</span>
                         </span>
                       </div>
@@ -228,6 +252,7 @@ const HolidaySearchModal = ({ isOpen, onClose, onSelectHoliday, currentYear }) =
                     className={`shrink-0 transition-transform ${
                       isSelected ? 'translate-x-0.5 text-teal-600 dark:text-teal-400' : 'opacity-0'
                     }`}
+                    aria-hidden="true"
                   />
                 </button>
               );
@@ -235,10 +260,28 @@ const HolidaySearchModal = ({ isOpen, onClose, onSelectHoliday, currentYear }) =
           )}
         </div>
 
-        {/* Footer Hint */}
-        <div className="border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 px-4 py-2.5 text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
-          <span>{t('search.shortcutHint')}</span>
-          <span className="font-semibold text-teal-600 dark:text-teal-400">{filteredHolidays.length} results</span>
+        {/* Footer: scope hint and the opt-in worldwide search */}
+        <div className="border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 px-4 py-2.5 text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between gap-3">
+          {canSearchGlobally ? (
+            <button
+              type="button"
+              onClick={handleGlobalSearch}
+              disabled={isSearchingGlobally}
+              className="inline-flex items-center gap-1.5 rounded-full bg-white dark:bg-slate-800 px-3 py-1 font-semibold text-teal-700 dark:text-teal-300 ring-1 ring-slate-200 dark:ring-slate-700 hover:bg-teal-50 dark:hover:bg-slate-700 disabled:opacity-60"
+            >
+              {isSearchingGlobally ? (
+                <Loader2 size={12} className="animate-spin" aria-hidden="true" />
+              ) : (
+                <Globe size={12} aria-hidden="true" />
+              )}
+              <span>{t('search.searchAllCountries')}</span>
+            </button>
+          ) : (
+            <span>{t('search.shortcutHint')}</span>
+          )}
+          <span className="font-semibold text-teal-600 dark:text-teal-400 shrink-0">
+            {t('search.resultCount', { count: results.length })}
+          </span>
         </div>
       </div>
     </div>,

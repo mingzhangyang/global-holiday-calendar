@@ -1,26 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp, Info } from 'lucide-react';
 import { useTranslation } from '../hooks/useI18n';
+import { HOLIDAY_TYPES, HOLIDAY_TYPE_COLORS, HOLIDAY_TYPE_LABEL_KEYS } from '../utils/holidayColors';
 
-const Legend = () => {
+/**
+ * The legend is generated from the same type→colour map the calendar dots
+ * use, so a swatch here always means the same thing as a dot over there.
+ */
+const Legend = ({ typeCounts = null }) => {
   const [isExpanded, setIsExpanded] = useState(() => {
-    if (typeof window === 'undefined') {
-      return false;
-    }
+    if (typeof window === 'undefined') return false;
     return window.innerWidth >= 1024;
   });
   const { t } = useTranslation();
 
   useEffect(() => {
     const handleResize = () => {
-      // Auto-expand on desktop, but be careful not to override user preference 
-      // if we only want this on initial load.
-      // Usually, it's fine to sync it if window crosses the breakpoint.
       if (window.innerWidth >= 1024) {
         setIsExpanded(true);
-      } else {
-        // Option 1: auto-collapse on resize to mobile
-        // Option 2: Do not auto-collapse if they explicitly opened it
       }
     };
 
@@ -49,28 +46,36 @@ const Legend = () => {
 
       {isExpanded && (
         <div className="px-4 pb-4 sm:px-5 sm:pb-5">
-          <div className="space-y-2 text-sm">
-            <div className="flex items-center space-x-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 px-3 py-2">
-              <div className="h-3 w-3 rounded-full shrink-0" style={{backgroundColor: '#14b8a6'}} />
-              <span className="text-slate-700 dark:text-slate-200">{t('legend.nationalHoliday')}</span>
-            </div>
-            <div className="flex items-center space-x-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 px-3 py-2">
-              <div className="h-3 w-3 rounded-full bg-cyan-500 shrink-0" />
-              <span className="text-slate-700 dark:text-slate-200">{t('legend.culturalFestival')}</span>
-            </div>
-            <div className="flex items-center space-x-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 px-3 py-2">
-              <div className="h-3 w-3 rounded-full shrink-0" style={{backgroundColor: 'rgb(243, 74, 217)'}} />
-              <span className="text-slate-700 dark:text-slate-200">{t('legend.religiousObservance')}</span>
-            </div>
-            <div className="flex items-center space-x-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 px-3 py-2">
-              <div className="h-3 w-3 rounded-full bg-orange-500 shrink-0" />
-              <span className="text-slate-700 dark:text-slate-200">{t('legend.traditionalCelebration')}</span>
-            </div>
-            <div className="flex items-center space-x-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 px-3 py-2">
-              <div className="h-3 w-3 rounded-full bg-fuchsia-500 shrink-0" />
-              <span className="text-slate-700 dark:text-slate-200">{t('legend.internationalDay')}</span>
-            </div>
-          </div>
+          <ul className="space-y-2 text-sm">
+            {HOLIDAY_TYPES.map(type => {
+              const count = typeCounts?.[type] ?? null;
+
+              return (
+                <li
+                  key={type}
+                  className="flex items-center gap-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 px-3 py-2"
+                >
+                  <span
+                    className="h-3 w-3 shrink-0 rounded-full"
+                    style={{ backgroundColor: HOLIDAY_TYPE_COLORS[type] }}
+                    aria-hidden="true"
+                  />
+                  <span className="flex-1 text-slate-700 dark:text-slate-200">
+                    {t(HOLIDAY_TYPE_LABEL_KEYS[type])}
+                  </span>
+                  {count !== null && (
+                    <span className={`rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums ${
+                      count > 0
+                        ? 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 ring-1 ring-slate-200 dark:ring-slate-700'
+                        : 'text-slate-400 dark:text-slate-600'
+                    }`}>
+                      {count}
+                    </span>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
 
           <div className="soft-divider mt-4 border-t pt-3">
             <p className="text-xs leading-6 text-slate-500 dark:text-slate-400">
@@ -83,4 +88,4 @@ const Legend = () => {
   );
 };
 
-export default Legend;
+export default React.memo(Legend);

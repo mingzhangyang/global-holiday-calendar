@@ -1,8 +1,10 @@
 import React from 'react';
 import { MapPin } from 'lucide-react';
 import { useTranslation } from '../hooks/useI18n';
+import { getHolidayColor } from '../utils/holidayColors';
+import { getHolidayCountryLabel, getHolidayDisplayName } from '../utils/holidayDisplay';
 
-const DayHoverPopover = ({ dayInfo, targetRect, locale }) => {
+const DayHoverPopover = ({ dayInfo, targetRect, locale, language = 'en' }) => {
   const { t } = useTranslation();
 
   if (!dayInfo || !dayInfo.holidays || dayInfo.holidays.length === 0 || !targetRect) {
@@ -42,22 +44,22 @@ const DayHoverPopover = ({ dayInfo, targetRect, locale }) => {
           <div key={idx} className="flex items-start gap-2">
             <span
               className="h-2 w-2 rounded-full mt-1 shrink-0"
-              style={{ backgroundColor: holiday.color || '#3B82F6' }}
+              style={{ backgroundColor: getHolidayColor(holiday) }}
             />
             <div className="min-w-0 flex-1">
               <div className="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate">
-                {holiday.name}
+                {getHolidayDisplayName(holiday, language)}
               </div>
               <div className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400">
                 <MapPin size={10} className="shrink-0" />
-                <span className="truncate">{holiday.country}</span>
+                <span className="truncate">{getHolidayCountryLabel(holiday, language)}</span>
               </div>
             </div>
           </div>
         ))}
         {dayInfo.holidays.length > 4 && (
           <div className="text-[11px] text-slate-400 text-center font-medium">
-            +{dayInfo.holidays.length - 4} more
+            {t('common.moreCount', { count: dayInfo.holidays.length - 4 })}
           </div>
         )}
       </div>
