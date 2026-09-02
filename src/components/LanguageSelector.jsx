@@ -3,7 +3,7 @@ import React, { useRef, useEffect } from 'react';
 import { Globe, ChevronDown, Check } from 'lucide-react';
 import { useLanguageSelector, useTranslation } from '../hooks/useI18n';
 
-const LanguageSelector = () => {
+const LanguageSelector = ({ fullWidth = false }) => {
   const {
     currentLanguage,
     isOpen,
@@ -14,7 +14,7 @@ const LanguageSelector = () => {
     toggleSelector,
     closeSelector
   } = useLanguageSelector();
-  
+
   const { t } = useTranslation();
   const dropdownRef = useRef(null);
 
@@ -51,25 +51,26 @@ const LanguageSelector = () => {
   }, [isOpen, closeSelector]);
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className={`relative ${fullWidth ? 'w-full' : ''}`} ref={dropdownRef}>
       {/* 语言选择按钮 */}
       <button
+        type="button"
         onClick={toggleSelector}
         disabled={isLoading}
-        className="flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors duration-200" style={{backgroundColor: '#fff5e6', color: '#cc7000'}} onMouseEnter={(e) => e.target.style.backgroundColor = '#ffe6cc'} onMouseLeave={(e) => e.target.style.backgroundColor = '#fff5e6'}
+        className={`focus-ring accent-button-soft flex items-center space-x-2 rounded-2xl px-3 py-2.5 text-sm font-medium ${fullWidth ? 'w-full justify-between' : ''}`}
         aria-label={t('language.selector')}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
       >
         <Globe size={18} />
-        <span className="hidden sm:inline text-sm">
+        <span className={`${fullWidth ? 'inline text-sm flex-1 text-left' : 'hidden sm:inline text-sm'}`}>
           {getLanguageDisplayName(currentLanguage)}
         </span>
-        <ChevronDown 
-          size={16} 
+        <ChevronDown
+          size={16}
           className={`transition-transform duration-200 ${
             isOpen ? 'rotate-180' : ''
-          }`} 
+          }`}
         />
         {isLoading && (
           <div className="animate-spin rounded-full h-4 w-4 border border-white border-t-transparent" />
@@ -78,40 +79,42 @@ const LanguageSelector = () => {
 
       {/* 下拉菜单 */}
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[9999]">
-          <div className="px-3 py-2 text-xs font-medium text-gray-500 border-b border-gray-100">
+        <div className={`surface-card-strong absolute top-full mt-2 overflow-hidden rounded-2xl py-2 z-[9999] shadow-2xl ${fullWidth ? 'left-0 right-0 w-full' : 'right-0 w-56'}`}>
+          <div className="border-b border-slate-200/80 dark:border-slate-800 px-3 py-2 text-xs font-medium uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
             {t('language.change')}
           </div>
-          
+
           <div className="max-h-64 overflow-y-auto" role="listbox">
             {supportedLanguages.map(({ code, name }) => (
               <button
+                type="button"
                 key={code}
                 onClick={() => handleLanguageSelect(code)}
-                className={`w-full flex items-center justify-between px-3 py-2 text-sm transition-colors duration-150 ${
-                  currentLanguage === code 
-                    ? '' : 'hover:bg-gray-50'
-                }`} style={code === currentLanguage ? {backgroundColor: '#fff5e6', color: '#cc7000'} : {color: '#374151'}} onMouseEnter={(e) => {if (code !== currentLanguage) {e.target.style.backgroundColor = '#f9fafb'}}} onMouseLeave={(e) => {if (code !== currentLanguage) {e.target.style.backgroundColor = 'transparent'}}}
+                className={`w-full flex items-center justify-between px-3 py-2.5 text-sm transition-colors duration-150 ${
+                  currentLanguage === code
+                    ? 'bg-teal-50/90 text-teal-800 dark:bg-teal-950/60 dark:text-teal-200 font-semibold'
+                    : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/80'
+                }`}
                 role="option"
                 aria-selected={currentLanguage === code}
               >
                 <span className="flex items-center space-x-2">
                   <span>{name}</span>
                   {code.includes('-') && (
-                    <span className="text-xs text-gray-400 uppercase">
+                    <span className="text-xs text-slate-400 dark:text-slate-500 uppercase">
                       {code.split('-')[1]}
                     </span>
                   )}
                 </span>
-                
+
                 {currentLanguage === code && (
-                  <Check size={16} className="text-blue-600" />
+                  <Check size={16} className="text-teal-600 dark:text-teal-400" />
                 )}
               </button>
             ))}
           </div>
-          
-          <div className="px-3 py-2 text-xs text-gray-400 border-t border-gray-100 mt-2">
+
+          <div className="mt-2 border-t border-slate-200/80 dark:border-slate-800 px-3 py-2 text-xs text-slate-400 dark:text-slate-500">
             {t('language.current', { language: getLanguageDisplayName(currentLanguage) })}
           </div>
         </div>
