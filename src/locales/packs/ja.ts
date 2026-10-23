@@ -141,7 +141,7 @@ export default {
   'search.shortcutHint': 'ESCキーで閉じる、↑↓で移動',
   'search.button': '検索',
   'search.searchHolidays': '祝日を検索',
-  'search.searchAllCountries': 'すべての国から検索',
+  'search.searchAllCountries': '主要 {count} か国を検索',
   'search.resultCount': '{count} 件',
 
   // 类别筛选

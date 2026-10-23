@@ -16,7 +16,9 @@ binding = "ASSETS"
 [vars]
 # Non-secret environment variables can go here
 
-# Rate limit for the AI-backed /api/holiday-info endpoint (per client IP)
+# Per-IP limit for /api/holiday-info. A separate per-location daily ceiling
+# (see DAILY_AI_BUDGET in worker/holiday-info.js) sits on top of this, because
+# this binding only supports a 10s or 60s window.
 [[ratelimits]]
 name = "HOLIDAY_INFO_RATE_LIMITER"
 namespace_id = "1001"

@@ -152,7 +152,7 @@ export default {
   'search.shortcutHint': 'Press ESC to close, ↑↓ to navigate',
   'search.button': 'Search',
   'search.searchHolidays': 'Search Holidays',
-  'search.searchAllCountries': 'Search all countries',
+  'search.searchAllCountries': 'Search {count} common countries',
   'search.resultCount': '{count} results',
 
   // 类别筛选

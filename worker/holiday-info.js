@@ -2,6 +2,12 @@
 // Provider priority: Gemini (gemini-3.5-flash-lite) → BigModel (glm-4.7-flash).
 // Override either model with the corresponding Worker environment variable
 // when a provider changes its model catalog.
+//
+// The model is only called for a holiday that already exists in the dataset.
+// The prompt is built from that record's name, not from the raw request body.
+
+import { getCountryCode, getCountryName, isValidCountryCode } from './countries.js';
+import { getCountryHolidays, matchesHolidayName, parseYear } from './holidays.js';
 
 const DEFAULT_GEMINI_MODEL = 'gemini-3.5-flash-lite';
 const DEFAULT_ZHIPU_MODEL = 'glm-4.7-flash';
@@ -27,8 +33,9 @@ async function callGemini(apiKey, prompt, model = DEFAULT_GEMINI_MODEL) {
   });
 
   if (!response.ok) {
-    const errorText = await response.text().catch(() => `Status: ${response.status}`);
-    throw new Error(`Gemini API error ${response.status}: ${errorText.substring(0, 200)}`);
+    const errorText = await response.text().catch(() => '');
+    console.error(`Gemini API error ${response.status}: ${errorText.slice(0, 200)}`);
+    throw new Error(`Gemini API error ${response.status}`);
   }
 
   const data = await response.json();
@@ -106,8 +113,9 @@ async function callZhipu(apiKey, prompt, model = DEFAULT_ZHIPU_MODEL) {
   });
 
   if (!response.ok) {
-    const errorText = await response.text().catch(() => `Status: ${response.status}`);
-    throw new Error(`Zhipu API error ${response.status}: ${errorText.substring(0, 200)}`);
+    const errorText = await response.text().catch(() => '');
+    console.error(`Zhipu API error ${response.status}: ${errorText.slice(0, 200)}`);
+    throw new Error(`Zhipu API error ${response.status}`);
   }
 
   const data = await response.json();
@@ -162,6 +170,77 @@ const MAX_HOLIDAY_LENGTH = 150;
 const MAX_COUNTRY_LENGTH = 100;
 const INFO_CACHE_TTL_SECONDS = 7 * 24 * 60 * 60; // 7 days
 
+// Soft daily ceiling per Cloudflare location. The rate-limit binding can only
+// count 10 or 60 second windows, and caches.default is colo-local, so this is
+// not a single global counter — it still stops one location from draining the
+// key after the per-IP limit.
+const DAILY_AI_BUDGET = 400;
+
+function budgetRequest(day) {
+  return new Request(`https://holiday-cache.internal/ai-budget?day=${day}`, { method: 'GET' });
+}
+
+async function takeDailyBudget(cache, ctx) {
+  const day = new Date().toISOString().slice(0, 10);
+  const key = budgetRequest(day);
+  const existing = await cache.match(key);
+  const parsed = existing ? Number.parseInt(await existing.text(), 10) : 0;
+  const used = Number.isFinite(parsed) ? parsed : DAILY_AI_BUDGET;
+
+  if (used >= DAILY_AI_BUDGET) {
+    return false;
+  }
+
+  const next = new Response(String(used + 1), {
+    headers: {
+      'Content-Type': 'text/plain',
+      'Cache-Control': 'public, max-age=172800'
+    }
+  });
+  const write = cache.put(key, next);
+  if (ctx?.waitUntil) ctx.waitUntil(write);
+  else await write;
+  return true;
+}
+
+function resolveYear(date) {
+  if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return parseYear(date.slice(0, 4));
+  }
+  return parseYear(String(new Date().getUTCFullYear()));
+}
+
+/**
+ * Look the holiday up before spending an AI call. Returns the dataset's own
+ * name and country, so a request body cannot rewrite the prompt.
+ */
+async function resolveKnownHoliday({ holiday, country, countryCode, date, env, ctx }) {
+  const year = resolveYear(date);
+  if (year === null) {
+    return { error: 'Invalid date.', status: 400 };
+  }
+
+  const code = getCountryCode(countryCode || country);
+  if (!isValidCountryCode(code)) {
+    return { error: 'Unknown country.', status: 400 };
+  }
+
+  let holidays;
+  try {
+    holidays = await getCountryHolidays(year, code, env, ctx);
+  } catch (error) {
+    console.error(`AI lookup skipped; holiday data unavailable for ${code} ${year}:`, error.message);
+    return { error: 'Holiday data is temporarily unavailable.', status: 503 };
+  }
+
+  const match = holidays.find(entry => matchesHolidayName(entry, holiday));
+  if (!match) {
+    return { error: 'Unknown holiday.', status: 404 };
+  }
+
+  return { holidayName: match.name, countryName: getCountryName(code) };
+}
+
 // Build a synthetic GET request used as the edge-cache key for an
 // AI response (the Cache API cannot key on POST bodies directly).
 function buildInfoCacheKey(requestUrl, holiday, country, language) {
@@ -191,11 +270,13 @@ export async function handleHolidayInfo(request, env, ctx) {
     });
   }
 
-  let holiday, country, language;
+  let holiday, country, countryCode, date, language;
   try {
     const body = await request.json();
     holiday = typeof body.holiday === 'string' ? body.holiday.trim() : '';
     country = typeof body.country === 'string' ? body.country.trim() : '';
+    countryCode = typeof body.countryCode === 'string' ? body.countryCode.trim() : '';
+    date = typeof body.date === 'string' ? body.date.trim() : '';
     language = LANGUAGE_INSTRUCTIONS[body.language] ? body.language : 'en';
 
     if (!holiday || !country) {
@@ -221,6 +302,14 @@ export async function handleHolidayInfo(request, env, ctx) {
     return response;
   }
 
+  const known = await resolveKnownHoliday({ holiday, country, countryCode, date, env, ctx });
+  if (known.error) {
+    return new Response(JSON.stringify({ error: known.error }), {
+      status: known.status,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
+    });
+  }
+
   // Optional rate limiting (configure a "ratelimits" binding in wrangler.toml)
   if (env.HOLIDAY_INFO_RATE_LIMITER) {
     const clientIp = request.headers.get('CF-Connecting-IP') || 'unknown';
@@ -233,9 +322,15 @@ export async function handleHolidayInfo(request, env, ctx) {
     }
   }
 
-  const prompt = buildPrompt(holiday, country, language);
+  if (!(await takeDailyBudget(cache, ctx))) {
+    return new Response(JSON.stringify({ error: 'Daily background limit reached. Please try again tomorrow.' }), {
+      status: 429,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
+    });
+  }
+
+  const prompt = buildPrompt(known.holidayName, known.countryName, language);
   let content = null;
-  let lastError = null;
 
   // 1. Try Gemini first
   if (env.GEMINI_API_KEY) {
@@ -247,7 +342,6 @@ export async function handleHolidayInfo(request, env, ctx) {
       );
       console.log('Gemini succeeded.');
     } catch (err) {
-      lastError = err;
       console.error('Gemini failed, falling back to Zhipu:', err.message);
     }
   }
@@ -262,16 +356,14 @@ export async function handleHolidayInfo(request, env, ctx) {
       );
       console.log('Zhipu fallback succeeded.');
     } catch (err) {
-      lastError = err;
       console.error('Zhipu fallback also failed:', err.message);
     }
   }
 
   if (!content) {
-    const message = lastError?.message || 'All AI providers failed.';
-    return new Response(JSON.stringify({ error: message }), {
+    return new Response(JSON.stringify({ error: 'Holiday background is temporarily unavailable.' }), {
       status: 502,
-      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
     });
   }
 

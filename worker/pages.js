@@ -102,8 +102,22 @@ export async function handleCountryMonthPage(match, request, env, ctx) {
   const cached = await cache.match(cacheKey);
   if (cached) return cached;
 
-  const holidays = (await getCountryHolidays(year, code, env, ctx))
-    .filter(holiday => holiday.date.startsWith(`${year}-${String(month).padStart(2, '0')}`));
+  let holidays;
+  try {
+    holidays = await getCountryHolidays(year, code, env, ctx);
+  } catch (error) {
+    console.error(`Country page skipped ${code} ${year}-${month}:`, error.message);
+    return new Response('Holiday data is temporarily unavailable.', {
+      status: 503,
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Cache-Control': 'no-store',
+        'Retry-After': '3600'
+      }
+    });
+  }
+
+  holidays = holidays.filter(holiday => holiday.date.startsWith(`${year}-${String(month).padStart(2, '0')}`));
 
   const html = renderCountryMonthPage({ code, year, month, holidays });
 

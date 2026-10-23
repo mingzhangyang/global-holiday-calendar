@@ -9,6 +9,7 @@ import { getHolidayColor } from '../utils/holidayColors';
 import { getHolidayCountryLabel, getHolidayDisplayName } from '../utils/holidayDisplay';
 import { useFocusTrap } from '../hooks/useFocusTrap';
 import { useStableCountries } from '../hooks/useStableCountries';
+import { SEARCH_COUNTRY_CODES } from '../../shared/search-countries.js';
 
 const DEBOUNCE_MS = 250;
 
@@ -18,8 +19,8 @@ const EMPTY_COUNTRIES = [];
 const MAX_LOCAL_RESULTS = 15;
 
 /**
- * Search over the countries the visitor actually selected — data already in
- * cache — and reach for the rest of the world only when they ask for it.
+ * Search the countries the visitor selected. The wider search covers the
+ * common-country list in shared/search-countries.js, not every country.
  */
 const HolidaySearchModal = ({ isOpen, onClose, onSelectHoliday, currentYear, selectedCountries, scope }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -274,7 +275,7 @@ const HolidaySearchModal = ({ isOpen, onClose, onSelectHoliday, currentYear, sel
               ) : (
                 <Globe size={12} aria-hidden="true" />
               )}
-              <span>{t('search.searchAllCountries')}</span>
+              <span>{t('search.searchAllCountries', { count: SEARCH_COUNTRY_CODES.length })}</span>
             </button>
           ) : (
             <span>{t('search.shortcutHint')}</span>

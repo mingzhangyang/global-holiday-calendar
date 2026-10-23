@@ -2,6 +2,8 @@
 
 An interactive React.js application that showcases cultural celebrations and holidays from around the world. Discover the rich diversity of global traditions through an intuitive calendar interface.
 
+Live: [https://holidays.orangely.xyz](https://holidays.orangely.xyz)
+
 ## ✨ Features
 
 ### 🗓️ Interactive Calendar
@@ -47,7 +49,7 @@ An interactive React.js application that showcases cultural celebrations and hol
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/mingzhangyang/global-holiday-calendar.git
    cd global-holiday-calendar
    ```
 
@@ -146,7 +148,7 @@ global-holiday-calendar/
 │   │   ├── CountryFilter.jsx     # Searchable country picker (ISO codes)
 │   │   ├── HolidayListView.jsx   # Chronological list view
 │   │   ├── HolidayModal.jsx      # Holiday detail dialog with AI background
-│   │   ├── HolidaySearchModal.jsx# ⌘K search over selected countries, worldwide on request
+│   │   ├── HolidaySearchModal.jsx # ⌘K search over selected countries; opt-in scan of 20 common countries
 │   │   ├── HolidayFetchError.jsx # Shared error + retry state for both month views
 │   │   ├── Legend.jsx            # Type → colour key, generated from the taxonomy
 │   │   ├── MarkdownContent.jsx   # Lazy react-markdown boundary
@@ -242,7 +244,7 @@ Cloudflare Worker (`worker/index.js`).
 |---|---|
 | `GET /api/holidays?year=2026&country=US` | Statutory public holidays for one country |
 | `GET /api/holidays?year=2026&countries=US,GB,JP&scope=all` | Up to 12 countries in one request; `scope=all` adds observances, festivals and seasonal markers |
-| `GET /api/holidays/search?q=diwali&year=2026` | Cross-country search, executed at the edge where the data is already cached |
+| `GET /api/holidays/search?q=diwali&year=2026` | Search across the [20 common countries](shared/search-countries.js), or the `countries` you pass (max 20). Not the full country list. |
 | `GET /api/holidays.ics?country=CN&years=2` | Subscribable calendar feed (RFC 5545), refreshed daily by the client |
 | `GET /api/countries` | Nager's live coverage, curated short list flagged `popular` |
 | `POST /api/holiday-info` | AI-written cultural background (rate limited per IP) |
@@ -263,15 +265,20 @@ year, so switching scope in the UI is a filter, not another upstream fetch.
   leap-day correction changes at 惊蛰, and a short table covers the terms the linear fit
   misses by minutes), and equinoxes/solstices via Meeus' periodic series converted to each
   country's local date
-- **Graceful degradation**: an upstream failure (or Nager's `204` for countries it does not
-  cover) leaves the remaining sources and calculated observances in place; in a batch, a
-  country that cannot be answered is reported in `failed` rather than returned empty, so
-  the client can tell "no data" from "no holidays"
+- **Graceful degradation**: Nager's `204` (a country it does not cover) is an
+  answer and is cached; Calendarific and calculated observances still apply.
+  A Nager `5xx` or network failure is not cached and the country is reported
+  in `failed`, so the client can tell "no data" from "no holidays". If
+  Calendarific fails while Nager succeeded, the Nager result is returned but
+  not cached, so the optional source is retried.
 
 #### Holiday info (`holiday-info.js`)
-- **AI Integration**: Gemini primary, Zhipu BigModel fallback
+- **AI Integration**: Gemini primary, Zhipu BigModel fallback. The model is called only
+  when the holiday already exists in the dataset for that country and year; the prompt
+  uses the dataset's name, not the raw request body
 - **JWT Authentication**: token generation for the Zhipu API
-- **Rate limited** per client IP through a Workers rate-limit binding
+- **Rate limited** per client IP (10 requests / minute) and by a per-location daily
+  budget. Provider error bodies are logged, not returned to the client
 
 #### Indexable pages (`pages.js`)
 - Server-rendered HTML for "public holidays in *country* in *month*", the query the SPA
@@ -317,11 +324,8 @@ add its ISO code to `POPULAR_COUNTRY_CODES` in `worker/countries.js` (and its En
 extend `getCulturalObservances` there. Both are covered by `worker/*.test.js`.
 
 ### Styling Customization
-Modify `tailwind.config.js` to customize:
-- Color schemes
-- Typography
-- Spacing and layout
-- Animation timings
+Color, surface and accent tokens live as CSS variables in `src/index.css`.
+Tailwind 4 is loaded with `@import "tailwindcss"`; there is no `tailwind.config.js`.
 
 ### Component Customization
 Each component is modular and can be easily customized:

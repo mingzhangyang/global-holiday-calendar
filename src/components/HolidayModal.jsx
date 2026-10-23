@@ -80,7 +80,10 @@ const HolidayModal = ({ date, holidays, onClose }) => {
     setShowScrollHint(null);
 
     try {
-      const info = await fetchHolidayInfo(holiday.name, getHolidayCountryLabel(holiday, 'en'), language);
+      const info = await fetchHolidayInfo(holiday.name, getHolidayCountryLabel(holiday, 'en'), language, {
+        countryCode: holiday.countryCode,
+        date: holiday.date
+      });
 
       if (info) {
         setDetailedInfo(previous => ({ ...previous, [index]: info }));

@@ -8,12 +8,7 @@ import { getCountryHolidays, omitProse, CORS_HEADERS, parseYear } from './holida
 import { parseCountryParams } from './countries.js';
 import { normalizeScopeParam } from '../shared/holiday-taxonomy.js';
 
-// Bounded so one search can never fan out into an unbounded number of
-// upstream requests on a cold cache.
-const SEARCH_COUNTRY_CODES = [
-  'US', 'GB', 'CA', 'AU', 'IE', 'FR', 'DE', 'IT', 'ES', 'NL',
-  'SE', 'PL', 'RU', 'TR', 'CN', 'JP', 'KR', 'IN', 'BR', 'MX'
-];
+import { SEARCH_COUNTRY_CODES } from '../shared/search-countries.js';
 
 const MAX_RESULTS = 30;
 const MIN_QUERY_LENGTH = 2;
@@ -42,7 +37,7 @@ export async function handleHolidaySearch(request, env, ctx) {
 
   const cache = caches.default;
   const cacheKey = new Request(
-    `https://holiday-cache.internal/search?q=${encodeURIComponent(query)}&year=${year}&scope=${scope}&countries=${requested.join(',')}`,
+    `https://holiday-cache.internal/search?v=2&q=${encodeURIComponent(query)}&year=${year}&scope=${scope}&countries=${requested.join(',')}`,
     { method: 'GET' }
   );
 
@@ -53,9 +48,11 @@ export async function handleHolidaySearch(request, env, ctx) {
     return response;
   }
 
+  let degraded = false;
   const perCountry = await Promise.all(
     requested.map(code =>
       getCountryHolidays(year, code, env, ctx).catch(error => {
+        degraded = true;
         console.warn(`Search skipped ${code}:`, error.message);
         return [];
       })
@@ -73,11 +70,22 @@ export async function handleHolidaySearch(request, env, ctx) {
     .slice(0, MAX_RESULTS)
     .map(omitProse);
 
-  const response = jsonResponse({ query, year, scope, results, total: results.length });
+  const response = jsonResponse({
+    query,
+    year,
+    scope,
+    // This is the common-country list (or the caller's own selection), not
+    // every country the calendar can show.
+    searchedCountries: requested,
+    results,
+    total: results.length
+  });
 
-  const put = cache.put(cacheKey, response.clone());
-  if (ctx?.waitUntil) ctx.waitUntil(put);
-  else await put;
+  if (!degraded) {
+    const put = cache.put(cacheKey, response.clone());
+    if (ctx?.waitUntil) ctx.waitUntil(put);
+    else await put;
+  }
 
   return response;
 }

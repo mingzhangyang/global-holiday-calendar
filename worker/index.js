@@ -54,8 +54,7 @@ export default {
     }
 
     // Fall through to static assets (the React SPA).
-    // If the asset is not found (e.g. a client-side route like /about),
-    // serve index.html so React Router can handle the path.
+    // A client-side path has no asset of its own, so serve index.html.
     const response = await env.ASSETS.fetch(request);
     if (response.status === 404) {
       return env.ASSETS.fetch(new Request(new URL('/', request.url).toString()));

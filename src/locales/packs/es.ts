@@ -141,7 +141,7 @@ export default {
   'search.shortcutHint': 'Pulsa ESC para cerrar, ↑↓ para navegar',
   'search.button': 'Buscar',
   'search.searchHolidays': 'Buscar Festivos',
-  'search.searchAllCountries': 'Buscar en todos los países',
+  'search.searchAllCountries': 'Buscar en {count} países habituales',
   'search.resultCount': '{count} resultados',
 
   // 类别筛选
