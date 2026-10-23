@@ -34,10 +34,12 @@ export async function handleIcsFeed(request, env, ctx) {
   );
   const years = Array.from({ length: yearCount }, (_, offset) => startYear + offset);
 
+  let degraded = false;
   const collected = await Promise.all(
     years.flatMap(year =>
       countryCodes.map(code =>
         getCountryHolidays(year, code, env, ctx).catch(error => {
+          degraded = true;
           console.warn(`ICS feed skipped ${code} ${year}:`, error.message);
           return [];
         })
@@ -59,9 +61,8 @@ export async function handleIcsFeed(request, env, ctx) {
       ...CORS_HEADERS,
       'Content-Type': 'text/calendar; charset=utf-8',
       'Content-Disposition': `inline; filename="${filename}"`,
-      // Calendar clients re-poll on their own schedule; a day of edge cache
-      // keeps that cheap without going stale in any way that matters.
-      'Cache-Control': 'public, max-age=86400'
+      // A failed year must not be subscribed as an empty calendar for a day.
+      'Cache-Control': degraded ? 'no-store' : 'public, max-age=86400'
     }
   });
 }

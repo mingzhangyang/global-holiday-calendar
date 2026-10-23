@@ -24,8 +24,8 @@ const MIN_YEAR = 2015;
 const MAX_YEAR = 2035;
 // Bumped whenever the shape or the content of a cached payload changes, so
 // a deployed edge cache cannot keep serving the previous version for a day.
-// v3: corrected solar-term dates.
-const CACHE_VERSION = '3';
+// v4: a failed upstream lookup is no longer stored as an empty year.
+const CACHE_VERSION = '4';
 
 export const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -138,11 +138,7 @@ export async function handleHolidays(request, env, ctx) {
   } catch (error) {
     console.error('Worker error:', error.stack || error);
     return jsonResponse(
-      {
-        error: 'Internal server error',
-        message: error.message,
-        timestamp: new Date().toISOString()
-      },
+      { error: 'Internal server error' },
       { status: 500, cacheControl: 'no-store' }
     );
   }
@@ -198,9 +194,13 @@ export async function getCountryHolidays(year, countryCode, env, ctx) {
     }
   }
 
-  const holidays = await fetchHolidays(year, code, env);
+  const { holidays, cacheable } = await fetchHolidays(year, code, env);
 
-  const cacheable = new Response(JSON.stringify(holidays), {
+  if (!cacheable) {
+    return holidays;
+  }
+
+  const cacheableResponse = new Response(JSON.stringify(holidays), {
     headers: {
       'Content-Type': 'application/json',
       'Cache-Control': 'public, max-age=86400'
@@ -208,52 +208,67 @@ export async function getCountryHolidays(year, countryCode, env, ctx) {
   });
 
   if (ctx?.waitUntil) {
-    ctx.waitUntil(cache.put(cacheKey, cacheable));
+    ctx.waitUntil(cache.put(cacheKey, cacheableResponse));
   } else {
-    await cache.put(cacheKey, cacheable);
+    await cache.put(cacheKey, cacheableResponse);
   }
 
   return holidays;
 }
 
 async function fetchHolidays(year, countryCode, env) {
-  const sources = [
-    fetchFromNager(year, countryCode).catch(error => {
-      console.error('Nager API failed:', error.message);
-      return [];
-    })
-  ];
+  // A statutory-source failure must throw. Swallowing it and caching `[]`
+  // makes the next day of requests report "no public holidays".
+  const nagerHolidays = await fetchFromNager(year, countryCode);
+
+  let calendarificHolidays = [];
+  let cacheable = true;
 
   if (env?.CALENDARIFIC_API_KEY) {
-    sources.push(
-      fetchFromCalendarific(year, countryCode, env.CALENDARIFIC_API_KEY).catch(error => {
-        console.error('Calendarific API failed:', error.message);
-        return [];
-      })
-    );
+    try {
+      calendarificHolidays = await fetchFromCalendarific(year, countryCode, env.CALENDARIFIC_API_KEY);
+    } catch (error) {
+      // Nager still answers. Skip the cache so the optional source is retried
+      // instead of being missing for a day.
+      cacheable = false;
+      console.error('Calendarific API failed:', error.message);
+    }
   }
 
-  const [nagerHolidays, calendarificHolidays = []] = await Promise.all(sources);
   const observances = getCulturalObservances(year, countryCode);
-
-  const holidays = mergeHolidays([...nagerHolidays, ...calendarificHolidays, ...observances]);
-
-  return holidays
+  const holidays = mergeHolidays([...nagerHolidays, ...calendarificHolidays, ...observances])
     .map(holiday => withCulturalInfo(holiday, getCountryName(countryCode)))
     .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+
+  return { holidays, cacheable };
+}
+
+export class SourceUnavailable extends Error {
+  constructor(source) {
+    super(`${source} unavailable`);
+    this.name = 'SourceUnavailable';
+    this.source = source;
+  }
 }
 
 async function fetchFromNager(year, countryCode) {
   const apiUrl = `https://date.nager.at/api/v3/PublicHolidays/${year}/${countryCode}`;
 
-  const response = await fetch(apiUrl, {
-    headers: { 'User-Agent': 'Holiday-Calendar-Worker/1.0' },
-    cf: { cacheTtl: 86400, cacheEverything: true }
-  });
+  let response;
+  try {
+    response = await fetch(apiUrl, {
+      headers: { 'User-Agent': 'Holiday-Calendar-Worker/1.0' },
+      // Cache successful GETs only. cacheEverything would pin a 5xx for a day.
+      cf: { cacheTtl: 86400 }
+    });
+  } catch (error) {
+    console.error(`Nager API request failed for ${countryCode} ${year}:`, error.message);
+    throw new SourceUnavailable('nager');
+  }
 
   if (!response.ok) {
-    const errorText = await response.text().catch(() => `Status: ${response.status}`);
-    throw new Error(`Nager API error: ${response.status}. ${errorText.substring(0, 200)}`);
+    console.error(`Nager API error ${response.status} for ${countryCode} ${year}`);
+    throw new SourceUnavailable('nager');
   }
 
   // Nager answers 204 with an empty body for countries it does not cover
@@ -301,8 +316,8 @@ async function fetchFromCalendarific(year, countryCode, apiKey) {
   });
 
   if (!response.ok) {
-    const errorText = await response.text().catch(() => `Status: ${response.status}`);
-    throw new Error(`Calendarific API error: ${response.status}. ${errorText.substring(0, 200)}`);
+    console.error(`Calendarific API error ${response.status} for ${countryCode} ${year}`);
+    throw new SourceUnavailable('calendarific');
   }
 
   const data = await response.json();
@@ -310,9 +325,9 @@ async function fetchFromCalendarific(year, countryCode, apiKey) {
   if (!data.response?.holidays || !Array.isArray(data.response.holidays)) {
     if (data.meta?.error_detail) {
       console.warn(`Calendarific API error for ${countryCode}, ${year}: ${data.meta.error_detail}`);
-    } else {
-      console.warn('Calendarific response.holidays missing or not an array for', { year, countryCode });
+      throw new SourceUnavailable('calendarific');
     }
+    console.warn('Calendarific response.holidays missing or not an array for', { year, countryCode });
     return [];
   }
 
@@ -357,6 +372,13 @@ function normalizeName(name) {
     .toLowerCase()
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+/** True when `name` is exactly this record's English or local name. */
+export function matchesHolidayName(holiday, name) {
+  const target = normalizeName(name);
+  if (!target) return false;
+  return normalizeName(holiday?.name) === target || normalizeName(holiday?.localName) === target;
 }
 
 // Nager is authoritative for statutory days; Calendarific fills in the rest;
@@ -518,10 +540,7 @@ function withCulturalInfo(holiday, countryName) {
   const name = normalizeName(holiday.name);
   const localName = normalizeName(holiday.localName);
 
-  const match =
-    CULTURAL_INFO.get(name) ||
-    CULTURAL_INFO.get(localName) ||
-    [...CULTURAL_INFO.entries()].find(([key]) => name.includes(key) || localName.includes(key))?.[1];
+  const match = CULTURAL_INFO.get(name) || CULTURAL_INFO.get(localName);
 
   if (!match) {
     return holiday;

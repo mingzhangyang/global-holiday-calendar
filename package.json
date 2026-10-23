@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:worker": "vite build --watch & wrangler dev",
+    "dev:worker": "vite build --watch & pid=$!; trap 'kill $pid 2>/dev/null' EXIT INT TERM; wrangler dev",
     "build": "vite build",
     "deploy": "vite build && wrangler deploy",
     "lint": "eslint .",

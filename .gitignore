@@ -16,6 +16,9 @@ dist-ssr
 .wrangler
 .dev.vars
 
+# Local agent permissions
+.claude/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

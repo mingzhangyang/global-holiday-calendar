@@ -143,7 +143,7 @@ export default {
   'search.shortcutHint': 'Appuyez sur Échap pour fermer, ↑↓ pour naviguer',
   'search.button': 'Rechercher',
   'search.searchHolidays': 'Rechercher des Fêtes',
-  'search.searchAllCountries': 'Chercher dans tous les pays',
+  'search.searchAllCountries': 'Chercher dans {count} pays courants',
   'search.resultCount': '{count} résultats',
 
   // 类别筛选

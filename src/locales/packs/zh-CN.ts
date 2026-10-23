@@ -143,7 +143,7 @@ export default {
   'search.shortcutHint': '按 ESC 关闭，↑↓ 键导航，Enter 选择',
   'search.button': '搜索',
   'search.searchHolidays': '搜索节日',
-  'search.searchAllCountries': '搜索全部国家',
+  'search.searchAllCountries': '搜索 {count} 个常用国家',
   'search.resultCount': '{count} 条结果',
 
   // 类别筛选

@@ -141,7 +141,7 @@ export default {
   'search.shortcutHint': 'ESC로 닫기, ↑↓로 이동',
   'search.button': '검색',
   'search.searchHolidays': '공휴일 검색',
-  'search.searchAllCountries': '모든 국가에서 검색',
+  'search.searchAllCountries': '주요 {count}개국에서 검색',
   'search.resultCount': '결과 {count}건',
 
   // 类别筛选

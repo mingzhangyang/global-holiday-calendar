@@ -446,13 +446,20 @@ export async function searchHolidays(
 export async function fetchHolidayInfo(
   holidayName: string,
   country: string,
-  language = 'en'
+  language = 'en',
+  identity: { countryCode?: string; date?: string } = {}
 ): Promise<string | null> {
   try {
     const response = await fetch(HOLIDAY_INFO_WORKER_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ holiday: holidayName, country, language })
+      body: JSON.stringify({
+        holiday: holidayName,
+        country,
+        language,
+        countryCode: identity.countryCode,
+        date: identity.date
+      })
     });
 
     if (!response.ok) {

@@ -5,7 +5,6 @@ import {
   stubBrokenCache,
   stubCacheFailingFor,
   stubEmptyCache,
-  stubNagerFailure,
   stubNagerResponse
 } from './test-helpers.js';
 
@@ -159,19 +158,88 @@ describe('GET /api/holidays', () => {
     expect(badCountry.status).toBe(400);
   });
 
-  it('degrades to calculated observances when the upstream API fails', async () => {
-    stubNagerFailure();
+  it('does not cache a failed statutory lookup, and tries the upstream again', async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 500,
+      text: async () => 'upstream down',
+      json: async () => {
+        throw new Error('not json');
+      }
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+    const cachePut = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal('caches', {
+      default: {
+        match: vi.fn().mockResolvedValue(undefined),
+        put: cachePut
+      }
+    });
+
+    const first = await handleHolidays(
+      new Request('https://example.com/api/holidays?year=2026&country=US'),
+      {},
+      CONTEXT
+    );
+    const second = await handleHolidays(
+      new Request('https://example.com/api/holidays?year=2026&country=US'),
+      {},
+      CONTEXT
+    );
+
+    expect(first.status).toBe(502);
+    expect(second.status).toBe(502);
+    expect(cachePut).not.toHaveBeenCalled();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('reports one failed country in a batch instead of an empty holiday list', async () => {
+    const cachePut = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal('caches', {
+      default: {
+        match: vi.fn().mockResolvedValue(undefined),
+        put: cachePut
+      }
+    });
+    vi.stubGlobal('fetch', vi.fn(async (url) => {
+      if (String(url).includes('/US')) {
+        return {
+          ok: false,
+          status: 500,
+          text: async () => 'down',
+          json: async () => {
+            throw new Error('not json');
+          }
+        };
+      }
+
+      const body = JSON.stringify([
+        { date: '2026-01-01', localName: 'Neujahr', name: "New Year's Day", types: ['Public'] }
+      ]);
+      return {
+        ok: true,
+        status: 200,
+        text: async () => body,
+        json: async () => JSON.parse(body)
+      };
+    }));
 
     const response = await handleHolidays(
-      new Request('https://example.com/api/holidays?year=2026&country=US&scope=all'),
+      new Request('https://example.com/api/holidays?year=2026&countries=DE,US'),
       {},
       CONTEXT
     );
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(body.holidays.length).toBeGreaterThan(0);
-    expect(body.holidays.every(holiday => holiday.source === 'astronomical-calculation')).toBe(true);
+    expect(body.failed).toEqual(['US']);
+    expect(body.countries.US).toBeUndefined();
+    expect(body.countries.DE.length).toBeGreaterThan(0);
+    expect(response.headers.get('Cache-Control')).toBe('no-store');
+
+    const cachedFor = cachePut.mock.calls.map(([request]) => String(request.url));
+    expect(cachedFor.some(url => url.includes('country=US'))).toBe(false);
+    expect(cachedFor.some(url => url.includes('country=DE'))).toBe(true);
   });
 });
 

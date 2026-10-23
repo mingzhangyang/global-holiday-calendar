@@ -94,7 +94,7 @@ export async function fetchSupportedCountries() {
   try {
     const response = await fetch(NAGER_COUNTRIES_URL, {
       headers: { 'User-Agent': 'Holiday-Calendar-Worker/1.0' },
-      cf: { cacheTtl: 86400, cacheEverything: true }
+      cf: { cacheTtl: 86400 }
     });
 
     if (!response.ok) {

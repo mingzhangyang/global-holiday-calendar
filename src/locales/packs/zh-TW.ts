@@ -141,7 +141,7 @@ export default {
   'search.shortcutHint': '按 ESC 關閉，↑↓ 鍵導覽，Enter 選擇',
   'search.button': '搜尋',
   'search.searchHolidays': '搜尋節日',
-  'search.searchAllCountries': '搜尋全部國家',
+  'search.searchAllCountries': '搜尋 {count} 個常用國家',
   'search.resultCount': '{count} 筆結果',
 
   // 类别筛选
